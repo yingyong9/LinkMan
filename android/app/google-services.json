@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "520103257343",
+    "project_id": "adman-87dfd",
+    "storage_bucket": "adman-87dfd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520103257343:android:6e6f113d40238a678cd8ca",
+        "android_client_info": {
+          "package_name": "com.flutterthailand.admanyout"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520103257343-1q6up6hueu4h3p43bto0aeqaie495382.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5Ai-F5ZuH5uKeg9Y8IZQaj0Or-oBkdw8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520103257343-1q6up6hueu4h3p43bto0aeqaie495382.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520103257343:android:42099e747bb71f308cd8ca",
+        "android_client_info": {
+          "package_name": "com.maneelive.adman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520103257343-1q6up6hueu4h3p43bto0aeqaie495382.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5Ai-F5ZuH5uKeg9Y8IZQaj0Or-oBkdw8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520103257343-1q6up6hueu4h3p43bto0aeqaie495382.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
