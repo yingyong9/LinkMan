@@ -14,6 +14,7 @@ import 'package:admanyout/widgets/show_text.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -37,6 +38,32 @@ class _MainHomeState extends State<MainHome> {
   void initState() {
     super.initState();
     readPost();
+    processMessageing();
+  }
+
+  Future<void> processMessageing() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    String? token = await firebaseMessaging.getToken();
+    print('token ==>> $token');
+
+    Map<String, dynamic> data = {};
+    data['token'] = token;
+
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .update(data)
+        .then((value) {
+      print('UPdate Token Success');
+    });
+
+    FirebaseMessaging.onMessage.listen((event) {
+      print('OnMessage Work');
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      print('onOpenApp Work');
+    });
   }
 
   Future<void> readPost() async {
@@ -135,7 +162,9 @@ class _MainHomeState extends State<MainHome> {
                             children: [
                               ShowOutlineButton(
                                 label: 'ติดตาม',
-                                pressFunc: () {},
+                                pressFunc: () {
+                                  print('Click Follow');
+                                },
                               ),
                               ShowIconButton(
                                 iconData: Icons.more_vert,
@@ -147,11 +176,16 @@ class _MainHomeState extends State<MainHome> {
                       ],
                     ),
                     SizedBox(
-                      width: constraints.maxWidth,
                       height: constraints.maxWidth * 0.75,
-                      child: Image.network(
-                        postModels[index].urlPaths[0],
-                        fit: BoxFit.cover,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        physics: const ClampingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: postModels[index].urlPaths.length,
+                        itemBuilder: (context, index2) => Image.network(
+                          postModels[index].urlPaths[index2],
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     Row(
@@ -225,61 +259,54 @@ class _MainHomeState extends State<MainHome> {
     );
   }
 
- Widget specialButton(BuildContext context)  {
+  Widget specialButton(BuildContext context) {
     return ShowButton(
-                              label: 'Special',
-                              pressFunc: () async {
-                                SharedPreferences preferences =
-                                    await SharedPreferences.getInstance();
-                                var result = preferences.getString('special');
-                                print('result ==> $result');
-                                if (result?.isEmpty ?? true) {
-                                  MyDialog(context: context)
-                                      .normalActionDilalog(
-                                          title: 'ต้องการ Key Special',
-                                          message:
-                                              'คุณต้องกรองค่า key Special',
-                                          label: 'กรอก key Spectial',
-                                          pressFunc: () {
-                                            Navigator.pop(context);
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const KeySpecial(),
-                                                ));
-                                          });
-                                } else {
-                                  var specialModels = <SpecialModel>[];
-                                  await FirebaseFirestore.instance
-                                      .collection('user')
-                                      .doc(user!.uid)
-                                      .collection('special')
-                                      .orderBy('expire', descending: true)
-                                      .get()
-                                      .then((value) {
-                                    for (var item in value.docs) {
-                                      SpecialModel specialModel =
-                                          SpecialModel.fromMap(item.data());
-                                      specialModels.add(specialModel);
-                                    }
-                                    if (result == specialModels[0].key) {
-                                      print('สามารถใช้ Special');
-                                    } else {
-                                      MyDialog(context: context)
-                                          .normalActionDilalog(
-                                              title: 'key error',
-                                              message:
-                                                  'ไม่สามารถใช้ special ได้',
-                                              label: 'OK',
-                                              pressFunc: () {
-                                                Navigator.pop(context);
-                                              });
-                                      ;
-                                    }
-                                  });
-                                }
-                              });
+        label: 'Special',
+        pressFunc: () async {
+          SharedPreferences preferences = await SharedPreferences.getInstance();
+          var result = preferences.getString('special');
+          print('result ==> $result');
+          if (result?.isEmpty ?? true) {
+            MyDialog(context: context).normalActionDilalog(
+                title: 'ต้องการ Key Special',
+                message: 'คุณต้องกรองค่า key Special',
+                label: 'กรอก key Spectial',
+                pressFunc: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const KeySpecial(),
+                      ));
+                });
+          } else {
+            var specialModels = <SpecialModel>[];
+            await FirebaseFirestore.instance
+                .collection('user')
+                .doc(user!.uid)
+                .collection('special')
+                .orderBy('expire', descending: true)
+                .get()
+                .then((value) {
+              for (var item in value.docs) {
+                SpecialModel specialModel = SpecialModel.fromMap(item.data());
+                specialModels.add(specialModel);
+              }
+              if (result == specialModels[0].key) {
+                print('สามารถใช้ Special');
+              } else {
+                MyDialog(context: context).normalActionDilalog(
+                    title: 'key error',
+                    message: 'ไม่สามารถใช้ special ได้',
+                    label: 'OK',
+                    pressFunc: () {
+                      Navigator.pop(context);
+                    });
+                ;
+              }
+            });
+          }
+        });
   }
 
   Future<void> processSignOut() async {
