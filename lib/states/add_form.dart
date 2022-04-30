@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_const_constructors, avoid_print
+import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/main_home.dart';
@@ -95,13 +96,39 @@ class _AddFormState extends State<AddForm> {
                     .collection('post')
                     .doc()
                     .set(postModel.toMap())
-                    .then((value) {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MainHome(),
-                      ),
-                      (route) => false);
+                    .then((value) async {
+                  await FirebaseFirestore.instance
+                      .collection('user')
+                      .doc(uidPost)
+                      .collection('follow')
+                      .get()
+                      .then((value) {
+                    print('##30April value aaaa ==> ${value.docs}');
+
+                    if (value.docs.isEmpty) {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MainHome(),
+                          ),
+                          (route) => false);
+                    } else {
+                      for (var item in value.docs) {
+                        FollowModel followModel =
+                            FollowModel.fromMap(item.data());
+                        print(
+                            '##30April followModel ==>> ${followModel.toMap()}');
+
+                        processSentNoti(tokenFollow: followModel.token);
+                      }
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MainHome(),
+                          ),
+                          (route) => false);
+                    }
+                  });
                 });
               })
         ],
@@ -165,10 +192,10 @@ class _AddFormState extends State<AddForm> {
               try {
                 int testNum = int.parse(value);
                 print('นี่คือ ตัวเลข');
-                 links[index] = 'tel:${value.trim()}';
+                links[index] = 'tel:${value.trim()}';
               } catch (e) {
                 print('นี่ีืคือ ตัวอักษร');
-                 links[index] = 'https://${value.trim()}';
+                links[index] = 'https://${value.trim()}';
               }
 
               // links[index] = value.trim();
@@ -227,5 +254,9 @@ class _AddFormState extends State<AddForm> {
         )
       ],
     );
+  }
+
+  Future<void> processSentNoti({required String tokenFollow}) async {
+    print('##30April tokenFollow ==>> $tokenFollow');
   }
 }
