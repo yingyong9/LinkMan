@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_print
+
+import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/states/add_photo.dart';
@@ -14,6 +17,7 @@ import 'package:admanyout/widgets/show_text.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,27 +33,82 @@ class _MainHomeState extends State<MainHome> {
   var user = FirebaseAuth.instance.currentUser;
   var postModels = <PostModel>[];
   var docIdPosts = <String>[];
+  var bolFollows = <bool>[];
   bool load = true;
   var titles = <String>['แก้ไขโปรไฟร์', 'Sign Out'];
-  String? title;
+  String? title, token;
 
   @override
   void initState() {
     super.initState();
     readPost();
+    processMessageing();
+  }
+
+  Future<void> processMessageing() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    token = await firebaseMessaging.getToken();
+    print('token ==>> $token');
+
+    Map<String, dynamic> data = {};
+    data['token'] = token;
+
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .update(data)
+        .then((value) {
+      print('UPdate Token Success');
+    });
+
+    FirebaseMessaging.onMessage.listen((event) {
+      print('OnMessage Work');
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      print('onOpenApp Work');
+    });
   }
 
   Future<void> readPost() async {
+    if (postModels.isNotEmpty) {
+      postModels.clear();
+      docIdPosts.clear();
+      bolFollows.clear();
+    }
+
     await FirebaseFirestore.instance
         .collection('post')
         .orderBy('timePost', descending: true)
         .get()
-        .then((value) {
+        .then((value) async {
       for (var item in value.docs) {
         PostModel postModel = PostModel.fromMap(item.data());
         postModels.add(postModel);
         docIdPosts.add(item.id);
+
+        String uidOwnPost = postModel.uidPost;
+        String uidLogin = user!.uid;
+        await FirebaseFirestore.instance
+            .collection('user')
+            .doc(uidOwnPost)
+            .collection('follow')
+            .doc(uidLogin)
+            .get()
+            .then((value) {
+          bool result;
+          if (value.data() == null) {
+            // ยังไม่ได้ follow
+            result = false;
+          } else {
+            // follow แล่้ว
+            result = true;
+          }
+
+          bolFollows.add(result);
+        });
       }
+      print('bolFollows ==>> $bolFollows');
       load = false;
       setState(() {});
     });
@@ -133,10 +192,66 @@ class _MainHomeState extends State<MainHome> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              ShowOutlineButton(
-                                label: 'ติดตาม',
-                                pressFunc: () {},
-                              ),
+                              (user!.uid == postModels[index].uidPost) ? const SizedBox() : ShowOutlineButton(
+                                label:
+                                    bolFollows[index] ? 'ติดตามแล้ว' : 'ติดตาม',
+                                pressFunc: () async {
+                                  if (bolFollows[index]) {
+                                    print('Process unFollow');
+
+                                    await FirebaseFirestore.instance
+                                        .collection('user')
+                                        .doc(postModels[index].uidPost)
+                                        .collection('follow')
+                                        .doc(user!.uid)
+                                        .delete()
+                                        .then((value) {
+                                           MyDialog(context: context)
+                                          .normalActionDilalog(
+                                              title: 'เลิกติดตามแล้ว',
+                                              message:
+                                                  'เลิกติดตามเจ้าของโพสนี่แล้ว',
+                                              label: 'OK',
+                                              pressFunc: () {
+                                                Navigator.pop(context);
+                                              });
+                                      readPost();
+                                      setState(() {});
+                                        });
+                                  } else {
+                                    print('Click Follow');
+                                    print(
+                                        'uid ของเจ้าของโพส ---> ${postModels[index].uidPost}');
+                                    print(
+                                        'uid คนที่คลิก ติดตาม --->> ${user!.uid}');
+                                    print('token ==> $token');
+
+                                    FollowModel followModel = FollowModel(
+                                        uidClickFollow: user!.uid,
+                                        token: token!);
+                                    await FirebaseFirestore.instance
+                                        .collection('user')
+                                        .doc(postModels[index].uidPost)
+                                        .collection('follow')
+                                        .doc(user!.uid)
+                                        .set(followModel.toMap())
+                                        .then((value) {
+                                      print('Success follow');
+                                      MyDialog(context: context)
+                                          .normalActionDilalog(
+                                              title: 'ติดตามแล้ว',
+                                              message:
+                                                  'ได้ติดตามเจ้าของโพสนี่แล้ว',
+                                              label: 'OK',
+                                              pressFunc: () {
+                                                Navigator.pop(context);
+                                              });
+                                      readPost();
+                                      setState(() {});
+                                    });
+                                  }
+                                },
+                              ) ,
                               ShowIconButton(
                                 iconData: Icons.more_vert,
                                 pressFunc: () {},
@@ -147,11 +262,16 @@ class _MainHomeState extends State<MainHome> {
                       ],
                     ),
                     SizedBox(
-                      width: constraints.maxWidth,
                       height: constraints.maxWidth * 0.75,
-                      child: Image.network(
-                        postModels[index].urlPaths[0],
-                        fit: BoxFit.cover,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        physics: const ClampingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: postModels[index].urlPaths.length,
+                        itemBuilder: (context, index2) => Image.network(
+                          postModels[index].urlPaths[index2],
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     Row(
@@ -225,61 +345,54 @@ class _MainHomeState extends State<MainHome> {
     );
   }
 
- Widget specialButton(BuildContext context)  {
+  Widget specialButton(BuildContext context) {
     return ShowButton(
-                              label: 'Special',
-                              pressFunc: () async {
-                                SharedPreferences preferences =
-                                    await SharedPreferences.getInstance();
-                                var result = preferences.getString('special');
-                                print('result ==> $result');
-                                if (result?.isEmpty ?? true) {
-                                  MyDialog(context: context)
-                                      .normalActionDilalog(
-                                          title: 'ต้องการ Key Special',
-                                          message:
-                                              'คุณต้องกรองค่า key Special',
-                                          label: 'กรอก key Spectial',
-                                          pressFunc: () {
-                                            Navigator.pop(context);
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const KeySpecial(),
-                                                ));
-                                          });
-                                } else {
-                                  var specialModels = <SpecialModel>[];
-                                  await FirebaseFirestore.instance
-                                      .collection('user')
-                                      .doc(user!.uid)
-                                      .collection('special')
-                                      .orderBy('expire', descending: true)
-                                      .get()
-                                      .then((value) {
-                                    for (var item in value.docs) {
-                                      SpecialModel specialModel =
-                                          SpecialModel.fromMap(item.data());
-                                      specialModels.add(specialModel);
-                                    }
-                                    if (result == specialModels[0].key) {
-                                      print('สามารถใช้ Special');
-                                    } else {
-                                      MyDialog(context: context)
-                                          .normalActionDilalog(
-                                              title: 'key error',
-                                              message:
-                                                  'ไม่สามารถใช้ special ได้',
-                                              label: 'OK',
-                                              pressFunc: () {
-                                                Navigator.pop(context);
-                                              });
-                                      ;
-                                    }
-                                  });
-                                }
-                              });
+        label: 'Special',
+        pressFunc: () async {
+          SharedPreferences preferences = await SharedPreferences.getInstance();
+          var result = preferences.getString('special');
+          print('result ==> $result');
+          if (result?.isEmpty ?? true) {
+            MyDialog(context: context).normalActionDilalog(
+                title: 'ต้องการ Key Special',
+                message: 'คุณต้องกรองค่า key Special',
+                label: 'กรอก key Spectial',
+                pressFunc: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const KeySpecial(),
+                      ));
+                });
+          } else {
+            var specialModels = <SpecialModel>[];
+            await FirebaseFirestore.instance
+                .collection('user')
+                .doc(user!.uid)
+                .collection('special')
+                .orderBy('expire', descending: true)
+                .get()
+                .then((value) {
+              for (var item in value.docs) {
+                SpecialModel specialModel = SpecialModel.fromMap(item.data());
+                specialModels.add(specialModel);
+              }
+              if (result == specialModels[0].key) {
+                print('สามารถใช้ Special');
+              } else {
+                MyDialog(context: context).normalActionDilalog(
+                    title: 'key error',
+                    message: 'ไม่สามารถใช้ special ได้',
+                    label: 'OK',
+                    pressFunc: () {
+                      Navigator.pop(context);
+                    });
+                ;
+              }
+            });
+          }
+        });
   }
 
   Future<void> processSignOut() async {
