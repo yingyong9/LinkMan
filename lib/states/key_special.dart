@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
