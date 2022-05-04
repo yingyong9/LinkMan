@@ -38,11 +38,24 @@ class _MainHomeState extends State<MainHome> {
   var titles = <String>['แก้ไขโปรไฟร์', 'Sign Out'];
   String? title, token;
 
+  ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     readPost();
     processMessageing();
+    setupScorllController();
+  }
+
+  void setupScorllController() {
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.minScrollExtent) {
+        print('Load More');
+        readPost();
+      }
+    });
   }
 
   Future<void> processMessageing() async {
@@ -158,6 +171,7 @@ class _MainHomeState extends State<MainHome> {
           ? const ShowProgress()
           : LayoutBuilder(builder: (context, constraints) {
               return ListView.builder(
+                controller: scrollController,
                 itemCount: postModels.length,
                 itemBuilder: (context, index) => Column(
                   children: [
@@ -192,66 +206,69 @@ class _MainHomeState extends State<MainHome> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              (user!.uid == postModels[index].uidPost) ? const SizedBox() : ShowOutlineButton(
-                                label:
-                                    bolFollows[index] ? 'ติดตามแล้ว' : 'ติดตาม',
-                                pressFunc: () async {
-                                  if (bolFollows[index]) {
-                                    print('Process unFollow');
+                              (user!.uid == postModels[index].uidPost)
+                                  ? const SizedBox()
+                                  : ShowOutlineButton(
+                                      label: bolFollows[index]
+                                          ? 'ติดตามแล้ว'
+                                          : 'ติดตาม',
+                                      pressFunc: () async {
+                                        if (bolFollows[index]) {
+                                          print('Process unFollow');
 
-                                    await FirebaseFirestore.instance
-                                        .collection('user')
-                                        .doc(postModels[index].uidPost)
-                                        .collection('follow')
-                                        .doc(user!.uid)
-                                        .delete()
-                                        .then((value) {
-                                           MyDialog(context: context)
-                                          .normalActionDilalog(
-                                              title: 'เลิกติดตามแล้ว',
-                                              message:
-                                                  'เลิกติดตามเจ้าของโพสนี่แล้ว',
-                                              label: 'OK',
-                                              pressFunc: () {
-                                                Navigator.pop(context);
-                                              });
-                                      readPost();
-                                      setState(() {});
-                                        });
-                                  } else {
-                                    print('Click Follow');
-                                    print(
-                                        'uid ของเจ้าของโพส ---> ${postModels[index].uidPost}');
-                                    print(
-                                        'uid คนที่คลิก ติดตาม --->> ${user!.uid}');
-                                    print('token ==> $token');
+                                          await FirebaseFirestore.instance
+                                              .collection('user')
+                                              .doc(postModels[index].uidPost)
+                                              .collection('follow')
+                                              .doc(user!.uid)
+                                              .delete()
+                                              .then((value) {
+                                            MyDialog(context: context)
+                                                .normalActionDilalog(
+                                                    title: 'เลิกติดตามแล้ว',
+                                                    message:
+                                                        'เลิกติดตามเจ้าของโพสนี่แล้ว',
+                                                    label: 'OK',
+                                                    pressFunc: () {
+                                                      Navigator.pop(context);
+                                                    });
+                                            readPost();
+                                            setState(() {});
+                                          });
+                                        } else {
+                                          print('Click Follow');
+                                          print(
+                                              'uid ของเจ้าของโพส ---> ${postModels[index].uidPost}');
+                                          print(
+                                              'uid คนที่คลิก ติดตาม --->> ${user!.uid}');
+                                          print('token ==> $token');
 
-                                    FollowModel followModel = FollowModel(
-                                        uidClickFollow: user!.uid,
-                                        token: token!);
-                                    await FirebaseFirestore.instance
-                                        .collection('user')
-                                        .doc(postModels[index].uidPost)
-                                        .collection('follow')
-                                        .doc(user!.uid)
-                                        .set(followModel.toMap())
-                                        .then((value) {
-                                      print('Success follow');
-                                      MyDialog(context: context)
-                                          .normalActionDilalog(
-                                              title: 'ติดตามแล้ว',
-                                              message:
-                                                  'ได้ติดตามเจ้าของโพสนี่แล้ว',
-                                              label: 'OK',
-                                              pressFunc: () {
-                                                Navigator.pop(context);
-                                              });
-                                      readPost();
-                                      setState(() {});
-                                    });
-                                  }
-                                },
-                              ) ,
+                                          FollowModel followModel = FollowModel(
+                                              uidClickFollow: user!.uid,
+                                              token: token!);
+                                          await FirebaseFirestore.instance
+                                              .collection('user')
+                                              .doc(postModels[index].uidPost)
+                                              .collection('follow')
+                                              .doc(user!.uid)
+                                              .set(followModel.toMap())
+                                              .then((value) {
+                                            print('Success follow');
+                                            MyDialog(context: context)
+                                                .normalActionDilalog(
+                                                    title: 'ติดตามแล้ว',
+                                                    message:
+                                                        'ได้ติดตามเจ้าของโพสนี่แล้ว',
+                                                    label: 'OK',
+                                                    pressFunc: () {
+                                                      Navigator.pop(context);
+                                                    });
+                                            readPost();
+                                            setState(() {});
+                                          });
+                                        }
+                                      },
+                                    ),
                               ShowIconButton(
                                 iconData: Icons.more_vert,
                                 pressFunc: () {},
