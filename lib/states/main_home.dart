@@ -5,6 +5,7 @@ import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/states/add_photo.dart';
 import 'package:admanyout/states/authen.dart';
+import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -148,7 +149,14 @@ class _MainHomeState extends State<MainHome> {
               textStyle: MyConstant().h2WhiteStyle(),
             ),
             onChanged: (value) {
-              if (value == titles[1]) {
+              if (value == titles[0]) {
+                print('Edit Profile');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EditProfile(),
+                    ));
+              } else if (value == titles[1]) {
                 print('Process SignOut');
                 processSignOut();
               }

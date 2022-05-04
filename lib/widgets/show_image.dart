@@ -12,8 +12,6 @@ class ShowImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: width ?? 125,
-      child: Image.asset(path ?? 'images/avatar.png'),
-    );
+    return Image.asset(path ?? 'images/avatar.png', width:  width ?? 125,);
   }
 }
