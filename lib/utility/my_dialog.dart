@@ -16,10 +16,12 @@ class MyDialog {
       required Function() pressFunc}) async {
     showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(backgroundColor: Colors.black.withOpacity(0.75),
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: Colors.black.withOpacity(0.75),
         title: ListTile(
           leading: Icon(
-            Icons.error,size: 48,
+            Icons.error,
+            size: 48,
             color: MyConstant.primary,
           ),
           title: ShowText(
@@ -30,6 +32,38 @@ class MyDialog {
         ),
         actions: [
           TextButton(onPressed: pressFunc, child: ShowText(label: label))
+        ],
+      ),
+    );
+  }
+
+  Future<void> twoActionDilalog({
+    required String title,
+    required String message,
+    required String label1,
+    required String label2,
+    required Function() pressFunc1,
+    required Function() pressFunc2,
+  }) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: Colors.black.withOpacity(0.75),
+        title: ListTile(
+          leading: Icon(
+            Icons.error,
+            size: 48,
+            color: MyConstant.primary,
+          ),
+          title: ShowText(
+            label: title,
+            textStyle: MyConstant().h2Style(),
+          ),
+          subtitle: ShowText(label: message),
+        ),
+        actions: [
+          TextButton(onPressed: pressFunc1, child: ShowText(label: label1)),
+          TextButton(onPressed: pressFunc2, child: ShowText(label: label2)),
         ],
       ),
     );
