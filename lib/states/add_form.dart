@@ -195,7 +195,15 @@ class _AddFormState extends State<AddForm> {
                 links[index] = 'tel:${value.trim()}';
               } catch (e) {
                 print('นี่ีืคือ ตัวอักษร');
-                links[index] = 'https://${value.trim()}';
+                String string = value.trim();
+                string = string.substring(0, 8);
+                print('##7may string ==> $string');
+                if (string == 'https://') {
+                   links[index] = value.trim();
+                } else {
+                   links[index] = 'https://${value.trim()}';
+                }
+               
               }
 
               // links[index] = value.trim();

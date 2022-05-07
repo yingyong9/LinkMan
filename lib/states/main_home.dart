@@ -132,49 +132,7 @@ class _MainHomeState extends State<MainHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        centerTitle: true,
-        title: DropdownButton<dynamic>(
-            value: title,
-            items: titles
-                .map(
-                  (e) => DropdownMenuItem(
-                    child: Text(e),
-                    value: e,
-                  ),
-                )
-                .toList(),
-            hint: ShowText(
-              label: MyConstant.appName,
-              textStyle: MyConstant().h2WhiteStyle(),
-            ),
-            onChanged: (value) {
-              if (value == titles[0]) {
-                print('Edit Profile');
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EditProfile(),
-                    ));
-              } else if (value == titles[1]) {
-                print('Process SignOut');
-                processSignOut();
-              }
-            }),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
-        actions: [
-          ShowIconButton(
-            iconData: Icons.add_box_outlined,
-            pressFunc: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AddPhoto(),
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: newAppBar(context),
       body: load
           ? const ShowProgress()
           : LayoutBuilder(builder: (context, constraints) {
@@ -370,6 +328,52 @@ class _MainHomeState extends State<MainHome> {
     );
   }
 
+  AppBar newAppBar(BuildContext context) {
+    return AppBar(
+      centerTitle: true,
+      title: DropdownButton<dynamic>(
+          value: title,
+          items: titles
+              .map(
+                (e) => DropdownMenuItem(
+                  child: Text(e),
+                  value: e,
+                ),
+              )
+              .toList(),
+          hint: ShowText(
+            label: MyConstant.appName,
+            textStyle: MyConstant().h2WhiteStyle(),
+          ),
+          onChanged: (value) {
+            if (value == titles[0]) {
+              print('Edit Profile');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfile(),
+                  ));
+            } else if (value == titles[1]) {
+              print('Process SignOut');
+              processSignOut();
+            }
+          }),
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.black,
+      actions: [
+        ShowIconButton(
+          iconData: Icons.add_box_outlined,
+          pressFunc: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddPhoto(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget specialButton(BuildContext context) {
     return ShowButton(
         label: 'Special',
@@ -433,22 +437,16 @@ class _MainHomeState extends State<MainHome> {
 
   Future<void> processClickButton({required PostModel postModel}) async {
     var widgets = <Widget>[];
-
     int index = 0;
     for (var item in postModel.link) {
       widgets.add(
         ShowButton(
           label: postModel.nameLink[index],
           pressFunc: () async {
-            if (await canLaunch(item)) {
-              await launch(item);
-            } else {
-              MyDialog(context: context).normalActionDilalog(
-                  title: 'Cannot Launch',
-                  message: 'Link False',
-                  label: 'OK',
-                  pressFunc: () => Navigator.pop(context));
-            }
+            final Uri uri = Uri.parse(item);
+            if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+              throw '##7may Cannot launch $uri';
+            } 
           },
         ),
       );
