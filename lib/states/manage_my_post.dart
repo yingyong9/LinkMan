@@ -34,13 +34,16 @@ class _ManageMyPostState extends State<ManageMyPost> {
       print('##8may value ==>> ${value.docs}');
       load = false;
 
-      // if (value.docs.isEmpty) {
-      //   haveData = false;
-      // } else {
-      //   haveData = true;
-      // }
+      if (value.docs.isEmpty) {
+        haveData = false;
+      } else {
+        for (var element in value.docs) {
+          PostModel postModel = PostModel.fromMap(element.data());
+          postModels.add(postModel);
+        }
 
-      print('##8may load ==> $load');
+        haveData = true;
+      }
 
       setState(() {});
     });
@@ -54,7 +57,20 @@ class _ManageMyPostState extends State<ManageMyPost> {
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
-      body: load ? const ShowProgress() : Text('Load finish', style: MyConstant().h2WhiteStyle(),),
+      body: load
+          ? const ShowProgress()
+          : haveData!
+              ? GridView.builder(
+                  itemCount: postModels.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3),
+                  itemBuilder: (BuildContext context, int index) =>
+                      ShowText(label: postModels[index].name))
+              : Center(
+                  child: ShowText(
+                  label: 'No Post',
+                  textStyle: MyConstant().h1Style(),
+                )),
     );
   }
 }

@@ -239,8 +239,6 @@ class _MainHomeState extends State<MainHome> {
   }
 
   SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
-   
-
     return SizedBox(
       // width: constraints.maxWidth,
       height: constraints.maxWidth * 0.75,
@@ -282,28 +280,33 @@ class _MainHomeState extends State<MainHome> {
       children: [
         SizedBox(
           width: constraints.maxWidth * 0.5,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(
-                width: 12,
-              ),
-              userModelPosts[index].avatar!.isEmpty
-                  ? const ShowImage(
-                      width: 36,
-                    )
-                  : ShowCircleImage(path: userModelPosts[index].avatar!),
-              const SizedBox(
-                width: 12,
-              ),
-              SizedBox(
-                width: 120,
-                child: ShowText(
-                  label: userModelPosts[index].name,
-                  textStyle: MyConstant().h2WhiteStyle(),
+          child: InkWell(
+            onTap: () {
+              print('tap ==>>');
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 12,
                 ),
-              ),
-            ],
+                userModelPosts[index].avatar!.isEmpty
+                    ? const ShowImage(
+                        width: 36,
+                      )
+                    : ShowCircleImage(path: userModelPosts[index].avatar!),
+                const SizedBox(
+                  width: 12,
+                ),
+                SizedBox(
+                  width: 120,
+                  child: ShowText(
+                    label: userModelPosts[index].name,
+                    textStyle: MyConstant().h2WhiteStyle(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         SizedBox(
