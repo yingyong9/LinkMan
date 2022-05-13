@@ -3,14 +3,18 @@
 import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/special_model.dart';
+import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_photo.dart';
 import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
+import 'package:admanyout/states/manage_my_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
+import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
+import 'package:admanyout/widgets/show_circle_image.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
@@ -35,9 +39,11 @@ class _MainHomeState extends State<MainHome> {
   var postModels = <PostModel>[];
   var docIdPosts = <String>[];
   var bolFollows = <bool>[];
+  var userModelPosts = <UserModel>[];
   bool load = true;
   var titles = <String>['แก้ไขโปรไฟร์', 'Sign Out'];
   String? title, token;
+  UserModel? userModelLogin;
 
   ScrollController scrollController = ScrollController();
 
@@ -89,7 +95,16 @@ class _MainHomeState extends State<MainHome> {
       postModels.clear();
       docIdPosts.clear();
       bolFollows.clear();
+      userModelPosts.clear();
     }
+
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .get()
+        .then((value) {
+      userModelLogin = UserModel.fromMap(value.data()!);
+    });
 
     await FirebaseFirestore.instance
         .collection('post')
@@ -100,6 +115,10 @@ class _MainHomeState extends State<MainHome> {
         PostModel postModel = PostModel.fromMap(item.data());
         postModels.add(postModel);
         docIdPosts.add(item.id);
+
+        UserModel userModel =
+            await MyFirebase().findUserModel(uid: postModel.uidPost);
+        userModelPosts.add(userModel);
 
         String uidOwnPost = postModel.uidPost;
         String uidLogin = user!.uid;
@@ -151,16 +170,19 @@ class _MainHomeState extends State<MainHome> {
                               const SizedBox(
                                 width: 12,
                               ),
-                              const ShowImage(
-                                width: 36,
-                              ),
+                              userModelPosts[index].avatar!.isEmpty
+                                  ? const ShowImage(
+                                      width: 36,
+                                    )
+                                  : ShowCircleImage(
+                                      path: userModelPosts[index].avatar!),
                               const SizedBox(
                                 width: 12,
                               ),
                               SizedBox(
                                 width: 120,
                                 child: ShowText(
-                                  label: postModels[index].name,
+                                  label: userModelPosts[index].name,
                                   textStyle: MyConstant().h2WhiteStyle(),
                                 ),
                               ),
@@ -328,39 +350,86 @@ class _MainHomeState extends State<MainHome> {
     );
   }
 
+  Widget newAvatarIcon() {
+    return const ShowImage(
+      width: 36,
+    );
+  }
+
   AppBar newAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      title: DropdownButton<dynamic>(
-          value: title,
-          items: titles
-              .map(
-                (e) => DropdownMenuItem(
-                  child: Text(e),
-                  value: e,
+      title: userModelLogin == null
+          ? const SizedBox()
+          : Row(
+              children: [
+                userModelLogin!.avatar!.isEmpty
+                    ? InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ManageMyPost(),
+                              ));
+                        },
+                        child: newAvatarIcon(),
+                      )
+                    : InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ManageMyPost(),
+                              ));
+                        },
+                        child: ShowCircleImage(path: userModelLogin!.avatar!),
+                      ),
+                const SizedBox(
+                  width: 16,
                 ),
-              )
-              .toList(),
-          hint: ShowText(
-            label: MyConstant.appName,
-            textStyle: MyConstant().h2WhiteStyle(),
-          ),
-          onChanged: (value) {
-            if (value == titles[0]) {
-              print('Edit Profile');
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EditProfile(),
-                  ));
-            } else if (value == titles[1]) {
-              print('Process SignOut');
-              processSignOut();
-            }
-          }),
+                DropdownButton<dynamic>(
+                  value: title,
+                  items: titles
+                      .map(
+                        (e) => DropdownMenuItem(
+                          child: Text(e),
+                          value: e,
+                        ),
+                      )
+                      .toList(),
+                  hint: ShowText(
+                    label: MyConstant.appName,
+                    textStyle: MyConstant().h2WhiteStyle(),
+                  ),
+                  onChanged: (value) {
+                    if (value == titles[0]) {
+                      print('Edit Profile');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfile(),
+                          )).then((value) {
+                        readPost();
+                      });
+                    } else if (value == titles[1]) {
+                      print('Process SignOut');
+                      processSignOut();
+                    }
+                  },
+                ),
+              ],
+            ),
       foregroundColor: Colors.white,
       backgroundColor: Colors.black,
       actions: [
+        ShowIconButton(
+          iconData: Icons.search,
+          pressFunc: () {},
+        ),
+        ShowIconButton(
+          iconData: Icons.qr_code,
+          pressFunc: () {},
+        ),
         ShowIconButton(
           iconData: Icons.add_box_outlined,
           pressFunc: () => Navigator.push(
@@ -446,7 +515,7 @@ class _MainHomeState extends State<MainHome> {
             final Uri uri = Uri.parse(item);
             if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
               throw '##7may Cannot launch $uri';
-            } 
+            }
           },
         ),
       );
