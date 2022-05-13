@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 
+import 'dart:io';
+
 import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/special_model.dart';
@@ -237,17 +239,39 @@ class _MainHomeState extends State<MainHome> {
   }
 
   SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
+   
+
     return SizedBox(
-      width: constraints.maxWidth,
-      height: constraints.maxHeight,
+      // width: constraints.maxWidth,
+      height: constraints.maxWidth * 0.75,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const ClampingScrollPhysics(),
         shrinkWrap: true,
         itemCount: postModels[index].urlPaths.length,
-        itemBuilder: (context, index2) => Image.network(
-          postModels[index].urlPaths[index2],
-          fit: BoxFit.contain,
+        itemBuilder: (context, index2) => Stack(
+          children: [
+            Image.network(
+              postModels[index].urlPaths[index2],
+              fit: BoxFit.contain,
+            ),
+            postModels[index].urlPaths.length == 1
+                ? const SizedBox()
+                : Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ShowText(
+                        label:
+                            '${index2 + 1}/${postModels[index].urlPaths.length}',
+                        textStyle: MyConstant().h2Style(),
+                      ),
+                    ),
+                  ),
+          ],
         ),
       ),
     );
