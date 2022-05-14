@@ -1,5 +1,8 @@
 import 'package:admanyout/models/post_model.dart';
+import 'package:admanyout/models/user_model.dart';
+import 'package:admanyout/states/edit_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,11 +21,20 @@ class _ManageMyPostState extends State<ManageMyPost> {
   var postModels = <PostModel>[];
   bool load = true;
   bool? haveData;
+  UserModel? userModel;
 
   @override
   void initState() {
     super.initState();
     readMyAllPost();
+    findUserModel();
+  }
+
+  Future<void> findUserModel() async {
+    await MyFirebase().findUserModel(uid: user!.uid).then((value) {
+      userModel = value;
+      setState(() {});
+    });
   }
 
   Future<void> readMyAllPost() async {
@@ -54,6 +66,10 @@ class _ManageMyPostState extends State<ManageMyPost> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        title: ShowText(
+          label: userModel == null ? '' : userModel!.name,
+          textStyle: MyConstant().h2Style(),
+        ),
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
@@ -62,10 +78,31 @@ class _ManageMyPostState extends State<ManageMyPost> {
           : haveData!
               ? GridView.builder(
                   itemCount: postModels.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      // childAspectRatio: 1,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
                       crossAxisCount: 3),
-                  itemBuilder: (BuildContext context, int index) =>
-                      ShowText(label: postModels[index].name))
+                  itemBuilder: (BuildContext context, int index) => SizedBox(
+                    width: 100,
+                    height: 180,
+                    child: InkWell(
+                      onTap: () {
+                        print('You Click ==> ${postModels[index].name}');
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EditPost(postModel: postModels[index]),
+                            ));
+                      },
+                      child: Image.network(
+                        postModels[index].urlPaths[0],
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                )
               : Center(
                   child: ShowText(
                   label: 'No Post',

@@ -142,16 +142,14 @@ class _MainHomeState extends State<MainHome> {
             result = true;
           }
 
-         
-
           bolFollows.add(result);
         });
       }
-      
-       if (openProgress) {
-            openProgress = false;
-            Navigator.pop(context);
-          }
+
+      if (openProgress) {
+        openProgress = false;
+        Navigator.pop(context);
+      }
 
       load = false;
       setState(() {});
