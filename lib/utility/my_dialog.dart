@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,16 @@ class MyDialog {
   MyDialog({
     required this.context,
   });
+
+  Future<void> processDialog() async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => WillPopScope(
+            child: const ShowProgress(),
+            onWillPop: () async {
+              return false;
+            }));
+  }
 
   Future<void> normalActionDilalog(
       {required String title,

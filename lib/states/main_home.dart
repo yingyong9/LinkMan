@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 
+import 'dart:io';
+
 import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/special_model.dart';
@@ -46,6 +48,8 @@ class _MainHomeState extends State<MainHome> {
   UserModel? userModelLogin;
 
   ScrollController scrollController = ScrollController();
+
+  bool openProgress = false;
 
   @override
   void initState() {
@@ -138,10 +142,17 @@ class _MainHomeState extends State<MainHome> {
             result = true;
           }
 
+         
+
           bolFollows.add(result);
         });
       }
-      print('bolFollows ==>> $bolFollows');
+      
+       if (openProgress) {
+            openProgress = false;
+            Navigator.pop(context);
+          }
+
       load = false;
       setState(() {});
     });
@@ -160,193 +171,224 @@ class _MainHomeState extends State<MainHome> {
                 itemCount: postModels.length,
                 itemBuilder: (context, index) => Column(
                   children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: constraints.maxWidth * 0.5,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 12,
-                              ),
-                              userModelPosts[index].avatar!.isEmpty
-                                  ? const ShowImage(
-                                      width: 36,
-                                    )
-                                  : ShowCircleImage(
-                                      path: userModelPosts[index].avatar!),
-                              const SizedBox(
-                                width: 12,
-                              ),
-                              SizedBox(
-                                width: 120,
-                                child: ShowText(
-                                  label: userModelPosts[index].name,
-                                  textStyle: MyConstant().h2WhiteStyle(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: constraints.maxWidth * 0.5,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              (user!.uid == postModels[index].uidPost)
-                                  ? const SizedBox()
-                                  : ShowOutlineButton(
-                                      label: bolFollows[index]
-                                          ? 'ติดตามแล้ว'
-                                          : 'ติดตาม',
-                                      pressFunc: () async {
-                                        if (bolFollows[index]) {
-                                          print('Process unFollow');
-
-                                          await FirebaseFirestore.instance
-                                              .collection('user')
-                                              .doc(postModels[index].uidPost)
-                                              .collection('follow')
-                                              .doc(user!.uid)
-                                              .delete()
-                                              .then((value) {
-                                            MyDialog(context: context)
-                                                .normalActionDilalog(
-                                                    title: 'เลิกติดตามแล้ว',
-                                                    message:
-                                                        'เลิกติดตามเจ้าของโพสนี่แล้ว',
-                                                    label: 'OK',
-                                                    pressFunc: () {
-                                                      Navigator.pop(context);
-                                                    });
-                                            readPost();
-                                            setState(() {});
-                                          });
-                                        } else {
-                                          print('Click Follow');
-                                          print(
-                                              'uid ของเจ้าของโพส ---> ${postModels[index].uidPost}');
-                                          print(
-                                              'uid คนที่คลิก ติดตาม --->> ${user!.uid}');
-                                          print('token ==> $token');
-
-                                          FollowModel followModel = FollowModel(
-                                              uidClickFollow: user!.uid,
-                                              token: token!);
-                                          await FirebaseFirestore.instance
-                                              .collection('user')
-                                              .doc(postModels[index].uidPost)
-                                              .collection('follow')
-                                              .doc(user!.uid)
-                                              .set(followModel.toMap())
-                                              .then((value) {
-                                            print('Success follow');
-                                            MyDialog(context: context)
-                                                .normalActionDilalog(
-                                                    title: 'ติดตามแล้ว',
-                                                    message:
-                                                        'ได้ติดตามเจ้าของโพสนี่แล้ว',
-                                                    label: 'OK',
-                                                    pressFunc: () {
-                                                      Navigator.pop(context);
-                                                    });
-                                            readPost();
-                                            setState(() {});
-                                          });
-                                        }
-                                      },
-                                    ),
-                              ShowIconButton(
-                                iconData: Icons.more_vert,
-                                pressFunc: () {},
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: constraints.maxWidth * 0.75,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        physics: const ClampingScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: postModels[index].urlPaths.length,
-                        itemBuilder: (context, index2) => Image.network(
-                          postModels[index].urlPaths[index2],
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: Icon(
-                                Icons.comment,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(
-                              width: constraints.maxWidth * 0.5 - 60,
-                              child: ShowText(
-                                label: postModels[index].article,
-                                textStyle: MyConstant().h3WhiteStyle(),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // Badge(
-                        //   badgeContent: ShowText(label: '0'),
-                        //   child: ShowIconButton(
-                        //     iconData: Icons.add_circle_outline,
-                        //     pressFunc: () {
-                        //       print('บวก docIdPost ==>> ${docIdPosts[index]}');
-                        //       processVotePost(
-                        //           docIdPost: docIdPosts[index], score: true);
-                        //     },
-                        //   ),
-                        // ),
-                        // Badge(
-                        //   badgeContent: ShowText(label: '2'),
-                        //   child: ShowIconButton(
-                        //     iconData: Icons.remove_circle_outline,
-                        //     pressFunc: () {
-                        //       print('ลบ  docIdPost ==>> ${docIdPosts[index]}');
-                        //       processVotePost(
-                        //           docIdPost: docIdPosts[index], score: false);
-                        //     },
-                        //   ),
-                        // ),
-                        Column(
-                          children: [
-                            ShowOutlineButton(
-                                label: postModels[index].nameButton,
-                                pressFunc: () {
-                                  processClickButton(
-                                      postModel: postModels[index]);
-                                }),
-                            //  specialButton(context),
-                          ],
-                        ),
-                      ],
-                    ),
+                    newRowUp(constraints, index, context),
+                    newDiaplayImage(constraints, index),
+                    newRowDown(constraints, index),
                     const SizedBox(
                       height: 16,
                     ),
-                    const Divider(
-                      color: Colors.grey,
-                    ),
+                    // const Divider(
+                    //   color: Colors.grey,
+                    // ),
                   ],
                 ),
               );
             }),
+    );
+  }
+
+  Row newRowDown(BoxConstraints constraints, int index) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Icon(
+                Icons.comment,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(
+              width: constraints.maxWidth * 0.5 - 60,
+              child: ShowText(
+                label: postModels[index].article,
+                textStyle: MyConstant().h3WhiteStyle(),
+              ),
+            ),
+          ],
+        ),
+        // Badge(
+        //   badgeContent: ShowText(label: '0'),
+        //   child: ShowIconButton(
+        //     iconData: Icons.add_circle_outline,
+        //     pressFunc: () {
+        //       print('บวก docIdPost ==>> ${docIdPosts[index]}');
+        //       processVotePost(
+        //           docIdPost: docIdPosts[index], score: true);
+        //     },
+        //   ),
+        // ),
+        // Badge(
+        //   badgeContent: ShowText(label: '2'),
+        //   child: ShowIconButton(
+        //     iconData: Icons.remove_circle_outline,
+        //     pressFunc: () {
+        //       print('ลบ  docIdPost ==>> ${docIdPosts[index]}');
+        //       processVotePost(
+        //           docIdPost: docIdPosts[index], score: false);
+        //     },
+        //   ),
+        // ),
+        Column(
+          children: [
+            ShowOutlineButton(
+                label: postModels[index].nameButton,
+                pressFunc: () {
+                  processClickButton(postModel: postModels[index]);
+                }),
+            //  specialButton(context),
+          ],
+        ),
+      ],
+    );
+  }
+
+  SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
+    return SizedBox(
+      // width: constraints.maxWidth,
+      height: constraints.maxWidth * 0.75,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: postModels[index].urlPaths.length,
+        itemBuilder: (context, index2) => Stack(
+          children: [
+            Image.network(
+              postModels[index].urlPaths[index2],
+              fit: BoxFit.contain,
+            ),
+            postModels[index].urlPaths.length == 1
+                ? const SizedBox()
+                : Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ShowText(
+                        label:
+                            '${index2 + 1}/${postModels[index].urlPaths.length}',
+                        textStyle: MyConstant().h2Style(),
+                      ),
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget newRowUp(BoxConstraints constraints, int index, BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: constraints.maxWidth * 0.5,
+          child: InkWell(
+            onTap: () {
+              print('tap ==>>');
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 12,
+                ),
+                userModelPosts[index].avatar!.isEmpty
+                    ? const ShowImage(
+                        width: 36,
+                      )
+                    : ShowCircleImage(path: userModelPosts[index].avatar!),
+                const SizedBox(
+                  width: 12,
+                ),
+                SizedBox(
+                  width: 120,
+                  child: ShowText(
+                    label: userModelPosts[index].name,
+                    textStyle: MyConstant().h2WhiteStyle(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(
+          width: constraints.maxWidth * 0.5,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              (user!.uid == postModels[index].uidPost)
+                  ? const SizedBox()
+                  : ShowOutlineButton(
+                      label: bolFollows[index] ? 'ติดตามแล้ว' : 'ติดตาม',
+                      pressFunc: () async {
+                        openProgress = true;
+                        MyDialog(context: context).processDialog();
+
+                        if (bolFollows[index]) {
+                          print('Process unFollow');
+
+                          await FirebaseFirestore.instance
+                              .collection('user')
+                              .doc(postModels[index].uidPost)
+                              .collection('follow')
+                              .doc(user!.uid)
+                              .delete()
+                              .then((value) {
+                            // MyDialog(context: context).normalActionDilalog(
+                            //     title: 'เลิกติดตามแล้ว',
+                            //     message: 'เลิกติดตามเจ้าของโพสนี่แล้ว',
+                            //     label: 'OK',
+                            //     pressFunc: () {
+                            //       Navigator.pop(context);
+                            //     });
+                            readPost();
+                            setState(() {});
+                          });
+                        } else {
+                          print('Click Follow');
+                          print(
+                              'uid ของเจ้าของโพส ---> ${postModels[index].uidPost}');
+                          print('uid คนที่คลิก ติดตาม --->> ${user!.uid}');
+                          print('token ==> $token');
+
+                          FollowModel followModel = FollowModel(
+                              uidClickFollow: user!.uid, token: token!);
+                          await FirebaseFirestore.instance
+                              .collection('user')
+                              .doc(postModels[index].uidPost)
+                              .collection('follow')
+                              .doc(user!.uid)
+                              .set(followModel.toMap())
+                              .then((value) {
+                            print('Success follow');
+                            // MyDialog(context: context).normalActionDilalog(
+                            //     title: 'ติดตามแล้ว',
+                            //     message: 'ได้ติดตามเจ้าของโพสนี่แล้ว',
+                            //     label: 'OK',
+                            //     pressFunc: () {
+                            //       Navigator.pop(context);
+                            //     });
+                            readPost();
+                            setState(() {});
+                          });
+                        }
+                      },
+                    ),
+              ShowIconButton(
+                iconData: Icons.more_vert,
+                pressFunc: () {},
+              )
+            ],
+          ),
+        ),
+      ],
     );
   }
 
