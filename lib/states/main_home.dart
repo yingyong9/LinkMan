@@ -49,6 +49,8 @@ class _MainHomeState extends State<MainHome> {
 
   ScrollController scrollController = ScrollController();
 
+  bool openProgress = false;
+
   @override
   void initState() {
     super.initState();
@@ -140,10 +142,17 @@ class _MainHomeState extends State<MainHome> {
             result = true;
           }
 
+         
+
           bolFollows.add(result);
         });
       }
-      print('bolFollows ==>> $bolFollows');
+      
+       if (openProgress) {
+            openProgress = false;
+            Navigator.pop(context);
+          }
+
       load = false;
       setState(() {});
     });
@@ -319,6 +328,9 @@ class _MainHomeState extends State<MainHome> {
                   : ShowOutlineButton(
                       label: bolFollows[index] ? 'ติดตามแล้ว' : 'ติดตาม',
                       pressFunc: () async {
+                        openProgress = true;
+                        MyDialog(context: context).processDialog();
+
                         if (bolFollows[index]) {
                           print('Process unFollow');
 
@@ -329,13 +341,13 @@ class _MainHomeState extends State<MainHome> {
                               .doc(user!.uid)
                               .delete()
                               .then((value) {
-                            MyDialog(context: context).normalActionDilalog(
-                                title: 'เลิกติดตามแล้ว',
-                                message: 'เลิกติดตามเจ้าของโพสนี่แล้ว',
-                                label: 'OK',
-                                pressFunc: () {
-                                  Navigator.pop(context);
-                                });
+                            // MyDialog(context: context).normalActionDilalog(
+                            //     title: 'เลิกติดตามแล้ว',
+                            //     message: 'เลิกติดตามเจ้าของโพสนี่แล้ว',
+                            //     label: 'OK',
+                            //     pressFunc: () {
+                            //       Navigator.pop(context);
+                            //     });
                             readPost();
                             setState(() {});
                           });
@@ -356,13 +368,13 @@ class _MainHomeState extends State<MainHome> {
                               .set(followModel.toMap())
                               .then((value) {
                             print('Success follow');
-                            MyDialog(context: context).normalActionDilalog(
-                                title: 'ติดตามแล้ว',
-                                message: 'ได้ติดตามเจ้าของโพสนี่แล้ว',
-                                label: 'OK',
-                                pressFunc: () {
-                                  Navigator.pop(context);
-                                });
+                            // MyDialog(context: context).normalActionDilalog(
+                            //     title: 'ติดตามแล้ว',
+                            //     message: 'ได้ติดตามเจ้าของโพสนี่แล้ว',
+                            //     label: 'OK',
+                            //     pressFunc: () {
+                            //       Navigator.pop(context);
+                            //     });
                             readPost();
                             setState(() {});
                           });

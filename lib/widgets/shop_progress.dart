@@ -1,3 +1,4 @@
+import 'package:admanyout/widgets/show_text.dart';
 import 'package:flutter/material.dart';
 
 class ShowProgress extends StatelessWidget {
@@ -7,6 +8,16 @@ class ShowProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    return Center(
+        child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircularProgressIndicator(
+          color: Colors.white,
+        ),
+        SizedBox(height: 36,),
+        ShowText(label: 'Loading ... Please wait')
+      ],
+    ));
   }
 }
