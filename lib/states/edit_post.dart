@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
+import 'package:admanyout/models/photo_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -22,12 +23,28 @@ class EditPost extends StatefulWidget {
 class _EditPostState extends State<EditPost> {
   PostModel? postModel;
   String? docIdPost;
+  var photoModels = <PhotoModel>[];
 
   @override
   void initState() {
     super.initState();
     postModel = widget.postModel;
     docIdPost = widget.docIdPost;
+    findPhotoModels();
+  }
+
+  Future<void> findPhotoModels() async {
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(postModel!.uidPost)
+        .collection('photo')
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        PhotoModel photoModel = PhotoModel.fromMap(element.data());
+        photoModels.add(photoModel);
+      }
+    });
   }
 
   @override
@@ -115,7 +132,40 @@ class _EditPostState extends State<EditPost> {
                     left: 0,
                     child: ShowIconButton(
                       iconData: Icons.edit,
-                      pressFunc: () {},
+                      pressFunc: () {
+                        MyDialog(context: context).twoActionDilalog(
+                            title: 'Edit Image ?',
+                            message: 'Please New Image',
+                            label1: 'Edit',
+                            label2: 'Cancel',
+                            pressFunc1: () {
+                              Navigator.pop(context);
+                            },
+                            pressFunc2: () {
+                              Navigator.pop(context);
+                            },
+                            contentWidget: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  Image.network(postModel!.urlPaths[index]),
+                                  SizedBox(
+                                    width: 300,
+                                    height: 300,
+                                    child: GridView.builder(itemCount: photoModels.length,
+                                      shrinkWrap: true,
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 3),
+                                      itemBuilder:
+                                          (BuildContext context, int index) =>
+                                              Image.network(
+                                                  photoModels[index].urlPhoto),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ));
+                      },
                     ),
                   ),
                 ],
