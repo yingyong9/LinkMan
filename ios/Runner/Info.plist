@@ -49,5 +49,12 @@
     <string>Need to upload image</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Need to upload image</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>https</string>
+      <string>http</string>
+    </array>
 </dict>
 </plist>
