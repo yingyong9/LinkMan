@@ -379,10 +379,10 @@ class _MainHomeState extends State<MainHome> {
                         }
                       },
                     ),
-              ShowIconButton(
-                iconData: Icons.more_vert,
-                pressFunc: () {},
-              )
+              // ShowIconButton(
+              //   iconData: Icons.more_vert,
+              //   pressFunc: () {},
+              // ),
             ],
           ),
         ),
@@ -406,21 +406,21 @@ class _MainHomeState extends State<MainHome> {
                 userModelLogin!.avatar!.isEmpty
                     ? InkWell(
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ManageMyPost(),
-                              ));
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) => const ManageMyPost(),
+                          //     ));
                         },
                         child: newAvatarIcon(),
                       )
                     : InkWell(
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ManageMyPost(),
-                              ));
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) => const ManageMyPost(),
+                          //     ));
                         },
                         child: ShowCircleImage(path: userModelLogin!.avatar!),
                       ),
@@ -462,14 +462,14 @@ class _MainHomeState extends State<MainHome> {
       foregroundColor: Colors.white,
       backgroundColor: Colors.black,
       actions: [
-        ShowIconButton(
-          iconData: Icons.search,
-          pressFunc: () {},
-        ),
-        ShowIconButton(
-          iconData: Icons.qr_code,
-          pressFunc: () {},
-        ),
+        // ShowIconButton(
+        //   iconData: Icons.search,
+        //   pressFunc: () {},
+        // ),
+        // ShowIconButton(
+        //   iconData: Icons.qr_code,
+        //   pressFunc: () {},
+        // ),
         ShowIconButton(
           iconData: Icons.add_box_outlined,
           pressFunc: () => Navigator.push(

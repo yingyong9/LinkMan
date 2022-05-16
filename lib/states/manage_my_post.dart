@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/edit_post.dart';
