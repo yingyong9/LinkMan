@@ -21,6 +21,7 @@ class ManageMyPost extends StatefulWidget {
 class _ManageMyPostState extends State<ManageMyPost> {
   var user = FirebaseAuth.instance.currentUser;
   var postModels = <PostModel>[];
+  var docIdPosts = <String>[];
   bool load = true;
   bool? haveData;
   UserModel? userModel;
@@ -54,6 +55,7 @@ class _ManageMyPostState extends State<ManageMyPost> {
         for (var element in value.docs) {
           PostModel postModel = PostModel.fromMap(element.data());
           postModels.add(postModel);
+          docIdPosts.add(element.id);
         }
 
         haveData = true;
@@ -95,7 +97,7 @@ class _ManageMyPostState extends State<ManageMyPost> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  EditPost(postModel: postModels[index]),
+                                  EditPost(postModel: postModels[index], docIdPost: docIdPosts[index],),
                             ));
                       },
                       child: Image.network(

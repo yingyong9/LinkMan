@@ -406,21 +406,21 @@ class _MainHomeState extends State<MainHome> {
                 userModelLogin!.avatar!.isEmpty
                     ? InkWell(
                         onTap: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => const ManageMyPost(),
-                          //     ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ManageMyPost(),
+                              ));
                         },
                         child: newAvatarIcon(),
                       )
                     : InkWell(
                         onTap: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => const ManageMyPost(),
-                          //     ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ManageMyPost(),
+                              ));
                         },
                         child: ShowCircleImage(path: userModelLogin!.avatar!),
                       ),
