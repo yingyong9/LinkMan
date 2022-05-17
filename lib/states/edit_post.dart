@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
 import 'package:admanyout/models/photo_model.dart';
+import 'package:admanyout/states/add_new_image_post.dart';
 import 'package:admanyout/states/edit_image_post.dart';
+import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -56,12 +58,36 @@ class _EditPostState extends State<EditPost> {
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
-      body: newGridVew(),
+      body: Column(
+        children: [
+          newGridVew(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ShowOutlineButton(
+                  label: '+',
+                  pressFunc: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddNewImagePost(
+                              postModel: postModel!, docIdPost: docIdPost!, photoModels: photoModels,),
+                        )).then((value) {});
+                  }),
+              const SizedBox(
+                width: 36,
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 
   Widget newGridVew() {
     return GridView.builder(
+      shrinkWrap: true,
+      physics: const ScrollPhysics(),
       itemCount: postModel!.urlPaths.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           // mainAxisSpacing: 8,
