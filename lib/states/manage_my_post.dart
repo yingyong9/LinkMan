@@ -41,6 +41,11 @@ class _ManageMyPostState extends State<ManageMyPost> {
   }
 
   Future<void> readMyAllPost() async {
+    if (postModels.isNotEmpty) {
+      postModels.clear();
+      docIdPosts.clear();
+    }
+
     await FirebaseFirestore.instance
         .collection('post')
         .where('uidPost', isEqualTo: user!.uid)
@@ -96,9 +101,13 @@ class _ManageMyPostState extends State<ManageMyPost> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  EditPost(postModel: postModels[index], docIdPost: docIdPosts[index],),
-                            ));
+                              builder: (context) => EditPost(
+                                postModel: postModels[index],
+                                docIdPost: docIdPosts[index],
+                              ),
+                            )).then((value) {
+                          readMyAllPost();
+                        });
                       },
                       child: Image.network(
                         postModels[index].urlPaths[0],

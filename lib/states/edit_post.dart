@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
 import 'package:admanyout/models/photo_model.dart';
+import 'package:admanyout/states/edit_image_post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -55,124 +56,150 @@ class _EditPostState extends State<EditPost> {
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
-      body: GridView.builder(
-        itemCount: postModel!.urlPaths.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            crossAxisCount: 3,
-            childAspectRatio: 1.5),
-        itemBuilder: (BuildContext context, int index) => Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 100,
-              height: 180,
-              child: Stack(
-                children: [
-                  Image.network(
-                    postModel!.urlPaths[index],
-                    fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: postModel!.urlPaths.length == 1
-                        ? const SizedBox()
-                        : ShowIconButton(
-                            iconData: Icons.delete_forever_outlined,
-                            pressFunc: () {
-                              MyDialog(context: context).twoActionDilalog(
-                                title: 'Confirm Delete',
-                                message: 'Are You Sure delete item ?',
-                                label1: 'Comfirm',
-                                label2: 'Cancel',
-                                pressFunc1: () async {
-                                  var urlPaths = postModel!.urlPaths;
-                                  print(
-                                      'urlPaths ก่อนลบ ==> ${urlPaths.length}');
+      body: newGridVew(),
+    );
+  }
 
-                                  urlPaths.removeAt(index);
-                                  print(
-                                      'urlPaths หลังลบ ==> ${urlPaths.length}');
+  Widget newGridVew() {
+    return GridView.builder(
+      itemCount: postModel!.urlPaths.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          // mainAxisSpacing: 8,
+          // crossAxisSpacing: 8,
+          crossAxisCount: 3,
+          childAspectRatio: 1.5),
+      itemBuilder: (BuildContext context, int index) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 100,
+            height: 180,
+            child: Stack(
+              children: [
+                Image.network(
+                  postModel!.urlPaths[index],
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: postModel!.urlPaths.length == 1
+                      ? const SizedBox()
+                      : ShowIconButton(
+                          iconData: Icons.delete_forever_outlined,
+                          pressFunc: () {
+                            MyDialog(context: context).twoActionDilalog(
+                              title: 'Confirm Delete',
+                              message: 'Are You Sure delete item ?',
+                              label1: 'Comfirm',
+                              label2: 'Cancel',
+                              pressFunc1: () async {
+                                var urlPaths = postModel!.urlPaths;
+                                print('urlPaths ก่อนลบ ==> ${urlPaths.length}');
 
-                                  Map<String, dynamic> map = {};
-                                  map['urlPaths'] = urlPaths;
+                                urlPaths.removeAt(index);
+                                print('urlPaths หลังลบ ==> ${urlPaths.length}');
+
+                                Map<String, dynamic> map = {};
+                                map['urlPaths'] = urlPaths;
+
+                                await FirebaseFirestore.instance
+                                    .collection('post')
+                                    .doc(docIdPost)
+                                    .update(map)
+                                    .then((value) async {
+                                  print('Success Delete Image');
 
                                   await FirebaseFirestore.instance
                                       .collection('post')
                                       .doc(docIdPost)
-                                      .update(map)
-                                      .then((value) async {
-                                    print('Success Delete Image');
-
-                                    await FirebaseFirestore.instance
-                                        .collection('post')
-                                        .doc(docIdPost)
-                                        .get()
-                                        .then((value) {
-                                      postModel =
-                                          PostModel.fromMap(value.data()!);
-                                      Navigator.pop(context);
-                                      setState(() {});
-                                    });
+                                      .get()
+                                      .then((value) {
+                                    postModel =
+                                        PostModel.fromMap(value.data()!);
+                                    Navigator.pop(context);
+                                    setState(() {});
                                   });
-                                },
-                                pressFunc2: () {
-                                  Navigator.pop(context);
-                                },
-                                contentWidget:
-                                    Image.network(postModel!.urlPaths[index]),
-                              );
-                            },
-                          ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    child: ShowIconButton(
-                      iconData: Icons.edit,
-                      pressFunc: () {
-                        MyDialog(context: context).twoActionDilalog(
-                            title: 'Edit Image ?',
-                            message: 'Please New Image',
-                            label1: 'Edit',
-                            label2: 'Cancel',
-                            pressFunc1: () {
-                              Navigator.pop(context);
-                            },
-                            pressFunc2: () {
-                              Navigator.pop(context);
-                            },
-                            contentWidget: SingleChildScrollView(
-                              child: Column(
-                                children: [
+                                });
+                              },
+                              pressFunc2: () {
+                                Navigator.pop(context);
+                              },
+                              contentWidget:
                                   Image.network(postModel!.urlPaths[index]),
-                                  SizedBox(
-                                    width: 300,
-                                    height: 300,
-                                    child: GridView.builder(itemCount: photoModels.length,
-                                      shrinkWrap: true,
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 3),
-                                      itemBuilder:
-                                          (BuildContext context, int index) =>
-                                              Image.network(
-                                                  photoModels[index].urlPhoto),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ));
-                      },
-                    ),
+                            );
+                          },
+                        ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  child: ShowIconButton(
+                    iconData: Icons.edit,
+                    pressFunc: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EidtImagePost(
+                              postModel: postModel!,
+                              indexImage: index,
+                              photoModels: photoModels,
+                              docIdPost: docIdPost!,
+                            ),
+                          )).then((value) async {
+                        var object = await FirebaseFirestore.instance
+                            .collection('post')
+                            .doc(docIdPost)
+                            .get();
+                        postModel = PostModel.fromMap(object.data()!);
+                        setState(() {});
+                      });
+
+                      // MyDialog(context: context).twoActionDilalog(
+                      //     title: 'Edit Image ?',
+                      //     message: 'Please New Image',
+                      //     label1: 'Edit',
+                      //     label2: 'Cancel',
+                      //     pressFunc1: () {
+                      //       Navigator.pop(context);
+                      //     },
+                      //     pressFunc2: () {
+                      //       Navigator.pop(context);
+                      //     },
+                      //     contentWidget: SingleChildScrollView(
+                      //       child: Column(
+                      //         children: [
+                      //           Image.network(postModel!.urlPaths[index]),
+                      //           SizedBox(
+                      //             width: 300,
+                      //             height: 300,
+                      //             child: GridView.builder(
+                      //               itemCount: photoModels.length,
+                      //               shrinkWrap: true,
+                      //               gridDelegate:
+                      //                   const SliverGridDelegateWithFixedCrossAxisCount(
+                      //                       crossAxisCount: 3),
+                      //               itemBuilder:
+                      //                   (BuildContext context, int index) =>
+                      //                       InkWell(
+                      //                 onTap: () {
+                      //                   print('You tab at id ==> $index');
+                      //                 },
+                      //                 child: Image.network(
+                      //                     photoModels[index].urlPhoto),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ));
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
