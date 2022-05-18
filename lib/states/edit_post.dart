@@ -2,6 +2,7 @@
 import 'package:admanyout/models/photo_model.dart';
 import 'package:admanyout/states/add_new_image_post.dart';
 import 'package:admanyout/states/edit_image_post.dart';
+import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -28,12 +29,18 @@ class _EditPostState extends State<EditPost> {
   String? docIdPost;
   var photoModels = <PhotoModel>[];
 
+  TextEditingController articleController = TextEditingController();
+  TextEditingController nameButtonController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     postModel = widget.postModel;
     docIdPost = widget.docIdPost;
     findPhotoModels();
+
+    articleController.text = postModel!.article;
+    nameButtonController.text = postModel!.nameButton;
   }
 
   Future<void> findPhotoModels() async {
@@ -59,9 +66,30 @@ class _EditPostState extends State<EditPost> {
         backgroundColor: Colors.black,
       ),
       body: Column(
-        children: [newGridVew(), newAddImageButton(context)],
+        children: [
+          newGridVew(),
+          newAddImageButton(context),
+          formArticle(),
+          formNameButton(),
+        ],
       ),
     );
+  }
+
+  ShowForm formNameButton() {
+    return ShowForm(controller: nameButtonController,
+          label: 'Name Button :',
+          iconData: Icons.smart_button,
+          changeFunc: (String string) {},
+        );
+  }
+
+  ShowForm formArticle() {
+    return ShowForm(controller: articleController,
+          label: 'Article :',
+          iconData: Icons.book_online,
+          changeFunc: (String string) {},
+        );
   }
 
   Row newAddImageButton(BuildContext context) {

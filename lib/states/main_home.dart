@@ -427,7 +427,7 @@ class _MainHomeState extends State<MainHome> {
                 const SizedBox(
                   width: 16,
                 ),
-                DropdownButton<dynamic>(
+                DropdownButton<dynamic>(underline: const SizedBox(),
                   value: title,
                   items: titles
                       .map(
