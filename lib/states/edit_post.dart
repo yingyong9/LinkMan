@@ -59,28 +59,41 @@ class _EditPostState extends State<EditPost> {
         backgroundColor: Colors.black,
       ),
       body: Column(
-        children: [
-          newGridVew(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ShowOutlineButton(
-                  label: '+',
-                  pressFunc: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddNewImagePost(
-                              postModel: postModel!, docIdPost: docIdPost!, photoModels: photoModels,),
-                        )).then((value) {});
-                  }),
-              const SizedBox(
-                width: 36,
-              ),
-            ],
-          )
-        ],
+        children: [newGridVew(), newAddImageButton(context)],
       ),
+    );
+  }
+
+  Row newAddImageButton(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ShowOutlineButton(
+            label: '+',
+            pressFunc: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddNewImagePost(
+                      postModel: postModel!,
+                      docIdPost: docIdPost!,
+                      photoModels: photoModels,
+                    ),
+                  )).then((value) async {
+                await FirebaseFirestore.instance
+                    .collection('post')
+                    .doc(docIdPost)
+                    .get()
+                    .then((value) {
+                  postModel = PostModel.fromMap(value.data()!);
+                  setState(() {});
+                });
+              });
+            }),
+        const SizedBox(
+          width: 36,
+        ),
+      ],
     );
   }
 

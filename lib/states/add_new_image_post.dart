@@ -1,7 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
+import 'dart:math';
 
 import 'package:admanyout/widgets/show_outline_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:admanyout/models/photo_model.dart';
@@ -30,7 +33,8 @@ class _AddNewImagePostState extends State<AddNewImagePost> {
   String? docIdPost;
   var photoModels = <PhotoModel>[];
   File? file;
-  
+  bool displayAddImageButton = false;
+  String urlNewImage = '';
 
   @override
   void initState() {
@@ -45,21 +49,19 @@ class _AddNewImagePostState extends State<AddNewImagePost> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        actions: [
+          displayAddImageButton ? addImageButton() : const SizedBox(),
+        ],
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
       body: Column(
         children: [
-          file == null
+          (file == null) && (urlNewImage.isEmpty)
               ? newImage()
-              : SizedBox(
-                  width: 250,
-                  height: 250,
-                  child: Image.file(
-                    file!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+              : urlNewImage.isNotEmpty
+                  ? newImageFromMyPhoto()
+                  : newImageCameraGallery(),
           newControlCamera(),
           Expanded(
             child: GridView.builder(
@@ -68,13 +70,88 @@ class _AddNewImagePostState extends State<AddNewImagePost> {
                 itemCount: photoModels.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3),
-                itemBuilder: (BuildContext context, int index) => Image.network(
-                      photoModels[index].urlPhoto,
-                      fit: BoxFit.cover,
+                itemBuilder: (BuildContext context, int index) => InkWell(
+                      onTap: () {
+                        displayAddImageButton = true;
+                        urlNewImage = photoModels[index].urlPhoto;
+                        setState(() {});
+                      },
+                      child: Image.network(
+                        photoModels[index].urlPhoto,
+                        fit: BoxFit.cover,
+                      ),
                     )),
           )
         ],
       ),
+    );
+  }
+
+  Widget newImageFromMyPhoto() => SizedBox(
+        width: 250,
+        height: 250,
+        child: Image.network(
+          urlNewImage,
+          fit: BoxFit.cover,
+        ),
+      );
+
+  SizedBox newImageCameraGallery() {
+    return SizedBox(
+      width: 250,
+      height: 250,
+      child: Image.file(
+        file!,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  Column addImageButton() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(right: 16),
+          height: 40,
+          child: ShowOutlineButton(
+            label: 'Add Image',
+            pressFunc: () async {
+              if (urlNewImage.isEmpty) {
+                // uplaod image
+
+                String nameFile =
+                    '${postModel!.uidPost}${Random().nextInt(1000000)}.jpg';
+
+                FirebaseStorage storage = FirebaseStorage.instance;
+                Reference reference = storage.ref().child('photo/$nameFile');
+                UploadTask uploadTask = reference.putFile(file!);
+                await uploadTask.whenComplete(() async {
+                  await reference.getDownloadURL().then((value) async {
+                    urlNewImage = value;
+
+                    PhotoModel model = PhotoModel(urlPhoto: urlNewImage);
+
+                    await FirebaseFirestore.instance
+                        .collection('user')
+                        .doc(postModel!.uidPost)
+                        .collection('photo')
+                        .doc()
+                        .set(model.toMap())
+                        .then((value) {
+                          processAddNewImageToFirebase();
+                        });
+
+                    
+                  });
+                });
+              } else {
+                processAddNewImageToFirebase();
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -100,9 +177,10 @@ class _AddNewImagePostState extends State<AddNewImagePost> {
       maxWidth: 800,
       maxHeight: 800,
     );
-    setState(() {
-      file = File(result!.path);
-    });
+    urlNewImage = '';
+    displayAddImageButton = true;
+    file = File(result!.path);
+    setState(() {});
   }
 
   Widget newImage() {
@@ -110,5 +188,22 @@ class _AddNewImagePostState extends State<AddNewImagePost> {
       path: 'images/image.png',
       width: 250,
     );
+  }
+
+  Future<void> processAddNewImageToFirebase() async {
+    print('##18may urlNewImage ==>> $urlNewImage');
+
+    var urlPaths = postModel!.urlPaths;
+    urlPaths.add(urlNewImage);
+    Map<String, dynamic> data = {};
+    data['urlPaths'] = urlPaths;
+
+    await FirebaseFirestore.instance
+        .collection('post')
+        .doc(docIdPost)
+        .update(data)
+        .then((value) {
+      Navigator.pop(context);
+    });
   }
 }
