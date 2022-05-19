@@ -410,7 +410,10 @@ class _MainHomeState extends State<MainHome> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const ManageMyPost(),
-                              ));
+                              )).then((value) {
+                            print('##19may back from managepost');
+                            readPost();
+                          });
                         },
                         child: newAvatarIcon(),
                       )
@@ -420,14 +423,17 @@ class _MainHomeState extends State<MainHome> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const ManageMyPost(),
-                              ));
+                              )).then((value) {
+                            readPost();
+                          });
                         },
                         child: ShowCircleImage(path: userModelLogin!.avatar!),
                       ),
                 const SizedBox(
                   width: 16,
                 ),
-                DropdownButton<dynamic>(underline: const SizedBox(),
+                DropdownButton<dynamic>(
+                  underline: const SizedBox(),
                   value: title,
                   items: titles
                       .map(
