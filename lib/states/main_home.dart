@@ -236,7 +236,7 @@ class _MainHomeState extends State<MainHome> {
             ShowOutlineButton(
                 label: postModels[index].nameButton,
                 pressFunc: () {
-                  processClickButton(postModel: postModels[index]);
+                  processClickButton(postModel: postModels[index], nameButton: postModels[index].nameButton);
                 }),
             //  specialButton(context),
           ],
@@ -550,7 +550,7 @@ class _MainHomeState extends State<MainHome> {
     });
   }
 
-  Future<void> processClickButton({required PostModel postModel}) async {
+  Future<void> processClickButton({required PostModel postModel, required String nameButton}) async {
     var widgets = <Widget>[];
     int index = 0;
     for (var item in postModel.link) {
@@ -571,11 +571,11 @@ class _MainHomeState extends State<MainHome> {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.grey.shade900,
         title: ListTile(
-          leading: const ShowImage(),
+          // leading: const ShowImage(),
           title: ShowText(
-            label: 'Link',
+            label: nameButton,
             textStyle: MyConstant().h2Style(),
           ),
         ),

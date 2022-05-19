@@ -112,23 +112,27 @@ class _ManageMyPostState extends State<ManageMyPost> {
                     setState(() {});
                   })
               : const SizedBox(),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 40,
-                child: ShowOutlineButton(
-                    label: displaySelect ? 'UnSelect' : 'Select',
-                    pressFunc: () {
-                      for (var i = 0; i < selects.length; i++) {
-                        selects[i] = false;
-                      }
-                      displaySelect = !displaySelect;
-                      setState(() {});
-                    }),
-              ),
-            ],
-          ),
+          load
+              ? const SizedBox()
+              : haveData!
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 40,
+                          child: ShowOutlineButton(
+                              label: displaySelect ? 'UnSelect' : 'Select',
+                              pressFunc: () {
+                                for (var i = 0; i < selects.length; i++) {
+                                  selects[i] = false;
+                                }
+                                displaySelect = !displaySelect;
+                                setState(() {});
+                              }),
+                        ),
+                      ],
+                    )
+                  : const SizedBox(),
         ],
       ),
       body: load
