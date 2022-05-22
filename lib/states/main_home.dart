@@ -1,8 +1,7 @@
 // ignore_for_file: avoid_print
 
-import 'dart:io';
-
 import 'package:admanyout/models/follow_model.dart';
+import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/models/user_model.dart';
@@ -17,15 +16,16 @@ import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
+import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
-import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -50,6 +50,12 @@ class _MainHomeState extends State<MainHome> {
   ScrollController scrollController = ScrollController();
 
   bool openProgress = false;
+
+  String? newLink;
+
+  String? nameLink;
+
+  TextEditingController addLinkController = TextEditingController();
 
   @override
   void initState() {
@@ -164,25 +170,126 @@ class _MainHomeState extends State<MainHome> {
       body: load
           ? const ShowProgress()
           : LayoutBuilder(builder: (context, constraints) {
-              return ListView.builder(
-                controller: scrollController,
-                itemCount: postModels.length,
-                itemBuilder: (context, index) => Column(
-                  children: [
-                    newRowUp(constraints, index, context),
-                    newDiaplayImage(constraints, index),
-                    newRowDown(constraints, index),
-                    const SizedBox(
-                      height: 16,
+              return Stack(
+                children: [
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const ScrollPhysics(),
+                    controller: scrollController,
+                    itemCount: postModels.length,
+                    itemBuilder: (context, index) => Column(
+                      children: [
+                        newRowUp(constraints, index, context),
+                        newDiaplayImage(constraints, index),
+                        newRowDown(constraints, index),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        // const Divider(
+                        //   color: Colors.grey,
+                        // ),
+                      ],
                     ),
-                    // const Divider(
-                    //   color: Colors.grey,
-                    // ),
-                  ],
-                ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    child: Container(
+                      width: constraints.maxWidth,
+                      decoration: const BoxDecoration(
+                        color: Colors.black,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ShowIconButton(
+                            iconData: Icons.add,
+                            pressFunc: () {},
+                          ),
+                          ShowForm(
+                            controller: addLinkController,
+                            label: 'Add Link',
+                            iconData: Icons.link,
+                            changeFunc: (String string) {
+                              newLink = string.trim();
+                            },
+                          ),
+                          newLink?.isEmpty ?? true
+                              ? const SizedBox()
+                              : ShowIconButton(
+                                  iconData: Icons.send,
+                                  pressFunc: () async {
+                                    checkLink();
+                                  },
+                                ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               );
             }),
     );
+  }
+
+  Future<void> checkLink() async {
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .collection('link')
+        .where('urlLink', isEqualTo: newLink)
+        .get()
+        .then((value) {
+      if (value.docs.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            backgroundColor: Colors.grey.shade900,
+            title: const ShowText(label: 'Name Link'),
+            content: ShowForm(
+                label: 'Name Link',
+                iconData: Icons.link,
+                changeFunc: (String string) {
+                  nameLink = string.trim();
+                }),
+            actions: [
+              ShowIconButton(
+                  iconData: Icons.send,
+                  pressFunc: () {
+                    if (nameLink?.isEmpty ?? true) {
+                      Fluttertoast.showToast(
+                        msg: 'Input Name Link',
+                        toastLength: Toast.LENGTH_LONG,
+                      );
+                    } else {
+                      processAddNameLink();
+                    }
+                  })
+            ],
+          ),
+        );
+      } else {
+        Fluttertoast.showToast(msg: 'Have Link');
+        addLinkController.text = '';
+      }
+    });
+  }
+
+  Future<void> processAddNameLink() async {
+    LinkModel linkModel =
+        LinkModel(nameLink: nameLink!, urlLink: newLink!, groupLink: '');
+
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .collection('link')
+        .doc()
+        .set(linkModel.toMap())
+        .then((value) {
+      addLinkController.text = '';
+      Fluttertoast.showToast(msg: 'Add Link Success');
+      Navigator.pop(context);
+    });
   }
 
   Row newRowDown(BoxConstraints constraints, int index) {
@@ -236,7 +343,9 @@ class _MainHomeState extends State<MainHome> {
             ShowOutlineButton(
                 label: postModels[index].nameButton,
                 pressFunc: () {
-                  processClickButton(postModel: postModels[index], nameButton: postModels[index].nameButton);
+                  processClickButton(
+                      postModel: postModels[index],
+                      nameButton: postModels[index].nameButton);
                 }),
             //  specialButton(context),
           ],
@@ -550,7 +659,8 @@ class _MainHomeState extends State<MainHome> {
     });
   }
 
-  Future<void> processClickButton({required PostModel postModel, required String nameButton}) async {
+  Future<void> processClickButton(
+      {required PostModel postModel, required String nameButton}) async {
     var widgets = <Widget>[];
     int index = 0;
     for (var item in postModel.link) {
