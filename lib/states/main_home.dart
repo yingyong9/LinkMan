@@ -57,6 +57,8 @@ class _MainHomeState extends State<MainHome> {
 
   TextEditingController addLinkController = TextEditingController();
 
+  bool displayIconButton = false;
+
   @override
   void initState() {
     super.initState();
@@ -203,9 +205,21 @@ class _MainHomeState extends State<MainHome> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ShowIconButton(
-                            iconData: Icons.add,
-                            pressFunc: () {},
+                            iconData: Icons.arrow_forward_ios,
+                            pressFunc: () {
+                              setState(() {
+                                displayIconButton = !displayIconButton;
+                              });
+                            },
                           ),
+                          displayIconButton
+                              ? ShowIconButton(
+                                  iconData: Icons.add_a_photo, pressFunc: () {})
+                              : const SizedBox(),
+                               displayIconButton
+                              ? ShowIconButton(
+                                  iconData: Icons.link_outlined, pressFunc: () {})
+                              : const SizedBox(),
                           ShowForm(
                             controller: addLinkController,
                             label: 'Add Link',
@@ -587,12 +601,14 @@ class _MainHomeState extends State<MainHome> {
         // ),
         ShowIconButton(
           iconData: Icons.add_box_outlined,
-          pressFunc: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddPhoto(),
-            ),
-          ),
+          pressFunc: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddPhoto(),
+              ),
+            );
+          },
         ),
       ],
     );
