@@ -37,6 +37,7 @@ class MainHome extends StatefulWidget {
 }
 
 class _MainHomeState extends State<MainHome> {
+
   var user = FirebaseAuth.instance.currentUser;
   var postModels = <PostModel>[];
   var docIdPosts = <String>[];
@@ -46,17 +47,11 @@ class _MainHomeState extends State<MainHome> {
   var titles = <String>['แก้ไขโปรไฟร์', 'Sign Out'];
   String? title, token;
   UserModel? userModelLogin;
-
   ScrollController scrollController = ScrollController();
-
   bool openProgress = false;
-
   String? newLink;
-
   String? nameLink;
-
   TextEditingController addLinkController = TextEditingController();
-
   bool displayIconButton = false;
 
   @override
@@ -371,7 +366,7 @@ class _MainHomeState extends State<MainHome> {
   SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
     return SizedBox(
       // width: constraints.maxWidth,
-      height: constraints.maxWidth * 0.75,
+      height: constraints.maxHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const ClampingScrollPhysics(),
@@ -379,9 +374,11 @@ class _MainHomeState extends State<MainHome> {
         itemCount: postModels[index].urlPaths.length,
         itemBuilder: (context, index2) => Stack(
           children: [
-            Image.network(
-              postModels[index].urlPaths[index2],
-              fit: BoxFit.contain,
+            SizedBox(width: constraints.maxWidth,height: constraints.maxHeight,
+              child: Image.network(
+                postModels[index].urlPaths[index2],
+                fit: BoxFit.scaleDown,
+              ),
             ),
             postModels[index].urlPaths.length == 1
                 ? const SizedBox()
