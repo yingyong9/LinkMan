@@ -9,6 +9,7 @@ import 'package:admanyout/states/add_photo.dart';
 import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
+import 'package:admanyout/states/manage_my_link.dart';
 import 'package:admanyout/states/manage_my_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -37,7 +38,6 @@ class MainHome extends StatefulWidget {
 }
 
 class _MainHomeState extends State<MainHome> {
-
   var user = FirebaseAuth.instance.currentUser;
   var postModels = <PostModel>[];
   var docIdPosts = <String>[];
@@ -182,62 +182,69 @@ class _MainHomeState extends State<MainHome> {
                         const SizedBox(
                           height: 16,
                         ),
-                        // const Divider(
-                        //   color: Colors.grey,
-                        // ),
                       ],
                     ),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    child: Container(
-                      width: constraints.maxWidth,
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ShowIconButton(
-                            iconData: Icons.arrow_forward_ios,
-                            pressFunc: () {
-                              setState(() {
-                                displayIconButton = !displayIconButton;
-                              });
-                            },
-                          ),
-                          displayIconButton
-                              ? ShowIconButton(
-                                  iconData: Icons.add_a_photo, pressFunc: () {})
-                              : const SizedBox(),
-                               displayIconButton
-                              ? ShowIconButton(
-                                  iconData: Icons.link_outlined, pressFunc: () {})
-                              : const SizedBox(),
-                          ShowForm(
-                            controller: addLinkController,
-                            label: 'Add Link',
-                            iconData: Icons.link,
-                            changeFunc: (String string) {
-                              newLink = string.trim();
-                            },
-                          ),
-                          newLink?.isEmpty ?? true
-                              ? const SizedBox()
-                              : ShowIconButton(
-                                  iconData: Icons.send,
-                                  pressFunc: () async {
-                                    checkLink();
-                                  },
-                                ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  controlAddLink(constraints),
                 ],
               );
             }),
+    );
+  }
+
+  Positioned controlAddLink(BoxConstraints constraints) {
+    return Positioned(
+      bottom: 0,
+      child: Container(
+        width: constraints.maxWidth,
+        decoration: const BoxDecoration(
+          color: Colors.black,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ShowIconButton(
+              iconData: Icons.arrow_forward_ios,
+              pressFunc: () {
+                setState(() {
+                  displayIconButton = !displayIconButton;
+                });
+              },
+            ),
+            displayIconButton
+                ? ShowIconButton(iconData: Icons.add_a_photo, pressFunc: () {})
+                : const SizedBox(),
+            displayIconButton
+                ? ShowIconButton(
+                    iconData: Icons.link_outlined,
+                    pressFunc: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ManageMyLink(),
+                          ));
+                    })
+                : const SizedBox(),
+            ShowForm(
+              controller: addLinkController,
+              label: 'Add Link',
+              iconData: Icons.link,
+              changeFunc: (String string) {
+                newLink = string.trim();
+              },
+            ),
+            newLink?.isEmpty ?? true
+                ? const SizedBox()
+                : ShowIconButton(
+                    iconData: Icons.send,
+                    pressFunc: () async {
+                      checkLink();
+                    },
+                  ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -374,7 +381,9 @@ class _MainHomeState extends State<MainHome> {
         itemCount: postModels[index].urlPaths.length,
         itemBuilder: (context, index2) => Stack(
           children: [
-            SizedBox(width: constraints.maxWidth,height: constraints.maxHeight,
+            SizedBox(
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
               child: Image.network(
                 postModels[index].urlPaths[index2],
                 fit: BoxFit.scaleDown,
