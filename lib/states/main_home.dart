@@ -1,8 +1,7 @@
 // ignore_for_file: avoid_print
 
-import 'dart:io';
-
 import 'package:admanyout/models/follow_model.dart';
+import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/models/user_model.dart';
@@ -10,6 +9,7 @@ import 'package:admanyout/states/add_photo.dart';
 import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
+import 'package:admanyout/states/manage_my_link.dart';
 import 'package:admanyout/states/manage_my_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -17,15 +17,16 @@ import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
+import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
-import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -46,10 +47,12 @@ class _MainHomeState extends State<MainHome> {
   var titles = <String>['แก้ไขโปรไฟร์', 'Sign Out'];
   String? title, token;
   UserModel? userModelLogin;
-
   ScrollController scrollController = ScrollController();
-
   bool openProgress = false;
+  String? newLink;
+  String? nameLink;
+  TextEditingController addLinkController = TextEditingController();
+  bool displayIconButton = false;
 
   @override
   void initState() {
@@ -164,25 +167,145 @@ class _MainHomeState extends State<MainHome> {
       body: load
           ? const ShowProgress()
           : LayoutBuilder(builder: (context, constraints) {
-              return ListView.builder(
-                controller: scrollController,
-                itemCount: postModels.length,
-                itemBuilder: (context, index) => Column(
-                  children: [
-                    newRowUp(constraints, index, context),
-                    newDiaplayImage(constraints, index),
-                    newRowDown(constraints, index),
-                    const SizedBox(
-                      height: 16,
+              return Stack(
+                children: [
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const ScrollPhysics(),
+                    controller: scrollController,
+                    itemCount: postModels.length,
+                    itemBuilder: (context, index) => Column(
+                      children: [
+                        newRowUp(constraints, index, context),
+                        newDiaplayImage(constraints, index),
+                        newRowDown(constraints, index),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                      ],
                     ),
-                    // const Divider(
-                    //   color: Colors.grey,
-                    // ),
-                  ],
-                ),
+                  ),
+                  controlAddLink(constraints),
+                ],
               );
             }),
     );
+  }
+
+  Positioned controlAddLink(BoxConstraints constraints) {
+    return Positioned(
+      bottom: 0,
+      child: Container(
+        width: constraints.maxWidth,
+        decoration: const BoxDecoration(
+          color: Colors.black,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ShowIconButton(
+              iconData: Icons.arrow_forward_ios,
+              pressFunc: () {
+                setState(() {
+                  displayIconButton = !displayIconButton;
+                });
+              },
+            ),
+            displayIconButton
+                ? ShowIconButton(iconData: Icons.arrow_forward_ios, pressFunc: () {})
+                : const SizedBox(),
+            displayIconButton
+                ? ShowIconButton(
+                    iconData: Icons.link_outlined,
+                    pressFunc: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ManageMyLink(),
+                          ));
+                    })
+                : const SizedBox(),
+            ShowForm(
+              controller: addLinkController,
+              label: 'Add Link',
+              iconData: Icons.link,
+              changeFunc: (String string) {
+                newLink = string.trim();
+              },
+            ),
+            newLink?.isEmpty ?? true
+                ? const SizedBox()
+                : ShowIconButton(
+                    iconData: Icons.send,
+                    pressFunc: () async {
+                      checkLink();
+                    },
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> checkLink() async {
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .collection('link')
+        .where('urlLink', isEqualTo: newLink)
+        .get()
+        .then((value) {
+      if (value.docs.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            backgroundColor: Colors.grey.shade900,
+            title: const ShowText(label: 'Name Link'),
+            content: ShowForm(
+                label: 'Name Link',
+                iconData: Icons.link,
+                changeFunc: (String string) {
+                  nameLink = string.trim();
+                }),
+            actions: [
+              ShowIconButton(
+                  iconData: Icons.send,
+                  pressFunc: () {
+                    if (nameLink?.isEmpty ?? true) {
+                      Fluttertoast.showToast(
+                        msg: 'Input Name Link',
+                        toastLength: Toast.LENGTH_LONG,
+                      );
+                    } else {
+                      processAddNameLink();
+                    }
+                  })
+            ],
+          ),
+        );
+      } else {
+        Fluttertoast.showToast(msg: 'Have Link');
+        addLinkController.text = '';
+      }
+    });
+  }
+
+  Future<void> processAddNameLink() async {
+    LinkModel linkModel =
+        LinkModel(nameLink: nameLink!, urlLink: newLink!, groupLink: '');
+
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .collection('link')
+        .doc()
+        .set(linkModel.toMap())
+        .then((value) {
+      addLinkController.text = '';
+      Fluttertoast.showToast(msg: 'Add Link Success');
+      Navigator.pop(context);
+    });
   }
 
   Row newRowDown(BoxConstraints constraints, int index) {
@@ -236,7 +359,9 @@ class _MainHomeState extends State<MainHome> {
             ShowOutlineButton(
                 label: postModels[index].nameButton,
                 pressFunc: () {
-                  processClickButton(postModel: postModels[index]);
+                  processClickButton(
+                      postModel: postModels[index],
+                      nameButton: postModels[index].nameButton);
                 }),
             //  specialButton(context),
           ],
@@ -248,7 +373,7 @@ class _MainHomeState extends State<MainHome> {
   SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
     return SizedBox(
       // width: constraints.maxWidth,
-      height: constraints.maxWidth * 0.75,
+      height: constraints.maxHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const ClampingScrollPhysics(),
@@ -256,26 +381,32 @@ class _MainHomeState extends State<MainHome> {
         itemCount: postModels[index].urlPaths.length,
         itemBuilder: (context, index2) => Stack(
           children: [
-            Image.network(
-              postModels[index].urlPaths[index2],
-              fit: BoxFit.contain,
+            SizedBox(
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              child: Image.network(
+                postModels[index].urlPaths[index2],
+                fit: BoxFit.scaleDown,
+              ),
             ),
             postModels[index].urlPaths.length == 1
                 ? const SizedBox()
-                : Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(15)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ShowText(
-                        label:
-                            '${index2 + 1}/${postModels[index].urlPaths.length}',
-                        textStyle: MyConstant().h2Style(),
+                : Positioned(right: 0,
+                  child: Container(
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ShowText(
+                          label:
+                              '${index2 + 1}/${postModels[index].urlPaths.length}',
+                          textStyle: MyConstant().h2Style(),
+                        ),
                       ),
                     ),
-                  ),
+                ),
           ],
         ),
       ),
@@ -406,21 +537,26 @@ class _MainHomeState extends State<MainHome> {
                 userModelLogin!.avatar!.isEmpty
                     ? InkWell(
                         onTap: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => const ManageMyPost(),
-                          //     ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ManageMyPost(),
+                              )).then((value) {
+                            print('##19may back from managepost');
+                            readPost();
+                          });
                         },
                         child: newAvatarIcon(),
                       )
                     : InkWell(
                         onTap: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => const ManageMyPost(),
-                          //     ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ManageMyPost(),
+                              )).then((value) {
+                            readPost();
+                          });
                         },
                         child: ShowCircleImage(path: userModelLogin!.avatar!),
                       ),
@@ -428,6 +564,7 @@ class _MainHomeState extends State<MainHome> {
                   width: 16,
                 ),
                 DropdownButton<dynamic>(
+                  underline: const SizedBox(),
                   value: title,
                   items: titles
                       .map(
@@ -472,12 +609,14 @@ class _MainHomeState extends State<MainHome> {
         // ),
         ShowIconButton(
           iconData: Icons.add_box_outlined,
-          pressFunc: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddPhoto(),
-            ),
-          ),
+          pressFunc: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddPhoto(),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -544,7 +683,8 @@ class _MainHomeState extends State<MainHome> {
     });
   }
 
-  Future<void> processClickButton({required PostModel postModel}) async {
+  Future<void> processClickButton(
+      {required PostModel postModel, required String nameButton}) async {
     var widgets = <Widget>[];
     int index = 0;
     for (var item in postModel.link) {
@@ -552,6 +692,7 @@ class _MainHomeState extends State<MainHome> {
         ShowButton(
           label: postModel.nameLink[index],
           pressFunc: () async {
+            Navigator.pop(context);
             final Uri uri = Uri.parse(item);
             if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
               throw '##7may Cannot launch $uri';
@@ -565,11 +706,11 @@ class _MainHomeState extends State<MainHome> {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.grey.shade900,
         title: ListTile(
-          leading: const ShowImage(),
+          // leading: const ShowImage(),
           title: ShowText(
-            label: 'Link',
+            label: nameButton,
             textStyle: MyConstant().h2Style(),
           ),
         ),
