@@ -10,6 +10,7 @@ import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
 import 'package:admanyout/states/manage_my_link.dart';
+import 'package:admanyout/states/manage_my_photo.dart';
 import 'package:admanyout/states/manage_my_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -213,7 +214,15 @@ class _MainHomeState extends State<MainHome> {
               },
             ),
             displayIconButton
-                ? ShowIconButton(iconData: Icons.arrow_forward_ios, pressFunc: () {})
+                ? ShowIconButton(
+                    iconData: Icons.add_a_photo,
+                    pressFunc: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ManageMyPhoto(),
+                          ));
+                    })
                 : const SizedBox(),
             displayIconButton
                 ? ShowIconButton(
@@ -391,8 +400,9 @@ class _MainHomeState extends State<MainHome> {
             ),
             postModels[index].urlPaths.length == 1
                 ? const SizedBox()
-                : Positioned(right: 0,
-                  child: Container(
+                : Positioned(
+                    right: 0,
+                    child: Container(
                       margin: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                           color: Colors.black,
@@ -406,7 +416,7 @@ class _MainHomeState extends State<MainHome> {
                         ),
                       ),
                     ),
-                ),
+                  ),
           ],
         ),
       ),
