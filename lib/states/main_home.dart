@@ -213,7 +213,7 @@ class _MainHomeState extends State<MainHome> {
               },
             ),
             displayIconButton
-                ? ShowIconButton(iconData: Icons.add_a_photo, pressFunc: () {})
+                ? ShowIconButton(iconData: Icons.arrow_forward_ios, pressFunc: () {})
                 : const SizedBox(),
             displayIconButton
                 ? ShowIconButton(
@@ -391,20 +391,22 @@ class _MainHomeState extends State<MainHome> {
             ),
             postModels[index].urlPaths.length == 1
                 ? const SizedBox()
-                : Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(15)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ShowText(
-                        label:
-                            '${index2 + 1}/${postModels[index].urlPaths.length}',
-                        textStyle: MyConstant().h2Style(),
+                : Positioned(right: 0,
+                  child: Container(
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ShowText(
+                          label:
+                              '${index2 + 1}/${postModels[index].urlPaths.length}',
+                          textStyle: MyConstant().h2Style(),
+                        ),
                       ),
                     ),
-                  ),
+                ),
           ],
         ),
       ),
@@ -690,6 +692,7 @@ class _MainHomeState extends State<MainHome> {
         ShowButton(
           label: postModel.nameLink[index],
           pressFunc: () async {
+            Navigator.pop(context);
             final Uri uri = Uri.parse(item);
             if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
               throw '##7may Cannot launch $uri';
