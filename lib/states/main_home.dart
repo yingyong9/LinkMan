@@ -7,6 +7,7 @@ import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_photo.dart';
 import 'package:admanyout/states/authen.dart';
+import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
 import 'package:admanyout/states/manage_my_link.dart';
@@ -231,7 +232,7 @@ class _MainHomeState extends State<MainHome> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ManageMyLink(),
+                            builder: (context) => const BaseManageMyLink(),
                           ));
                     })
                 : const SizedBox(),

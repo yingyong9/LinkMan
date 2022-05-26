@@ -68,24 +68,24 @@ class _ManageMyLinkState extends State<ManageMyLink> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        actions: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(margin: const EdgeInsets.only(right: 16),
-                height: 40,
-                child: ShowOutlineButton(
-                  label: 'Choice',
-                  pressFunc: () {},
-                ),
-              ),
-            ],
-          ),
-        ],
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-      ),
+      // appBar: AppBar(
+      //   actions: [
+      //     Column(
+      //       mainAxisAlignment: MainAxisAlignment.center,
+      //       children: [
+      //         Container(margin: const EdgeInsets.only(right: 16),
+      //           height: 40,
+      //           child: ShowOutlineButton(
+      //             label: 'Choice',
+      //             pressFunc: () {},
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ],
+      //   backgroundColor: Colors.black,
+      //   foregroundColor: Colors.white,
+      // ),
       body: load
           ? const ShowProgress()
           : haveData!
@@ -217,7 +217,9 @@ class _ManageMyLinkState extends State<ManageMyLink> {
                     } else {
                       processAddNameLink();
                     }
-                  })
+                  },),
+                  ShowIconButton(iconData: Icons.public, pressFunc: (){},),
+                  ShowIconButton(iconData: Icons.two_k, pressFunc: (){},),
             ],
           ),
         );
