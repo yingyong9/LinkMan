@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:admanyout/models/photo_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
@@ -6,7 +9,9 @@ import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ManageMyPhoto extends StatefulWidget {
   const ManageMyPhoto({Key? key}) : super(key: key);
@@ -21,6 +26,7 @@ class _ManageMyPhotoState extends State<ManageMyPhoto> {
   bool? haveData;
   var photoModels = <PhotoModel>[];
   var selectImages = <bool>[];
+  var docIdPhotos = <String>[];
   bool displaySelect = false;
 
   @override
@@ -33,6 +39,8 @@ class _ManageMyPhotoState extends State<ManageMyPhoto> {
     if (photoModels.isNotEmpty) {
       photoModels.clear();
       selectImages.clear();
+      docIdPhotos.clear();
+      displaySelect = false;
     }
 
     await FirebaseFirestore.instance
@@ -48,6 +56,7 @@ class _ManageMyPhotoState extends State<ManageMyPhoto> {
           PhotoModel photoModel = PhotoModel.fromMap(element.data());
           photoModels.add(photoModel);
           selectImages.add(false);
+          docIdPhotos.add(element.id);
         }
         haveData = true;
       }
@@ -60,6 +69,42 @@ class _ManageMyPhotoState extends State<ManageMyPhoto> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: ShowIconButton(
+          iconData: Icons.add_a_photo,
+          pressFunc: () async {
+            var result = await ImagePicker().pickImage(
+              source: ImageSource.camera,
+              maxWidth: 800,
+              maxHeight: 800,
+            );
+
+            if (result != null) {
+              File file = File(result.path);
+              String nameFile =
+                  '${user!.uid}${Random().nextInt(100000000)}.jpg';
+              FirebaseStorage firebaseStorage = FirebaseStorage.instance;
+              Reference reference =
+                  firebaseStorage.ref().child('photo/$nameFile');
+              UploadTask uploadTask = reference.putFile(file);
+              await uploadTask.whenComplete(() async {
+                await reference.getDownloadURL().then((value) async {
+                  String urlPhoto = value;
+                  print('urlPhoto ==>> $urlPhoto');
+
+                  PhotoModel photoModel = PhotoModel(urlPhoto: urlPhoto);
+                  await FirebaseFirestore.instance
+                      .collection('user')
+                      .doc(user!.uid)
+                      .collection('photo')
+                      .doc()
+                      .set(photoModel.toMap())
+                      .then((value) {
+                    readAllMyPhoto();
+                  });
+                });
+              });
+            }
+          }),
       backgroundColor: Colors.black,
       appBar: AppBar(
         actions: [
@@ -73,14 +118,37 @@ class _ManageMyPhotoState extends State<ManageMyPhoto> {
                   children: [
                     displaySelect
                         ? ShowIconButton(
-                            iconData: Icons.delete_forever, pressFunc: () {})
+                            iconData: Icons.delete_forever,
+                            pressFunc: () async {
+                              for (var i = 0; i < selectImages.length; i++) {
+                                if (selectImages[i]) {
+                                  print(
+                                      'delete at index ==> ${docIdPhotos[i]}');
+                                  await FirebaseFirestore.instance
+                                      .collection('user')
+                                      .doc(user!.uid)
+                                      .collection('photo')
+                                      .doc(docIdPhotos[i])
+                                      .delete()
+                                      .then((value) {
+                                    print(
+                                        'delete at index ==> ${docIdPhotos[i]}');
+                                  });
+                                }
+                              }
+                              readAllMyPhoto();
+                              setState(() {});
+                            },
+                          )
                         : const SizedBox(),
                     ShowOutlineButton(
                       label: displaySelect ? 'UnSelect' : 'Select',
                       pressFunc: () {
-                        setState(() {
-                          displaySelect = !displaySelect;
-                        });
+                        for (var i = 0; i < selectImages.length; i++) {
+                          selectImages[i] = false;
+                        }
+                        displaySelect = !displaySelect;
+                        setState(() {});
                       },
                     ),
                   ],
@@ -114,7 +182,8 @@ class _ManageMyPhotoState extends State<ManageMyPhoto> {
                           ? Theme(
                               data: Theme.of(context)
                                   .copyWith(unselectedWidgetColor: Colors.red),
-                              child: Checkbox(activeColor: Colors.red,
+                              child: Checkbox(
+                                activeColor: Colors.red,
                                 value: selectImages[index],
                                 onChanged: (value) {
                                   setState(() {

@@ -215,7 +215,7 @@ class _MainHomeState extends State<MainHome> {
             ),
             displayIconButton
                 ? ShowIconButton(
-                    iconData: Icons.add_a_photo,
+                    iconData: Icons.image,
                     pressFunc: () {
                       Navigator.push(
                           context,
@@ -235,7 +235,7 @@ class _MainHomeState extends State<MainHome> {
                           ));
                     })
                 : const SizedBox(),
-            ShowForm(
+            ShowForm(width: displayIconButton ?  150:  250,
               controller: addLinkController,
               label: 'Add Link',
               iconData: Icons.link,
@@ -382,7 +382,7 @@ class _MainHomeState extends State<MainHome> {
   SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
     return SizedBox(
       // width: constraints.maxWidth,
-      height: constraints.maxHeight,
+      height: constraints.maxHeight*0.75,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const ClampingScrollPhysics(),
