@@ -9,12 +9,14 @@ class PublicLinkModel {
   final Timestamp timeAdd;
   final String uidAdd;
   final String urlLink;
+  final String docIdOwner;
   PublicLinkModel({
     required this.groupLink,
     required this.namelink,
     required this.timeAdd,
     required this.uidAdd,
     required this.urlLink,
+    required this.docIdOwner,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,6 +26,7 @@ class PublicLinkModel {
       'timeAdd': timeAdd,
       'uidAdd': uidAdd,
       'urlLink': urlLink,
+      'docIdOwner': docIdOwner,
     };
   }
 
@@ -34,8 +37,10 @@ class PublicLinkModel {
       timeAdd: (map['timeAdd']),
       uidAdd: (map['uidAdd'] ?? '') as String,
       urlLink: (map['urlLink'] ?? '') as String,
+      docIdOwner: (map['docIdOwner'] ?? '') as String,
     );
   }
 
-  factory PublicLinkModel.fromJson(String source) => PublicLinkModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory PublicLinkModel.fromJson(String source) =>
+      PublicLinkModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }
