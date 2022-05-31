@@ -56,20 +56,46 @@ class _MainHomeState extends State<MainHome> {
   TextEditingController addLinkController = TextEditingController();
   bool displayIconButton = false;
 
+  var documentLists = <DocumentSnapshot>[];
+
+  int factor = 0;
+
   @override
   void initState() {
     super.initState();
+    findUserModelLogin();
     readPost();
     processMessageing();
     setupScorllController();
+    findDocumentLists();
+  }
+
+  Future<void> findDocumentLists() async {
+    await FirebaseFirestore.instance
+        .collection('post')
+        .orderBy('timePost', descending: true)
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        documentLists.add(element);
+      }
+      print('ขนาดของ documentLists ==>> ${documentLists.length}');
+    });
   }
 
   void setupScorllController() {
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
-        print('Load More');
+        print('Load More on Top');
         readPost();
+      }
+
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        print('## Load More on Botton');
+        readMorePost();
+        factor++;
       }
     });
   }
@@ -99,25 +125,24 @@ class _MainHomeState extends State<MainHome> {
     });
   }
 
+  Future<void> findUserModelLogin() async {
+    userModelLogin = await MyFirebase().findUserModel(uid: user!.uid);
+  }
+
   Future<void> readPost() async {
     if (postModels.isNotEmpty) {
       postModels.clear();
       docIdPosts.clear();
       bolFollows.clear();
       userModelPosts.clear();
+      load = true;
+      setState(() {});
     }
-
-    await FirebaseFirestore.instance
-        .collection('user')
-        .doc(user!.uid)
-        .get()
-        .then((value) {
-      userModelLogin = UserModel.fromMap(value.data()!);
-    });
 
     await FirebaseFirestore.instance
         .collection('post')
         .orderBy('timePost', descending: true)
+        .limit(10)
         .get()
         .then((value) async {
       for (var item in value.docs) {
@@ -159,6 +184,52 @@ class _MainHomeState extends State<MainHome> {
       load = false;
       setState(() {});
     });
+  }
+
+  Future<void> readMorePost() async {
+    if (factor * 10 + 10 <= documentLists.length) {
+      await FirebaseFirestore.instance
+          .collection('post')
+          .orderBy('timePost', descending: true)
+          .startAfterDocument(documentLists[10 * factor])
+          .limit(10)
+          .get()
+          .then((value) async {
+        for (var item in value.docs) {
+          PostModel postModel = PostModel.fromMap(item.data());
+          postModels.add(postModel);
+          docIdPosts.add(item.id);
+
+          UserModel userModel =
+              await MyFirebase().findUserModel(uid: postModel.uidPost);
+          userModelPosts.add(userModel);
+
+          String uidOwnPost = postModel.uidPost;
+          String uidLogin = user!.uid;
+          await FirebaseFirestore.instance
+              .collection('user')
+              .doc(uidOwnPost)
+              .collection('follow')
+              .doc(uidLogin)
+              .get()
+              .then((value) {
+            bool result;
+            if (value.data() == null) {
+              // ยังไม่ได้ follow
+              result = false;
+            } else {
+              // follow แล่้ว
+              result = true;
+            }
+
+            bolFollows.add(result);
+          });
+        }
+
+        load = false;
+        setState(() {});
+      });
+    }
   }
 
   @override
@@ -236,7 +307,8 @@ class _MainHomeState extends State<MainHome> {
                           ));
                     })
                 : const SizedBox(),
-            ShowForm(width: displayIconButton ?  150:  250,
+            ShowForm(
+              width: displayIconButton ? 150 : 250,
               controller: addLinkController,
               label: 'Add Link',
               iconData: Icons.link,
@@ -383,7 +455,7 @@ class _MainHomeState extends State<MainHome> {
   SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
     return SizedBox(
       // width: constraints.maxWidth,
-      height: constraints.maxHeight*0.75,
+      height: constraints.maxHeight * 0.75,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const ClampingScrollPhysics(),
