@@ -71,32 +71,7 @@ class _AddPhotoState extends State<AddPhoto> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('โพสต์ใหม่'),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
-        actions: [
-          ShowIconButton(
-              iconData: Icons.arrow_forward,
-              pressFunc: () {
-                if (choosePhotoModels.isEmpty) {
-                  MyDialog(context: context).normalActionDilalog(
-                      title: 'No Photo ?',
-                      message: 'Please Choose Photo',
-                      label: 'OK',
-                      pressFunc: () => Navigator.pop(context));
-                } else {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            AddForm(photoModels: choosePhotoModels),
-                      ),
-                      (route) => false);
-                }
-              })
-        ],
-      ),
+      appBar: myAppBar(context),
       body: LayoutBuilder(builder: (context, constraints) {
         return SingleChildScrollView(
           child: Column(
@@ -140,6 +115,35 @@ class _AddPhotoState extends State<AddPhoto> {
           ),
         );
       }),
+    );
+  }
+
+  AppBar myAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text('โพสต์ใหม่'),
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.black,
+      actions: [
+        ShowIconButton(
+            iconData: Icons.arrow_forward,
+            pressFunc: () {
+              if (choosePhotoModels.isEmpty) {
+                MyDialog(context: context).normalActionDilalog(
+                    title: 'No Photo ?',
+                    message: 'Please Choose Photo',
+                    label: 'OK',
+                    pressFunc: () => Navigator.pop(context));
+              } else {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          AddForm(photoModels: choosePhotoModels),
+                    ),
+                    (route) => false);
+              }
+            })
+      ],
     );
   }
 

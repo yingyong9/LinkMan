@@ -6,11 +6,11 @@ import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_photo.dart';
+import 'package:admanyout/states/add_photo_multi.dart';
 import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
-import 'package:admanyout/states/manage_my_link.dart';
 import 'package:admanyout/states/manage_my_photo.dart';
 import 'package:admanyout/states/manage_my_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
@@ -40,6 +40,7 @@ class MainHome extends StatefulWidget {
 }
 
 class _MainHomeState extends State<MainHome> {
+
   var user = FirebaseAuth.instance.currentUser;
   var postModels = <PostModel>[];
   var docIdPosts = <String>[];
@@ -225,7 +226,7 @@ class _MainHomeState extends State<MainHome> {
             bolFollows.add(result);
           });
         }
-
+        
         load = false;
         setState(() {});
       });
@@ -696,7 +697,8 @@ class _MainHomeState extends State<MainHome> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const AddPhoto(),
+                // builder: (context) => const AddPhoto(), 
+                 builder: (context) => const AddPhotoMulti(),
               ),
             );
           },
