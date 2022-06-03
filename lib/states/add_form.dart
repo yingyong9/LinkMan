@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_const_constructors, avoid_print
 import 'package:admanyout/models/follow_model.dart';
+import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/main_home.dart';
@@ -34,6 +35,11 @@ class _AddFormState extends State<AddForm> {
   int indexTextFromField = 0;
   String article = '', nameButton = 'กดปุ่ม';
   String? uidPost, name;
+  var user = FirebaseAuth.instance.currentUser;
+
+  var linkModels = <LinkModel>[];
+  bool load = true;
+  bool? haveLink;
 
   @override
   void initState() {
@@ -46,10 +52,33 @@ class _AddFormState extends State<AddForm> {
     }
 
     findUserLogin();
+    findMyAllLink();
+  }
+
+  Future<void> findMyAllLink() async {
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .collection('link')
+        .get()
+        .then((value) {
+      if (value.docs.isEmpty) {
+        //Without Link
+        haveLink = false;
+      } else {
+        for (var element in value.docs) {
+          LinkModel linkModel = LinkModel.fromMap(element.data());
+          linkModels.add(linkModel);
+        }
+
+        load = false;
+        haveLink = true;
+        setState(() {});
+      }
+    });
   }
 
   Future<void> findUserLogin() async {
-    var user = FirebaseAuth.instance.currentUser;
     uidPost = user!.uid;
 
     await FirebaseFirestore.instance
@@ -66,83 +95,7 @@ class _AddFormState extends State<AddForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        actions: [
-          ShowIconButton(
-              iconData: Icons.check,
-              pressFunc: () async {
-                // print(
-                //     'uidPost ==> $uidPost, artical ==> $article, nameButton = => $nameButton');
-                // print('links ===>> $links');
-                // print('urlPath ==> $urlPath');
-
-                DateTime dateTime = DateTime.now();
-                Timestamp timePost = Timestamp.fromDate(dateTime);
-
-                PostModel postModel = PostModel(
-                  uidPost: uidPost!,
-                  urlPaths: urlPath,
-                  article: article,
-                  link: links,
-                  nameButton: nameButton,
-                  name: name!,
-                  timePost: timePost,
-                  nameLink: nameLinks,
-                );
-
-                print('postModel ==>> ${postModel.toMap()}');
-
-                await FirebaseFirestore.instance
-                    .collection('post')
-                    .doc()
-                    .set(postModel.toMap())
-                    .then((value) async {
-                  await FirebaseFirestore.instance
-                      .collection('user')
-                      .doc(uidPost)
-                      .collection('follow')
-                      .get()
-                      .then((value) {
-                    print('##30April value aaaa ==> ${value.docs}');
-
-                    if (value.docs.isEmpty) {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MainHome(),
-                          ),
-                          (route) => false);
-                    } else {
-                      for (var item in value.docs) {
-                        FollowModel followModel =
-                            FollowModel.fromMap(item.data());
-                        print(
-                            '##30April followModel ==>> ${followModel.toMap()}');
-
-                        processSentNoti(tokenFollow: followModel.token);
-                      }
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MainHome(),
-                          ),
-                          (route) => false);
-                    }
-                  });
-                });
-              })
-        ],
-        leading: ShowIconButton(
-            iconData: Icons.arrow_back,
-            pressFunc: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainHome(),
-                ),
-                (route) => false)),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
-      ),
+      appBar: newAppBar(context),
       body: LayoutBuilder(
         builder: (context, constraints) => GestureDetector(
           onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
@@ -150,18 +103,24 @@ class _AddFormState extends State<AddForm> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                addDescriptionImage(constraints),
+                showListImage(constraints),
                 Column(
                   children: widgetLinks,
                 ),
-                ShowButton(
-                    label: 'Link URL +',
-                    pressFunc: () {
-                      indexTextFromField++;
-                      setState(() {
-                        widgetLinks.add(createTextFromFiew(indexTextFromField));
-                      });
-                    }),
+                Row(
+                  
+                  children: [
+                    
+                    ShowButton(
+                        label: 'Link URL +',
+                        pressFunc: () {
+                          indexTextFromField++;
+                          setState(() {
+                            widgetLinks.add(createTextFromFiew(indexTextFromField));
+                          });
+                        }),
+                  ],
+                ),
                 ShowForm(
                   label: 'ชื่อปุ่ม',
                   iconData: Icons.bookmark,
@@ -174,6 +133,86 @@ class _AddFormState extends State<AddForm> {
           ),
         ),
       ),
+    );
+  }
+
+  AppBar newAppBar(BuildContext context) {
+    return AppBar(
+      actions: [
+        ShowIconButton(
+            iconData: Icons.check,
+            pressFunc: () async {
+              // print(
+              //     'uidPost ==> $uidPost, artical ==> $article, nameButton = => $nameButton');
+              // print('links ===>> $links');
+              // print('urlPath ==> $urlPath');
+
+              DateTime dateTime = DateTime.now();
+              Timestamp timePost = Timestamp.fromDate(dateTime);
+
+              PostModel postModel = PostModel(
+                uidPost: uidPost!,
+                urlPaths: urlPath,
+                article: article,
+                link: links,
+                nameButton: nameButton,
+                name: name!,
+                timePost: timePost,
+                nameLink: nameLinks,
+              );
+
+              print('postModel ==>> ${postModel.toMap()}');
+
+              await FirebaseFirestore.instance
+                  .collection('post')
+                  .doc()
+                  .set(postModel.toMap())
+                  .then((value) async {
+                await FirebaseFirestore.instance
+                    .collection('user')
+                    .doc(uidPost)
+                    .collection('follow')
+                    .get()
+                    .then((value) {
+                  print('##30April value aaaa ==> ${value.docs}');
+
+                  if (value.docs.isEmpty) {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MainHome(),
+                        ),
+                        (route) => false);
+                  } else {
+                    for (var item in value.docs) {
+                      FollowModel followModel =
+                          FollowModel.fromMap(item.data());
+                      print(
+                          '##30April followModel ==>> ${followModel.toMap()}');
+
+                      processSentNoti(tokenFollow: followModel.token);
+                    }
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MainHome(),
+                        ),
+                        (route) => false);
+                  }
+                });
+              });
+            })
+      ],
+      leading: ShowIconButton(
+          iconData: Icons.arrow_back,
+          pressFunc: () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MainHome(),
+              ),
+              (route) => false)),
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.black,
     );
   }
 
@@ -199,11 +238,10 @@ class _AddFormState extends State<AddForm> {
                 string = string.substring(0, 8);
                 print('##7may string ==> $string');
                 if (string == 'https://') {
-                   links[index] = value.trim();
+                  links[index] = value.trim();
                 } else {
-                   links[index] = 'https://${value.trim()}';
+                  links[index] = 'https://${value.trim()}';
                 }
-               
               }
 
               // links[index] = value.trim();
@@ -236,12 +274,29 @@ class _AddFormState extends State<AddForm> {
     );
   }
 
+  Widget showListImage(BoxConstraints constraints) => SizedBox(
+        height: 200,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          physics: ClampingScrollPhysics(),
+          itemCount: photoModels.length,
+          itemBuilder: (context, index) => SizedBox(
+            width: constraints.maxWidth,
+            child: Image.network(
+              photoModels[index].urlPhoto,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      );
+
   Row addDescriptionImage(BoxConstraints constraints) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         SizedBox(
-          width: constraints.maxWidth * 0.3,
+          width: constraints.maxWidth * 0.8,
           child: Image.network(photoModels[0].urlPhoto),
         ),
         SizedBox(
