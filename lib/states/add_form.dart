@@ -3,11 +3,13 @@ import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/user_model.dart';
+import 'package:admanyout/states/list_all_my_link.dart';
 import 'package:admanyout/states/main_home.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
+import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -104,35 +106,59 @@ class _AddFormState extends State<AddForm> {
             child: Column(
               children: [
                 showListImage(constraints),
-                Column(
-                  children: widgetLinks,
-                ),
-                Row(
-                  
-                  children: [
-                    
-                    ShowButton(
-                        label: 'Link URL +',
-                        pressFunc: () {
-                          indexTextFromField++;
-                          setState(() {
-                            widgetLinks.add(createTextFromFiew(indexTextFromField));
-                          });
-                        }),
-                  ],
-                ),
-                ShowForm(
-                  label: 'ชื่อปุ่ม',
-                  iconData: Icons.bookmark,
-                  changeFunc: (String string) {
-                    nameButton = string.trim();
-                  },
-                ),
+                // newAddMoreLink(),
+                // buttonLinkUrl(),
+                ShowOutlineButton(
+                    label: 'Choose Link',
+                    pressFunc: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return ListAllMyLink();
+                          },
+                        ),
+                      ).then((value) {
+                        print('Back From List All my link');
+                      });
+                    }),
+                formNameButton(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  ShowForm formNameButton() {
+    return ShowForm(
+      label: 'ชื่อปุ่ม',
+      iconData: Icons.bookmark,
+      changeFunc: (String string) {
+        nameButton = string.trim();
+      },
+    );
+  }
+
+  Row buttonLinkUrl() {
+    return Row(
+      children: [
+        ShowButton(
+            label: 'Link URL +',
+            pressFunc: () {
+              indexTextFromField++;
+              setState(() {
+                widgetLinks.add(createTextFromFiew(indexTextFromField));
+              });
+            }),
+      ],
+    );
+  }
+
+  Column newAddMoreLink() {
+    return Column(
+      children: widgetLinks,
     );
   }
 

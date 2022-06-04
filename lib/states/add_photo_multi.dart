@@ -6,9 +6,11 @@ import 'dart:math';
 import 'package:admanyout/models/photo_model.dart';
 import 'package:admanyout/states/add_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:image/image.dart' as Im;
 
@@ -88,12 +90,37 @@ class _AddPhotoMultiState extends State<AddPhotoMulti> {
     for (var element in assetEntitys) {
       final File? file = await element.file;
 
-      
+      final filePath = file!.path;
+      print('filePath ==> $filePath');
+      final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
+      print('lastIndex ===> $lastIndex');
+      final splitted = filePath.substring(0, (lastIndex));
+      print('splitted ==> $splitted');
+      final outPath = '${splitted}_out${filePath.substring(lastIndex)}';
+      print('outPath ==> $outPath');
+
+      // final compressedImage = await FlutterImageCompress.compressAndGetFile(
+      //   filePath,
+      //   outPath,
+      //   minWidth: 800,
+      //   minHeight: 800,
+      //   quality: 70,
+      // );
+
+      // var pathSmall = compressedImage!.path;
+      // print('pathSmall ==>> $pathSmall');
+
+      // var result = await FilePicker.platform.pickFiles(
+      //   type: FileType.custom,
+      //   allowedExtensions: ['jpg', 'jpeg', 'png', 'heic'],
+      // );
+
+      // File smallFile = File(result.files.single.path);
 
       String nameFile = '${user!.uid}${Random().nextInt(10000000)}.jpg';
       FirebaseStorage storage = FirebaseStorage.instance;
-      Reference reference = storage.ref().child('/post/$nameFile');
-      UploadTask uploadTask = reference.putFile(file!);
+      Reference reference = storage.ref().child('/test/$nameFile');
+      UploadTask uploadTask = reference.putFile(file);
       await uploadTask.whenComplete(() async {
         await reference.getDownloadURL().then((value) {
           String urlImage = value;

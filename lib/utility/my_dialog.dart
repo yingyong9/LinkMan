@@ -10,6 +10,8 @@ class MyDialog {
     required this.context,
   });
 
+  
+
   Future<void> processDialog() async {
     showDialog(
         context: context,
