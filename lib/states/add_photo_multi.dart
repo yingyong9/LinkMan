@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'dart:math';
 
@@ -86,8 +88,7 @@ class _AddPhotoMultiState extends State<AddPhotoMulti> {
     for (var element in assetEntitys) {
       final File? file = await element.file;
 
-      // Im.Image? image = Im.decodeImage(file!.readAsBytesSync());
-      // Im.Image smallImage = Im.copyResize(image!, width: 800, height: 800);
+      
 
       String nameFile = '${user!.uid}${Random().nextInt(10000000)}.jpg';
       FirebaseStorage storage = FirebaseStorage.instance;
