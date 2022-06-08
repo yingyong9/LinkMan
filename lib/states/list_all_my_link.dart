@@ -2,13 +2,14 @@ import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
-import 'package:admanyout/widgets/show_form.dart';
+import 'package:admanyout/widgets/show_form_icon_button.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ListAllMyLink extends StatefulWidget {
   const ListAllMyLink({Key? key}) : super(key: key);
@@ -23,6 +24,11 @@ class _ListAllMyLinkState extends State<ListAllMyLink> {
   var selectLinks = <bool>[];
   bool load = true;
   bool? haveLink;
+  bool statusChooseOneLink = false;
+
+  TextEditingController controller = TextEditingController();
+
+  String? nameGroup;
 
   @override
   void initState() {
@@ -53,6 +59,14 @@ class _ListAllMyLinkState extends State<ListAllMyLink> {
     });
   }
 
+  void checkChooseOneLink() {
+    for (var element in selectLinks) {
+      if (element) {
+        statusChooseOneLink = true;
+      }
+    }
+  }
+
   Future<void> addNameGroupDialog() async {
     showDialog(
         context: context,
@@ -69,7 +83,21 @@ class _ListAllMyLinkState extends State<ListAllMyLink> {
                   textStyle: MyConstant().h2Style(),
                 ),
               ),
-              content: ShowForm(label: '', iconData: Icons.send, changeFunc: (String string){}),
+              content: ShowFormIconButton(
+                iconData: Icons.link,
+                changeFunc: (String string) {
+                  nameGroup = string.trim();
+                },
+                pressFunc: () {
+                  print('You Click');
+                  if (nameGroup?.isEmpty ?? true) {
+                    Fluttertoast.showToast(
+                        msg: 'Please Fill Name Link', textColor: Colors.red);
+                  } else {
+                    processTakeData();
+                  }
+                },
+              ),
             ));
   }
 
@@ -82,7 +110,13 @@ class _ListAllMyLinkState extends State<ListAllMyLink> {
           ShowIconButton(
               iconData: Icons.check_circle_outline,
               pressFunc: () {
-                addNameGroupDialog();
+                checkChooseOneLink();
+                if (statusChooseOneLink) {
+                  addNameGroupDialog();
+                } else {
+                  Fluttertoast.showToast(
+                      msg: 'Please Choose Link', textColor: Colors.red);
+                }
               })
         ],
         backgroundColor: Colors.black,
@@ -143,5 +177,24 @@ class _ListAllMyLinkState extends State<ListAllMyLink> {
                   textStyle: MyConstant().h1Style(),
                 )),
     );
+  }
+
+  void processTakeData() {
+    var choosedLinkModels = <LinkModel>[];
+
+    for (var i = 0; i < selectLinks.length; i++) {
+      if (selectLinks[i]) {
+        choosedLinkModels.add(linkModels[i]);
+      }
+    }
+
+    print('name ==> $nameGroup, ${choosedLinkModels.length}');
+    Map<String, dynamic> map = {};
+    map['nameGroup'] = nameGroup;
+
+    map['choosed'] = choosedLinkModels;
+    print('map ====>> $map');
+    Navigator.pop(context);
+    Navigator.pop(context, map);
   }
 }

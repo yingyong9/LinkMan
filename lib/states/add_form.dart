@@ -10,6 +10,7 @@ import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
+import 'package:admanyout/widgets/show_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ class _AddFormState extends State<AddForm> {
   var widgetLinks = <Widget>[];
   var links = <String>[];
   var urlPath = <String>[];
+
   var nameLinks = <String>[];
 
   int indexTextFromField = 0;
@@ -42,6 +44,8 @@ class _AddFormState extends State<AddForm> {
   var linkModels = <LinkModel>[];
   bool load = true;
   bool? haveLink;
+
+  var nameGroups = <String>[];
 
   @override
   void initState() {
@@ -108,6 +112,14 @@ class _AddFormState extends State<AddForm> {
                 showListImage(constraints),
                 // newAddMoreLink(),
                 // buttonLinkUrl(),
+                nameGroups.isEmpty
+                    ? const SizedBox()
+                    : ListView.builder(shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        itemCount: nameGroups.length,
+                        itemBuilder: (context, index) =>
+                            ShowText(label: nameGroups[index]),
+                      ),
                 ShowOutlineButton(
                     label: 'Choose Link',
                     pressFunc: () {
@@ -119,7 +131,13 @@ class _AddFormState extends State<AddForm> {
                           },
                         ),
                       ).then((value) {
-                        print('Back From List All my link');
+                        if (value != null) {
+                          var result = value;
+                          String nameGroup = result['nameGroup'];
+                          var linkModels = result['choosed'];
+                          nameGroups.add(nameGroup);
+                          setState(() {});
+                        }
                       });
                     }),
                 formNameButton(),
