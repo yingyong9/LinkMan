@@ -2,6 +2,7 @@
 import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/post_model.dart';
+import 'package:admanyout/models/post_model2.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/list_all_my_link.dart';
 import 'package:admanyout/states/main_home.dart';
@@ -46,6 +47,9 @@ class _AddFormState extends State<AddForm> {
   bool? haveLink;
 
   var nameGroups = <String>[];
+  var listMapLinks = <Map<String, dynamic>>[];
+  var listNameLinkWidgets = <List<Widget>>[];
+  var maps = <Map<String, dynamic>>[];
 
   @override
   void initState() {
@@ -114,11 +118,17 @@ class _AddFormState extends State<AddForm> {
                 // buttonLinkUrl(),
                 nameGroups.isEmpty
                     ? const SizedBox()
-                    : ListView.builder(shrinkWrap: true,
+                    : ListView.builder(
+                        shrinkWrap: true,
                         physics: ScrollPhysics(),
                         itemCount: nameGroups.length,
-                        itemBuilder: (context, index) =>
-                            ShowText(label: nameGroups[index]),
+                        itemBuilder: (context, index) => ExpansionTile(
+                          title: ShowText(
+                            label: nameGroups[index],
+                            textStyle: MyConstant().h2Style(),
+                          ),
+                          children: listNameLinkWidgets[index],
+                        ),
                       ),
                 ShowOutlineButton(
                     label: 'Choose Link',
@@ -134,8 +144,24 @@ class _AddFormState extends State<AddForm> {
                         if (value != null) {
                           var result = value;
                           String nameGroup = result['nameGroup'];
-                          var linkModels = result['choosed'];
                           nameGroups.add(nameGroup);
+
+                          var linkModels = result['choosed'];
+                          var widgets = <Widget>[];
+
+                          int i = 0;
+                          Map<String, dynamic> map = {};
+                          for (var element in linkModels) {
+                            LinkModel linkModel = element;
+                            Widget widget = ShowText(label: linkModel.nameLink);
+                            widgets.add(widget);
+                            map['link$i'] = linkModel.urlLink;
+
+                            i++;
+                          }
+                          maps.add(map);
+
+                          listNameLinkWidgets.add(widgets);
                           setState(() {});
                         }
                       });
@@ -184,68 +210,83 @@ class _AddFormState extends State<AddForm> {
     return AppBar(
       actions: [
         ShowIconButton(
-            iconData: Icons.check,
-            pressFunc: () async {
-              // print(
-              //     'uidPost ==> $uidPost, artical ==> $article, nameButton = => $nameButton');
-              // print('links ===>> $links');
-              // print('urlPath ==> $urlPath');
+          iconData: Icons.check,
+          pressFunc: () async {
+            DateTime dateTime = DateTime.now();
+            Timestamp timePost = Timestamp.fromDate(dateTime);
 
-              DateTime dateTime = DateTime.now();
-              Timestamp timePost = Timestamp.fromDate(dateTime);
+            print(
+                'uidPost ==> $uidPost, \n name = $name, \n nameButton ==> $nameButton,\n  timePost ==> $dateTime');
+            print('nameLinks ===>> $nameGroups');
+            print('maps ==> $maps');
+            print('urlPaths ==> $urlPath');
 
-              PostModel postModel = PostModel(
+            PostModel2 postModel = PostModel2(
                 uidPost: uidPost!,
                 urlPaths: urlPath,
-                article: article,
-                link: links,
+                link: maps,
                 nameButton: nameButton,
                 name: name!,
                 timePost: timePost,
-                nameLink: nameLinks,
-              );
+                nameLink: nameGroups);
 
-              print('postModel ==>> ${postModel.toMap()}');
+            print('postmodel2 ===>> ${postModel.toMap()}');
 
+            //**************************************/
+            // ส่วนของโค้ด เก่า
+            //**************************************/
+
+            // PostModel postModel = PostModel(
+            //   uidPost: uidPost!,
+            //   urlPaths: urlPath,
+            //   article: article,
+            //   link: links,
+            //   nameButton: nameButton,
+            //   name: name!,
+            //   timePost: timePost,
+            //   nameLink: nameLinks,
+            // );
+
+            // print('postModel ==>> ${postModel.toMap()}');
+
+            await FirebaseFirestore.instance
+                .collection('post')
+                .doc()
+                .set(postModel.toMap())
+                .then((value) async {
               await FirebaseFirestore.instance
-                  .collection('post')
-                  .doc()
-                  .set(postModel.toMap())
-                  .then((value) async {
-                await FirebaseFirestore.instance
-                    .collection('user')
-                    .doc(uidPost)
-                    .collection('follow')
-                    .get()
-                    .then((value) {
-                  print('##30April value aaaa ==> ${value.docs}');
+                  .collection('user')
+                  .doc(uidPost)
+                  .collection('follow')
+                  .get()
+                  .then((value) {
+                print('##30April value aaaa ==> ${value.docs}');
 
-                  if (value.docs.isEmpty) {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MainHome(),
-                        ),
-                        (route) => false);
-                  } else {
-                    for (var item in value.docs) {
-                      FollowModel followModel =
-                          FollowModel.fromMap(item.data());
-                      print(
-                          '##30April followModel ==>> ${followModel.toMap()}');
+                if (value.docs.isEmpty) {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MainHome(),
+                      ),
+                      (route) => false);
+                } else {
+                  for (var item in value.docs) {
+                    FollowModel followModel = FollowModel.fromMap(item.data());
+                    print('##30April followModel ==>> ${followModel.toMap()}');
 
-                      processSentNoti(tokenFollow: followModel.token);
-                    }
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MainHome(),
-                        ),
-                        (route) => false);
+                    processSentNoti(tokenFollow: followModel.token);
                   }
-                });
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MainHome(),
+                      ),
+                      (route) => false);
+                }
               });
-            })
+            });
+          }, // end PressFunc
+        )
       ],
       leading: ShowIconButton(
           iconData: Icons.arrow_back,
