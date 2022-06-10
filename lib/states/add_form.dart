@@ -250,7 +250,7 @@ class _AddFormState extends State<AddForm> {
             // print('postModel ==>> ${postModel.toMap()}');
 
             await FirebaseFirestore.instance
-                .collection('post')
+                .collection('post2')
                 .doc()
                 .set(postModel.toMap())
                 .then((value) async {

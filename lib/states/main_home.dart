@@ -409,7 +409,7 @@ class _MainHomeState extends State<MainHome> {
             SizedBox(
               width: constraints.maxWidth * 0.5 - 60,
               child: ShowText(
-                label: postModels[index].article,
+                label: postModels[index].article ?? '',
                 textStyle: MyConstant().h3WhiteStyle(),
               ),
             ),

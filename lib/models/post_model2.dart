@@ -37,7 +37,7 @@ class PostModel2 {
     return PostModel2(
       uidPost: (map['uidPost'] ?? '') as String,
       urlPaths: List<String>.from(map['urlPaths']),
-      link: List<Map<String, dynamic>>.from(map['link']),
+      link: List<Map<String, dynamic>>.from(map['link'] ?? [{'link1', 'https://www.google.co.th'}]),
       nameButton: (map['nameButton'] ?? '') as String,
       name: (map['name'] ?? '') as String,
       timePost: (map['timePost']),
