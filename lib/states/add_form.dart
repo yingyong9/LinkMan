@@ -50,6 +50,7 @@ class _AddFormState extends State<AddForm> {
   var listMapLinks = <Map<String, dynamic>>[];
   var listNameLinkWidgets = <List<Widget>>[];
   var maps = <Map<String, dynamic>>[];
+  var mapNameLinkShows = <Map<String, dynamic>>[];
 
   @override
   void initState() {
@@ -151,15 +152,18 @@ class _AddFormState extends State<AddForm> {
 
                           int i = 0;
                           Map<String, dynamic> map = {};
+                          Map<String, dynamic> mapNameLinkShow = {};
+
                           for (var element in linkModels) {
                             LinkModel linkModel = element;
                             Widget widget = ShowText(label: linkModel.nameLink);
                             widgets.add(widget);
                             map['link$i'] = linkModel.urlLink;
-
+                            mapNameLinkShow['name$i'] = linkModel.nameLink;
                             i++;
                           }
                           maps.add(map);
+                          mapNameLinkShows.add(mapNameLinkShow);
 
                           listNameLinkWidgets.add(widgets);
                           setState(() {});
@@ -215,20 +219,23 @@ class _AddFormState extends State<AddForm> {
             DateTime dateTime = DateTime.now();
             Timestamp timePost = Timestamp.fromDate(dateTime);
 
-            print(
-                'uidPost ==> $uidPost, \n name = $name, \n nameButton ==> $nameButton,\n  timePost ==> $dateTime');
-            print('nameLinks ===>> $nameGroups');
-            print('maps ==> $maps');
-            print('urlPaths ==> $urlPath');
+            // print(
+            //     'uidPost ==> $uidPost, \n name = $name, \n nameButton ==> $nameButton,\n  timePost ==> $dateTime');
+            // print('nameLinks ===>> $nameGroups');
+            // print('maps ==> $maps');
+            // print('urlPaths ==> $urlPath');
+            print('##10june mapNameLinkShows ==>> $mapNameLinkShows');
 
             PostModel2 postModel = PostModel2(
-                uidPost: uidPost!,
-                urlPaths: urlPath,
-                link: maps,
-                nameButton: nameButton,
-                name: name!,
-                timePost: timePost,
-                nameLink: nameGroups);
+              uidPost: uidPost!,
+              urlPaths: urlPath,
+              link: maps,
+              nameButton: nameButton,
+              name: name!,
+              timePost: timePost,
+              nameLink: nameGroups,
+              nameLinkShow: mapNameLinkShows,
+            );
 
             print('postmodel2 ===>> ${postModel.toMap()}');
 

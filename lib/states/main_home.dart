@@ -3,9 +3,9 @@
 import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/post_model.dart';
+import 'package:admanyout/models/post_model2.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/models/user_model.dart';
-import 'package:admanyout/states/add_photo.dart';
 import 'package:admanyout/states/add_photo_multi.dart';
 import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
@@ -40,9 +40,8 @@ class MainHome extends StatefulWidget {
 }
 
 class _MainHomeState extends State<MainHome> {
-
   var user = FirebaseAuth.instance.currentUser;
-  var postModels = <PostModel>[];
+  var postModels = <PostModel2>[];
   var docIdPosts = <String>[];
   var bolFollows = <bool>[];
   var userModelPosts = <UserModel>[];
@@ -64,6 +63,7 @@ class _MainHomeState extends State<MainHome> {
   @override
   void initState() {
     super.initState();
+
     findUserModelLogin();
     readPost();
     processMessageing();
@@ -141,13 +141,16 @@ class _MainHomeState extends State<MainHome> {
     }
 
     await FirebaseFirestore.instance
-        .collection('post')
+        .collection('post2')
         .orderBy('timePost', descending: true)
-        .limit(10)
+        // .limit(10)
         .get()
         .then((value) async {
+      // print('##10june value ==> ${value.docs}');
       for (var item in value.docs) {
-        PostModel postModel = PostModel.fromMap(item.data());
+        PostModel2 postModel = PostModel2.fromMap(item.data());
+        // print('##10june postmodel ==> ${postModel.toMap()}');
+
         postModels.add(postModel);
         docIdPosts.add(item.id);
 
@@ -197,7 +200,7 @@ class _MainHomeState extends State<MainHome> {
           .get()
           .then((value) async {
         for (var item in value.docs) {
-          PostModel postModel = PostModel.fromMap(item.data());
+          PostModel2 postModel = PostModel2.fromMap(item.data());
           postModels.add(postModel);
           docIdPosts.add(item.id);
 
@@ -226,7 +229,7 @@ class _MainHomeState extends State<MainHome> {
             bolFollows.add(result);
           });
         }
-        
+
         load = false;
         setState(() {});
       });
@@ -391,66 +394,14 @@ class _MainHomeState extends State<MainHome> {
     });
   }
 
-  Row newRowDown(BoxConstraints constraints, int index) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Icon(
-                Icons.comment,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(
-              width: constraints.maxWidth * 0.5 - 60,
-              child: ShowText(
-                label: postModels[index].article ?? '',
-                textStyle: MyConstant().h3WhiteStyle(),
-              ),
-            ),
-          ],
-        ),
-        // Badge(
-        //   badgeContent: ShowText(label: '0'),
-        //   child: ShowIconButton(
-        //     iconData: Icons.add_circle_outline,
-        //     pressFunc: () {
-        //       print('บวก docIdPost ==>> ${docIdPosts[index]}');
-        //       processVotePost(
-        //           docIdPost: docIdPosts[index], score: true);
-        //     },
-        //   ),
-        // ),
-        // Badge(
-        //   badgeContent: ShowText(label: '2'),
-        //   child: ShowIconButton(
-        //     iconData: Icons.remove_circle_outline,
-        //     pressFunc: () {
-        //       print('ลบ  docIdPost ==>> ${docIdPosts[index]}');
-        //       processVotePost(
-        //           docIdPost: docIdPosts[index], score: false);
-        //     },
-        //   ),
-        // ),
-        Column(
-          children: [
-            ShowOutlineButton(
-                label: postModels[index].nameButton,
-                pressFunc: () {
-                  processClickButton(
-                      postModel: postModels[index],
-                      nameButton: postModels[index].nameButton);
-                }),
-            //  specialButton(context),
-          ],
-        ),
-      ],
-    );
+  Widget newRowDown(BoxConstraints constraints, int index) {
+    return ShowOutlineButton(
+        label: postModels[index].nameButton,
+        pressFunc: () {
+          processClickButton(
+              postModel: postModels[index],
+              nameButton: postModels[index].nameButton);
+        });
   }
 
   SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
@@ -697,8 +648,8 @@ class _MainHomeState extends State<MainHome> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                // builder: (context) => const AddPhoto(), 
-                 builder: (context) => const AddPhotoMulti(),
+                // builder: (context) => const AddPhoto(),
+                builder: (context) => const AddPhotoMulti(),
               ),
             );
           },
@@ -769,21 +720,53 @@ class _MainHomeState extends State<MainHome> {
   }
 
   Future<void> processClickButton(
-      {required PostModel postModel, required String nameButton}) async {
+      {required PostModel2 postModel, required String nameButton}) async {
     var widgets = <Widget>[];
+
+    var nameLinkShow = postModel.nameLinkShow;
+    var link = postModel.link;
+    var listWidgets = <List<Widget>>[];
+
+    for (var element in nameLinkShow) {
+      // print('##10june element namelinkshow ==> $element');
+      var widgets = <Widget>[];
+      for (var i = 0; i < element.length; i++) {
+        String string = element['name$i'];
+        print('##10june string ==>> $string');
+
+        // String urlLink = link[i]['link$i'];
+        //  print('##10june urlLink ==>> $urlLink');
+
+        widgets.add(
+          InkWell(
+            onTap: () {
+              print('##10june you click i ==> $i');
+            },
+            child: ShowText(label: string),
+          ),
+        );
+      }
+      listWidgets.add(widgets);
+    }
+
     int index = 0;
     for (var item in postModel.link) {
       widgets.add(
-        ShowButton(
-          label: postModel.nameLink[index],
-          pressFunc: () async {
-            Navigator.pop(context);
-            final Uri uri = Uri.parse(item);
-            if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-              throw '##7may Cannot launch $uri';
-            }
-          },
+        ExpansionTile(
+          title: ShowText(label: postModel.nameLink[index]),
+          children: listWidgets[index],
         ),
+
+        // ShowButton(
+        //   label: postModel.nameLink[index],
+        //   pressFunc: () async {
+        //     // Navigator.pop(context);
+        //     // final Uri uri = Uri.parse(item);
+        //     // if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        //     //   throw '##7may Cannot launch $uri';
+        //     // }
+        //   },
+        // ),
       );
       index++;
     }
