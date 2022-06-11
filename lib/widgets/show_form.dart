@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 
 class ShowForm extends StatelessWidget {
@@ -12,6 +13,7 @@ class ShowForm extends StatelessWidget {
   final bool? obscub;
   final TextInputType? textInputType;
   final TextEditingController? controller;
+  final Function()? pressFunc;
   const ShowForm({
     Key? key,
     this.width,
@@ -21,6 +23,7 @@ class ShowForm extends StatelessWidget {
     this.obscub,
     this.textInputType,
     this.controller,
+    this.pressFunc,
   }) : super(key: key);
 
   @override
@@ -38,10 +41,7 @@ class ShowForm extends StatelessWidget {
         decoration: InputDecoration(
           contentPadding:
               const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-          suffixIcon: Icon(
-            iconData,
-            color: MyConstant.dark,
-          ),
+          suffixIcon: ShowIconButton(iconData: iconData, pressFunc: pressFunc ?? (){}),
           label: ShowText(label: label),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: MyConstant.dark),

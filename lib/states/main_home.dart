@@ -280,53 +280,62 @@ class _MainHomeState extends State<MainHome> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // ShowIconButton(
+            //   iconData: Icons.arrow_forward_ios,
+            //   pressFunc: () {
+            //     setState(() {
+            //       displayIconButton = !displayIconButton;
+            //     });
+            //   },
+            // ),
+            // displayIconButton
+            //     ? ShowIconButton(
+            //         iconData: Icons.image,
+            //         pressFunc: () {
+            //           Navigator.push(
+            //               context,
+            //               MaterialPageRoute(
+            //                 builder: (context) => const ManageMyPhoto(),
+            //               ));
+            //         })
+            //     : const SizedBox(),
+            // displayIconButton
+            //     ? ShowIconButton(
+            //         iconData: Icons.link_outlined,
+            //         pressFunc: () {
+            //           Navigator.push(
+            //               context,
+            //               MaterialPageRoute(
+            //                 builder: (context) => const BaseManageMyLink(),
+            //               ));
+            //         })
+            //     : const SizedBox(),
             ShowIconButton(
-              iconData: Icons.arrow_forward_ios,
-              pressFunc: () {
-                setState(() {
-                  displayIconButton = !displayIconButton;
-                });
-              },
-            ),
-            displayIconButton
-                ? ShowIconButton(
-                    iconData: Icons.image,
-                    pressFunc: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ManageMyPhoto(),
-                          ));
-                    })
-                : const SizedBox(),
-            displayIconButton
-                ? ShowIconButton(
-                    iconData: Icons.link_outlined,
-                    pressFunc: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BaseManageMyLink(),
-                          ));
-                    })
-                : const SizedBox(),
+                iconData: Icons.link_outlined,
+                pressFunc: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BaseManageMyLink(),
+                      ));
+                }),
             ShowForm(
-              width: displayIconButton ? 150 : 250,
               controller: addLinkController,
               label: 'Add Link',
-              iconData: Icons.link,
+              iconData: Icons.send,
               changeFunc: (String string) {
                 newLink = string.trim();
               },
+              pressFunc: ()async {
+               checkLink();
+              },
             ),
-            newLink?.isEmpty ?? true
-                ? const SizedBox()
-                : ShowIconButton(
-                    iconData: Icons.send,
-                    pressFunc: () async {
-                      checkLink();
-                    },
-                  ),
+
+            ShowIconButton(iconData: Icons.camera, pressFunc: (){
+    //           final intent = AndroidIntent(package: "com.android.facebook", action: "action_view");
+    // intent.launch();
+            }),
+          
           ],
         ),
       ),
