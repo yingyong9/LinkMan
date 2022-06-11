@@ -2,7 +2,6 @@
 
 import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/link_model.dart';
-import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/post_model2.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/models/user_model.dart';
@@ -727,25 +726,37 @@ class _MainHomeState extends State<MainHome> {
     var link = postModel.link;
     var listWidgets = <List<Widget>>[];
 
-    for (var element in nameLinkShow) {
-      // print('##10june element namelinkshow ==> $element');
+    var listLink = <List<String>>[];
+
+    for (var j = 0; j < nameLinkShow.length; j++) {
       var widgets = <Widget>[];
-      for (var i = 0; i < element.length; i++) {
-        String string = element['name$i'];
+      var lisks = <String>[];
+
+      for (var i = 0; i < nameLinkShow[j].length; i++) {
+        String string = nameLinkShow[j]['name$i'];
         print('##10june string ==>> $string');
 
-        // String urlLink = link[i]['link$i'];
-        //  print('##10june urlLink ==>> $urlLink');
+        String urlLink = link[j]['link$i'];
+        print('##10june urlLink ==>> $urlLink');
+        lisks.add(urlLink);
 
         widgets.add(
           InkWell(
-            onTap: () {
-              print('##10june you click i ==> $i');
+            onTap: () async {
+              print('##10june you click j ---> $j i ==> $i');
+              print('##10june you click link ==> ${listLink[j][i]}');
+
+              final Uri uri = Uri.parse(listLink[j][i]);
+              if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                throw '##7may Cannot launch $uri';
+              }
             },
             child: ShowText(label: string),
           ),
         );
-      }
+      } // for2
+
+      listLink.add(lisks);
       listWidgets.add(widgets);
     }
 
@@ -756,17 +767,6 @@ class _MainHomeState extends State<MainHome> {
           title: ShowText(label: postModel.nameLink[index]),
           children: listWidgets[index],
         ),
-
-        // ShowButton(
-        //   label: postModel.nameLink[index],
-        //   pressFunc: () async {
-        //     // Navigator.pop(context);
-        //     // final Uri uri = Uri.parse(item);
-        //     // if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        //     //   throw '##7may Cannot launch $uri';
-        //     // }
-        //   },
-        // ),
       );
       index++;
     }
