@@ -23,6 +23,7 @@ import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -280,36 +281,6 @@ class _MainHomeState extends State<MainHome> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // ShowIconButton(
-            //   iconData: Icons.arrow_forward_ios,
-            //   pressFunc: () {
-            //     setState(() {
-            //       displayIconButton = !displayIconButton;
-            //     });
-            //   },
-            // ),
-            // displayIconButton
-            //     ? ShowIconButton(
-            //         iconData: Icons.image,
-            //         pressFunc: () {
-            //           Navigator.push(
-            //               context,
-            //               MaterialPageRoute(
-            //                 builder: (context) => const ManageMyPhoto(),
-            //               ));
-            //         })
-            //     : const SizedBox(),
-            // displayIconButton
-            //     ? ShowIconButton(
-            //         iconData: Icons.link_outlined,
-            //         pressFunc: () {
-            //           Navigator.push(
-            //               context,
-            //               MaterialPageRoute(
-            //                 builder: (context) => const BaseManageMyLink(),
-            //               ));
-            //         })
-            //     : const SizedBox(),
             ShowIconButton(
                 iconData: Icons.link_outlined,
                 pressFunc: () {
@@ -322,20 +293,26 @@ class _MainHomeState extends State<MainHome> {
             ShowForm(
               controller: addLinkController,
               label: 'Add Link',
-              iconData: Icons.send,
+              iconData: Icons.arrow_forward_ios,
               changeFunc: (String string) {
                 newLink = string.trim();
               },
-              pressFunc: ()async {
-               checkLink();
+              pressFunc: () async {
+                checkLink();
               },
             ),
 
-            ShowIconButton(iconData: Icons.camera, pressFunc: (){
-    //           final intent = AndroidIntent(package: "com.android.facebook", action: "action_view");
-    // intent.launch();
-            }),
-          
+            ShowIconButton(
+                iconData: Icons.camera,
+                pressFunc: () {
+                  // final intent = AndroidIntent(
+                  //   package: "com.android.camera",
+                  //   action: "action_view",
+                  // );
+                  // intent.launch().then((value) {}).catchError((value) {
+                  //   print('error camera ==> $value');
+                  // });
+                }),
           ],
         ),
       ),
