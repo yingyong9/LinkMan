@@ -10,7 +10,6 @@ import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
-import 'package:admanyout/states/manage_my_photo.dart';
 import 'package:admanyout/states/manage_my_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -23,12 +22,12 @@ import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
-import 'package:android_intent_plus/android_intent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -301,7 +300,6 @@ class _MainHomeState extends State<MainHome> {
                 checkLink();
               },
             ),
-
             ShowIconButton(
                 iconData: Icons.camera,
                 pressFunc: () {
@@ -475,7 +473,7 @@ class _MainHomeState extends State<MainHome> {
               (user!.uid == postModels[index].uidPost)
                   ? const SizedBox()
                   : ShowOutlineButton(
-                      label: bolFollows[index] ? 'ติดตามแล้ว' : 'ติดตาม',
+                      label: bolFollows[index] ? 'UnLink' : 'Link',
                       pressFunc: () async {
                         openProgress = true;
                         MyDialog(context: context).processDialog();
@@ -530,10 +528,13 @@ class _MainHomeState extends State<MainHome> {
                         }
                       },
                     ),
-              // ShowIconButton(
-              //   iconData: Icons.more_vert,
-              //   pressFunc: () {},
-              // ),
+              ShowIconButton(
+                iconData: Icons.more_vert,
+                pressFunc: () async {
+                  print('Share Post');
+                  await Share.share('https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout # ${docIdPosts[index]}');
+                },
+              ),
             ],
           ),
         ),
