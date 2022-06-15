@@ -1,12 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_const_constructors, avoid_print
+
 import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/link_model.dart';
-import 'package:admanyout/models/post_model.dart';
 import 'package:admanyout/models/post_model2.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/list_all_my_link.dart';
 import 'package:admanyout/states/main_home.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
@@ -17,6 +18,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:admanyout/models/photo_model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AddForm extends StatefulWidget {
   final List<PhotoModel> photoModels;
@@ -51,6 +53,9 @@ class _AddFormState extends State<AddForm> {
   var listNameLinkWidgets = <List<Widget>>[];
   var maps = <Map<String, dynamic>>[];
   var mapNameLinkShows = <Map<String, dynamic>>[];
+
+  String shortcode = '';
+  bool shortcodeBool = false;
 
   @override
   void initState() {
@@ -213,17 +218,32 @@ class _AddFormState extends State<AddForm> {
   AppBar newAppBar(BuildContext context) {
     return AppBar(
       actions: [
+        Switch(
+            activeColor: Color.fromARGB(255, 105, 236, 75),
+            inactiveTrackColor: Color.fromARGB(255, 238, 43, 33),
+            value: shortcodeBool,
+            onChanged: (value) {
+              setState(() {
+                shortcodeBool = value;
+              });
+              if (shortcodeBool) {
+                Fluttertoast.showToast(
+                    msg: 'Gen ShortCode',
+                    textColor: Color.fromARGB(255, 105, 236, 75));
+                shortcode = MyFirebase().getRandom(3);
+              } else {
+                Fluttertoast.showToast(
+                    msg: 'Cancel Gen ShortCode',
+                    textColor: Color.fromARGB(255, 238, 43, 33));
+                shortcode = '';
+              }
+            }),
         ShowIconButton(
           iconData: Icons.check,
           pressFunc: () async {
             DateTime dateTime = DateTime.now();
             Timestamp timePost = Timestamp.fromDate(dateTime);
 
-            // print(
-            //     'uidPost ==> $uidPost, \n name = $name, \n nameButton ==> $nameButton,\n  timePost ==> $dateTime');
-            // print('nameLinks ===>> $nameGroups');
-            // print('maps ==> $maps');
-            // print('urlPaths ==> $urlPath');
             print('##10june mapNameLinkShows ==>> $mapNameLinkShows');
 
             PostModel2 postModel = PostModel2(
@@ -235,6 +255,7 @@ class _AddFormState extends State<AddForm> {
               timePost: timePost,
               nameLink: nameGroups,
               nameLinkShow: mapNameLinkShows,
+              shortcode: shortcode,
             );
 
             print('postmodel2 ===>> ${postModel.toMap()}');

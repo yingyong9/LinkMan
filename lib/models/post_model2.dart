@@ -12,6 +12,7 @@ class PostModel2 {
   final String name;
   final Timestamp timePost;
   final List<String> nameLink;
+  final String shortcode;
   PostModel2({
     required this.uidPost,
     required this.urlPaths,
@@ -21,6 +22,7 @@ class PostModel2 {
     required this.name,
     required this.timePost,
     required this.nameLink,
+    required this.shortcode,
   });
 
   Map<String, dynamic> toMap() {
@@ -33,11 +35,12 @@ class PostModel2 {
       'name': name,
       'timePost': timePost,
       'nameLink': nameLink,
+      'shortcode': shortcode,
     };
   }
 
   factory PostModel2.fromMap(Map<String, dynamic> map) {
-    return PostModel2(
+     return PostModel2(
       uidPost: (map['uidPost'] ?? '') as String,
       urlPaths: List<String>.from(map['urlPaths']),
       link: List<Map<String, dynamic>>.from(map['link']),
@@ -46,23 +49,23 @@ class PostModel2 {
       name: (map['name'] ?? '') as String,
       timePost: (map['timePost']),
       nameLink: List<String>.from(map['nameLink'] ?? []),
+      shortcode: (map['shortcode'] ?? '') as String,
     );
   }
 
-  factory PostModel2.fromJson(String source) =>
-      PostModel2.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory PostModel2.fromJson(String source) => PostModel2.fromMap(json.decode(source) as Map<String, dynamic>);
 }
 
 //  return PostModel2(
 //       uidPost: (map['uidPost'] ?? '') as String,
 //       urlPaths: List<String>.from(map['urlPaths']),
 //       link: List<Map<String, dynamic>>.from(map['link']),
+//       nameLinkShow: List<Map<String, dynamic>>.from(map['nameLinkShow']),
 //       nameButton: (map['nameButton'] ?? '') as String,
 //       name: (map['name'] ?? '') as String,
 //       timePost: (map['timePost']),
 //       nameLink: List<String>.from(map['nameLink'] ?? []),
 //     );
-//   }
 
 
 

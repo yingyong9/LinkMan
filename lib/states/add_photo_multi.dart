@@ -119,7 +119,7 @@ class _AddPhotoMultiState extends State<AddPhotoMulti> {
 
       String nameFile = '${user!.uid}${Random().nextInt(10000000)}.jpg';
       FirebaseStorage storage = FirebaseStorage.instance;
-      Reference reference = storage.ref().child('/test/$nameFile');
+      Reference reference = storage.ref().child('/post2/$nameFile');
       UploadTask uploadTask = reference.putFile(file);
       await uploadTask.whenComplete(() async {
         await reference.getDownloadURL().then((value) {
