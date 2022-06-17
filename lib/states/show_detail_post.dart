@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_firebase.dart';
+import 'package:admanyout/widgets/show_image_avatar.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:flutter/material.dart';
 
@@ -25,9 +27,15 @@ class _ShowDetailPostState extends State<ShowDetailPost> {
   void initState() {
     super.initState();
     postModel2 = widget.postModel2;
+    findUserModel();
   }
 
-  void findUserModel() {}
+  Future<void> findUserModel() async {
+    await MyFirebase().findUserModel(uid: postModel2!.uidPost).then((value) {
+      userModel = value;
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +43,51 @@ class _ShowDetailPostState extends State<ShowDetailPost> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: ShowText(
-          label: 'CodeLink : ${postModel2!.shortcode}',
+          label: 'LinkMan# : ${postModel2!.shortcode}',
           textStyle: MyConstant().h2Style(),
         ),
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
+      body: userModel == null
+          ? const SizedBox()
+          : LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints boxConstraints) {
+              return Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ShowImageAvatar(
+                          urlImage: userModel!.avatar!,
+                          size: 60,
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        ShowText(
+                          label: userModel!.name,
+                          textStyle: MyConstant().h2Style(),
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        SizedBox(
+                          height: boxConstraints.maxHeight,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            physics: const ClampingScrollPhysics(),
+                            itemCount: postModel2!.urlPaths.length,
+                            itemBuilder: (context, index) =>
+                                Image.network(postModel2!.urlPaths[index]),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+            }
+          ),
     );
   }
 }

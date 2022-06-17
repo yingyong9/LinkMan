@@ -38,7 +38,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               children: [
                 ShowForm(
                     controller: controller,
-                    label: 'Search',
+                    label: 'LinkMan #',
                     iconData: Icons.qr_code,
                     changeFunc: (String string) {
                       search = string.trim();

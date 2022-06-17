@@ -230,7 +230,7 @@ class _AddFormState extends State<AddForm> {
                 Fluttertoast.showToast(
                     msg: 'Gen ShortCode',
                     textColor: Color.fromARGB(255, 105, 236, 75));
-                shortcode = MyFirebase().getRandom(3);
+                shortcode = '#${MyFirebase().getRandom(3)}';
               } else {
                 Fluttertoast.showToast(
                     msg: 'Cancel Gen ShortCode',
