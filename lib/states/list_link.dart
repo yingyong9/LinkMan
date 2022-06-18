@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +29,16 @@ class _ListLinkState extends State<ListLink> {
   }
 
   void createListWidget() {
-    for (var element in postModel2!.nameLinkShow) {
+    for (var i = 0; i < postModel2!.nameLinkShow.length; i++) {
       var widgets = <Widget>[];
+      var urlLisks = <String>[];
 
-      for (var i = 0; i < element.length; i++) {
+      for (var k = 0; k < postModel2!.link[i].length; k++) {
+        urlLisks.add(postModel2!.link[i]['link$k']);
+      }
+      listUrlLinks.add(urlLisks);
+
+      for (var j = 0; j < postModel2!.nameLinkShow[i].length; j++) {
         widgets.add(Row(
           children: [
             const SizedBox(
@@ -40,14 +46,21 @@ class _ListLinkState extends State<ListLink> {
             ),
             InkWell(
               onTap: () {
-
-                
-
-                print('You tab index ==> $i');
-
+                print('You tab i= $i, j = $j');
+                print('link ===>>> ${listUrlLinks[i][j]}');
               },
-              child: ShowText(
-                label: element['name$i'],
+              child: Container(
+                width: 300,
+                child: Card(
+                  color: Colors.grey.shade900,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    child: ShowText(
+                      label: postModel2!.nameLinkShow[i]['name$j'],
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -57,13 +70,9 @@ class _ListLinkState extends State<ListLink> {
       listWidgets.add(widgets);
     }
 
-    for (var element in postModel2!.link) {
-      var urlLisks = <String>[];
-      for (var i = 0; i < element.length; i++) {
-        urlLisks.add(element['link$i']);
-      }
-      listUrlLinks.add(urlLisks);
-    }
+    // for (var element in postModel2!.nameLinkShow) {
+
+    // }
   }
 
   @override
