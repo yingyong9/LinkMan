@@ -22,7 +22,8 @@ Future<void> main() async {
     // print('firebase initial Successs');
     FirebaseAuth.instance.authStateChanges().listen((event) {
       if (event == null) {
-        initial = MyConstant.routeAuthen;
+        // initial = MyConstant.routeAuthen;
+         initial = '/searchShortCode';
       } else {
         // initial = MyConstant.rountMainHome;
         initial = '/searchShortCode';

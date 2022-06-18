@@ -1,13 +1,16 @@
 import 'package:admanyout/models/post_model2.dart';
 import 'package:admanyout/states/add_photo_multi.dart';
+import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/main_home.dart';
 import 'package:admanyout/states/show_detail_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -21,6 +24,23 @@ class SearchShortCode extends StatefulWidget {
 class _SearchShortCodeState extends State<SearchShortCode> {
   String? search;
   TextEditingController controller = TextEditingController();
+  bool? statusLoginBool;
+
+  @override
+  void initState() {
+    super.initState();
+    checkStatusLogin();
+  }
+
+  Future<void> checkStatusLogin() async {
+    FirebaseAuth.instance.authStateChanges().listen((event) {
+      if (event == null) {
+        statusLoginBool = false;
+      } else {
+        statusLoginBool = true;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +100,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         }
         controller.text = '';
       } else {
-        Fluttertoast.showToast(toastLength: Toast.LENGTH_LONG,
+        Fluttertoast.showToast(
+            toastLength: Toast.LENGTH_LONG,
             msg: 'No $search in ShortCode',
             textColor: const Color.fromARGB(255, 236, 12, 12));
       }
@@ -89,7 +110,18 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   AppBar newAppBar(BuildContext context) {
     return AppBar(
-      title: InkWell(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MainHome(),)),
+      title: InkWell(
+        onTap: () {
+          if (statusLoginBool!) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MainHome(),
+                ));
+          } else {
+            alertLogin(context);
+          }
+        },
         child: ShowText(
           label: 'LINKMAN',
           textStyle: MyConstant().h1Style(),
@@ -98,21 +130,40 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       actions: [
         ShowIconButton(
           size: 36,
-          color: Color.fromARGB(255, 236, 12, 12),
+          color: const Color.fromARGB(255, 236, 12, 12),
           iconData: Icons.add_box_outlined,
           pressFunc: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                // builder: (context) => const AddPhoto(),
-                builder: (context) => const AddPhotoMulti(),
-              ),
-            );
+            if (statusLoginBool!) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  // builder: (context) => const AddPhoto(),
+                  builder: (context) => const AddPhotoMulti(),
+                ),
+              );
+            } else {
+              alertLogin(context);
+            }
           },
         ),
       ],
       backgroundColor: Colors.black,
       foregroundColor: Colors.white,
     );
+  }
+
+  void alertLogin(BuildContext context) {
+    MyDialog(context: context).normalActionDilalog(
+        title: 'No Login ?',
+        message: 'Please Login',
+        label: 'Login',
+        pressFunc: () {
+          Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Authen(),
+              ));
+        });
   }
 }

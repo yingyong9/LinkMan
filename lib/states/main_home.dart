@@ -532,7 +532,8 @@ class _MainHomeState extends State<MainHome> {
                 iconData: Icons.more_vert,
                 pressFunc: () async {
                   print('Share Post');
-                  await Share.share('https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout # ${docIdPosts[index]}');
+                  await Share.share('https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${postModels[index].shortcode}');
+                  //  await Share.share('${docIdPosts[index]}');
                 },
               ),
             ],

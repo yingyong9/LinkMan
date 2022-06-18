@@ -216,7 +216,7 @@ class _AddFormState extends State<AddForm> {
   }
 
   AppBar newAppBar(BuildContext context) {
-    return AppBar(
+    return AppBar(title: ShowText(label: shortcode.isEmpty ? '' : 'LinkMan# = $shortcode'  , textStyle: MyConstant().h2Style(),),
       actions: [
         Switch(
             activeColor: Color.fromARGB(255, 105, 236, 75),
@@ -231,12 +231,14 @@ class _AddFormState extends State<AddForm> {
                     msg: 'Gen ShortCode',
                     textColor: Color.fromARGB(255, 105, 236, 75));
                 shortcode = '#${MyFirebase().getRandom(3)}';
+                print('shortcode ===>>> $shortcode');
               } else {
                 Fluttertoast.showToast(
                     msg: 'Cancel Gen ShortCode',
                     textColor: Color.fromARGB(255, 238, 43, 33));
                 shortcode = '';
               }
+              setState(() {});
             }),
         ShowIconButton(
           iconData: Icons.check,

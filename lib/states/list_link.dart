@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:flutter/material.dart';
 
@@ -48,6 +49,7 @@ class _ListLinkState extends State<ListLink> {
               onTap: () {
                 print('You tab i= $i, j = $j');
                 print('link ===>>> ${listUrlLinks[i][j]}');
+                MyProcess().processLaunchUrl(url: listUrlLinks[i][j]);
               },
               child: Container(
                 width: 300,
@@ -83,15 +85,33 @@ class _ListLinkState extends State<ListLink> {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
-      body: ListView.builder(
-        itemCount: postModel2!.nameLink.length,
-        itemBuilder: (context, index) => ExpansionTile(
-          title: ShowText(
-            label: postModel2!.nameLink[index],
-            textStyle: MyConstant().h2Style(),
+      body: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+           
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ShowText(
+                label: postModel2!.nameButton,
+                textStyle: MyConstant().h2WhiteStyle(),
+              ),
+            ),
           ),
-          children: listWidgets[index],
-        ),
+          Divider(color: Colors.white,),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const ScrollPhysics(),
+            itemCount: postModel2!.nameLink.length,
+            itemBuilder: (context, index) => ExpansionTile(
+              title: ShowText(
+                label: '- ${postModel2!.nameLink[index]} >',
+                textStyle: MyConstant().h2v2Style(),
+              ),
+              children: listWidgets[index],
+            ),
+          ),
+        ],
       ),
     );
   }
