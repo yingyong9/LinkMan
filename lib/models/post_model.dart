@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class PostModel {
   final String uidPost;
   final List<String> urlPaths;
-  final String article;
+  final String? article;
   final List<String> link;
   final String nameButton;
   final String name;
@@ -17,7 +17,7 @@ class PostModel {
   PostModel({
     required this.uidPost,
     required this.urlPaths,
-    required this.article,
+     this.article,
     required this.link,
     required this.nameButton,
     required this.name,

@@ -7,23 +7,28 @@ import 'package:admanyout/widgets/show_text.dart';
 class ShowOutlineButton extends StatelessWidget {
   final String label;
   final Function() pressFunc;
+  final double? width;
   const ShowOutlineButton({
     Key? key,
     required this.label,
     required this.pressFunc,
+    this.width,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Colors.white),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-      onPressed: pressFunc,
-      child: ShowText(
-        label: label,
-        textStyle: MyConstant().h3WhiteStyle(),
+    return Container(
+      width: width,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Colors.white),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10))),
+        onPressed: pressFunc,
+        child: ShowText(
+          label: label,
+          textStyle: MyConstant().h3WhiteStyle(),
+        ),
       ),
     );
   }

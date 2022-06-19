@@ -22,8 +22,26 @@ class MyConstant {
         fontWeight: FontWeight.w700,
       );
 
+       TextStyle h2redStyle() => const TextStyle(
+        fontSize: 30,
+        color: Color.fromARGB(255, 236, 48, 34),
+        fontWeight: FontWeight.w700,
+      );
+
+      TextStyle h2v2Style() => TextStyle(
+        fontSize: 30,
+        color: dark,
+        fontWeight: FontWeight.w700,
+      );
+
   TextStyle h2WhiteStyle() => const TextStyle(
         fontSize: 16,
+        color: Colors.white,
+        fontWeight: FontWeight.w500,
+      );
+
+       TextStyle h2WhiteBigStyle() => const TextStyle(
+        fontSize: 24,
         color: Colors.white,
         fontWeight: FontWeight.w500,
       );

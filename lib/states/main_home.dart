@@ -2,16 +2,15 @@
 
 import 'package:admanyout/models/follow_model.dart';
 import 'package:admanyout/models/link_model.dart';
-import 'package:admanyout/models/post_model.dart';
+import 'package:admanyout/models/post_model2.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/models/user_model.dart';
-import 'package:admanyout/states/add_photo.dart';
 import 'package:admanyout/states/add_photo_multi.dart';
 import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
-import 'package:admanyout/states/manage_my_photo.dart';
+import 'package:admanyout/states/list_link.dart';
 import 'package:admanyout/states/manage_my_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -29,6 +28,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -40,9 +40,8 @@ class MainHome extends StatefulWidget {
 }
 
 class _MainHomeState extends State<MainHome> {
-
   var user = FirebaseAuth.instance.currentUser;
-  var postModels = <PostModel>[];
+  var postModels = <PostModel2>[];
   var docIdPosts = <String>[];
   var bolFollows = <bool>[];
   var userModelPosts = <UserModel>[];
@@ -64,6 +63,7 @@ class _MainHomeState extends State<MainHome> {
   @override
   void initState() {
     super.initState();
+
     findUserModelLogin();
     readPost();
     processMessageing();
@@ -141,13 +141,16 @@ class _MainHomeState extends State<MainHome> {
     }
 
     await FirebaseFirestore.instance
-        .collection('post')
+        .collection('post2')
         .orderBy('timePost', descending: true)
-        .limit(10)
+        // .limit(10)
         .get()
         .then((value) async {
+      // print('##10june value ==> ${value.docs}');
       for (var item in value.docs) {
-        PostModel postModel = PostModel.fromMap(item.data());
+        PostModel2 postModel = PostModel2.fromMap(item.data());
+        // print('##10june postmodel ==> ${postModel.toMap()}');
+
         postModels.add(postModel);
         docIdPosts.add(item.id);
 
@@ -197,7 +200,7 @@ class _MainHomeState extends State<MainHome> {
           .get()
           .then((value) async {
         for (var item in value.docs) {
-          PostModel postModel = PostModel.fromMap(item.data());
+          PostModel2 postModel = PostModel2.fromMap(item.data());
           postModels.add(postModel);
           docIdPosts.add(item.id);
 
@@ -226,7 +229,7 @@ class _MainHomeState extends State<MainHome> {
             bolFollows.add(result);
           });
         }
-        
+
         load = false;
         setState(() {});
       });
@@ -279,52 +282,36 @@ class _MainHomeState extends State<MainHome> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ShowIconButton(
-              iconData: Icons.arrow_forward_ios,
-              pressFunc: () {
-                setState(() {
-                  displayIconButton = !displayIconButton;
-                });
-              },
-            ),
-            displayIconButton
-                ? ShowIconButton(
-                    iconData: Icons.image,
-                    pressFunc: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ManageMyPhoto(),
-                          ));
-                    })
-                : const SizedBox(),
-            displayIconButton
-                ? ShowIconButton(
-                    iconData: Icons.link_outlined,
-                    pressFunc: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BaseManageMyLink(),
-                          ));
-                    })
-                : const SizedBox(),
+                iconData: Icons.link_outlined,
+                pressFunc: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BaseManageMyLink(),
+                      ));
+                }),
             ShowForm(
-              width: displayIconButton ? 150 : 250,
               controller: addLinkController,
               label: 'Add Link',
-              iconData: Icons.link,
+              iconData: Icons.arrow_forward_ios,
               changeFunc: (String string) {
                 newLink = string.trim();
               },
+              pressFunc: () async {
+                checkLink();
+              },
             ),
-            newLink?.isEmpty ?? true
-                ? const SizedBox()
-                : ShowIconButton(
-                    iconData: Icons.send,
-                    pressFunc: () async {
-                      checkLink();
-                    },
-                  ),
+            ShowIconButton(
+                iconData: Icons.camera,
+                pressFunc: () {
+                  // final intent = AndroidIntent(
+                  //   package: "com.android.camera",
+                  //   action: "action_view",
+                  // );
+                  // intent.launch().then((value) {}).catchError((value) {
+                  //   print('error camera ==> $value');
+                  // });
+                }),
           ],
         ),
       ),
@@ -391,64 +378,19 @@ class _MainHomeState extends State<MainHome> {
     });
   }
 
-  Row newRowDown(BoxConstraints constraints, int index) {
+  Widget newRowDown(BoxConstraints constraints, int index) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Icon(
-                Icons.comment,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(
-              width: constraints.maxWidth * 0.5 - 60,
-              child: ShowText(
-                label: postModels[index].article,
-                textStyle: MyConstant().h3WhiteStyle(),
-              ),
-            ),
-          ],
+        const SizedBox(
+          width: 16,
         ),
-        // Badge(
-        //   badgeContent: ShowText(label: '0'),
-        //   child: ShowIconButton(
-        //     iconData: Icons.add_circle_outline,
-        //     pressFunc: () {
-        //       print('บวก docIdPost ==>> ${docIdPosts[index]}');
-        //       processVotePost(
-        //           docIdPost: docIdPosts[index], score: true);
-        //     },
-        //   ),
-        // ),
-        // Badge(
-        //   badgeContent: ShowText(label: '2'),
-        //   child: ShowIconButton(
-        //     iconData: Icons.remove_circle_outline,
-        //     pressFunc: () {
-        //       print('ลบ  docIdPost ==>> ${docIdPosts[index]}');
-        //       processVotePost(
-        //           docIdPost: docIdPosts[index], score: false);
-        //     },
-        //   ),
-        // ),
-        Column(
-          children: [
-            ShowOutlineButton(
-                label: postModels[index].nameButton,
-                pressFunc: () {
-                  processClickButton(
-                      postModel: postModels[index],
-                      nameButton: postModels[index].nameButton);
-                }),
-            //  specialButton(context),
-          ],
-        ),
+        ShowOutlineButton(width: postModels[index].nameButton.length < 20 ? 200 : constraints.maxWidth-36 ,
+            label: '${postModels[index].nameButton} >',
+            pressFunc: () {
+              processClickButton2(
+                  postModel: postModels[index],
+                  nameButton: postModels[index].nameButton);
+            }),
       ],
     );
   }
@@ -539,7 +481,7 @@ class _MainHomeState extends State<MainHome> {
               (user!.uid == postModels[index].uidPost)
                   ? const SizedBox()
                   : ShowOutlineButton(
-                      label: bolFollows[index] ? 'ติดตามแล้ว' : 'ติดตาม',
+                      label: bolFollows[index] ? 'UnLink' : 'Link',
                       pressFunc: () async {
                         openProgress = true;
                         MyDialog(context: context).processDialog();
@@ -594,10 +536,15 @@ class _MainHomeState extends State<MainHome> {
                         }
                       },
                     ),
-              // ShowIconButton(
-              //   iconData: Icons.more_vert,
-              //   pressFunc: () {},
-              // ),
+              ShowIconButton(
+                iconData: Icons.more_vert,
+                pressFunc: () async {
+                  print('Share Post');
+                  await Share.share(
+                      'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${postModels[index].shortcode}');
+                  //  await Share.share('${docIdPosts[index]}');
+                },
+              ),
             ],
           ),
         ),
@@ -697,8 +644,8 @@ class _MainHomeState extends State<MainHome> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                // builder: (context) => const AddPhoto(), 
-                 builder: (context) => const AddPhotoMulti(),
+                // builder: (context) => const AddPhoto(),
+                builder: (context) => const AddPhotoMulti(),
               ),
             );
           },
@@ -768,21 +715,63 @@ class _MainHomeState extends State<MainHome> {
     });
   }
 
+  void processClickButton2(
+      {required PostModel2 postModel, required String nameButton}) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ListLink(postModel2: postModel),
+        ));
+  }
+
   Future<void> processClickButton(
-      {required PostModel postModel, required String nameButton}) async {
+      {required PostModel2 postModel, required String nameButton}) async {
     var widgets = <Widget>[];
+
+    var nameLinkShow = postModel.nameLinkShow;
+    var link = postModel.link;
+    var listWidgets = <List<Widget>>[];
+
+    var listLink = <List<String>>[];
+
+    for (var j = 0; j < nameLinkShow.length; j++) {
+      var widgets = <Widget>[];
+      var lisks = <String>[];
+
+      for (var i = 0; i < nameLinkShow[j].length; i++) {
+        String string = nameLinkShow[j]['name$i'];
+        print('##10june string ==>> $string');
+
+        String urlLink = link[j]['link$i'];
+        print('##10june urlLink ==>> $urlLink');
+        lisks.add(urlLink);
+
+        widgets.add(
+          InkWell(
+            onTap: () async {
+              print('##10june you click j ---> $j i ==> $i');
+              print('##10june you click link ==> ${listLink[j][i]}');
+
+              final Uri uri = Uri.parse(listLink[j][i]);
+              if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                throw '##7may Cannot launch $uri';
+              }
+            },
+            child: ShowText(label: string),
+          ),
+        );
+      } // for2
+
+      listLink.add(lisks);
+      listWidgets.add(widgets);
+    }
+
     int index = 0;
     for (var item in postModel.link) {
       widgets.add(
-        ShowButton(
-          label: postModel.nameLink[index],
-          pressFunc: () async {
-            Navigator.pop(context);
-            final Uri uri = Uri.parse(item);
-            if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-              throw '##7may Cannot launch $uri';
-            }
-          },
+        ExpansionTile(
+          title: ShowText(label: postModel.nameLink[index]),
+          children: listWidgets[index],
         ),
       );
       index++;

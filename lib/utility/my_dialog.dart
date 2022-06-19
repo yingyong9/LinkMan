@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
+import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,8 @@ class MyDialog {
   MyDialog({
     required this.context,
   });
+
+  
 
   Future<void> processDialog() async {
     showDialog(
@@ -28,13 +31,9 @@ class MyDialog {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        backgroundColor: Colors.black.withOpacity(0.75),
+        backgroundColor: Colors.grey.shade900,
         title: ListTile(
-          leading: Icon(
-            Icons.error,
-            size: 48,
-            color: MyConstant.primary,
-          ),
+          leading: const ShowImage(path: 'images/logo.png',width: 80,),
           title: ShowText(
             label: title,
             textStyle: MyConstant().h2Style(),

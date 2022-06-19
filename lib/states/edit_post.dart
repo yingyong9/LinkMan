@@ -39,7 +39,7 @@ class _EditPostState extends State<EditPost> {
     docIdPost = widget.docIdPost;
     findPhotoModels();
 
-    articleController.text = postModel!.article;
+    articleController.text = postModel!.article ?? '';
     nameButtonController.text = postModel!.nameButton;
   }
 
