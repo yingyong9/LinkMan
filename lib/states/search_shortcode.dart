@@ -110,6 +110,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   AppBar newAppBar(BuildContext context) {
     return AppBar(
+      centerTitle: true,
       title: InkWell(
         onTap: () {
           if (statusLoginBool!) {

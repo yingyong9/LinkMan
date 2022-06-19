@@ -6,13 +6,10 @@ import 'dart:math';
 import 'package:admanyout/models/photo_model.dart';
 import 'package:admanyout/states/add_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import 'package:image/image.dart' as Im;
 
 class AddPhotoMulti extends StatefulWidget {
   const AddPhotoMulti({Key? key}) : super(key: key);
