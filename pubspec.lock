@@ -133,7 +133,7 @@ packages:
       name: ffi
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.1"
+
   file:
     dependency: transitive
     description:
@@ -330,7 +330,7 @@ packages:
       name: image_picker_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.5"
+
   image_picker_for_web:
     dependency: transitive
     description:
@@ -470,7 +470,7 @@ packages:
       name: path_provider_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.7"
+
   petitparser:
     dependency: transitive
     description:
@@ -776,7 +776,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.6.1"
+
   xdg_directories:
     dependency: transitive
     description:
