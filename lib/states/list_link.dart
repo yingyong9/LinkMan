@@ -92,21 +92,27 @@ class _ListLinkState extends State<ListLink> {
            
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ShowText(
-                label: postModel2!.nameButton,
-                textStyle: MyConstant().h2WhiteStyle(),
+              child: Row(
+                children: [
+                  ShowText(
+                    label: postModel2!.nameButton,
+                    textStyle: MyConstant().h2WhiteBigStyle(),
+                  ),
+                ],
               ),
             ),
           ),
-          Divider(color: Colors.white,),
+          const Divider(color: Colors.white,),
           ListView.builder(
             shrinkWrap: true,
             physics: const ScrollPhysics(),
             itemCount: postModel2!.nameLink.length,
             itemBuilder: (context, index) => ExpansionTile(
-              title: ShowText(
-                label: '- ${postModel2!.nameLink[index]} >',
-                textStyle: MyConstant().h2v2Style(),
+              title: Container(decoration: BoxDecoration(color: Colors.red),
+                child: ShowText(
+                  label: '${postModel2!.nameLink[index]} >',
+                  textStyle: MyConstant().h2v2Style(),
+                ),
               ),
               children: listWidgets[index],
             ),

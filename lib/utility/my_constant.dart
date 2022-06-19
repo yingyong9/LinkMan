@@ -40,6 +40,12 @@ class MyConstant {
         fontWeight: FontWeight.w500,
       );
 
+       TextStyle h2WhiteBigStyle() => const TextStyle(
+        fontSize: 24,
+        color: Colors.white,
+        fontWeight: FontWeight.w500,
+      );
+
   TextStyle h3Style() => TextStyle(
         fontSize: 14,
         color: dark,

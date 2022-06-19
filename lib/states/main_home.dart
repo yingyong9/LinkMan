@@ -10,6 +10,7 @@ import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
+import 'package:admanyout/states/list_link.dart';
 import 'package:admanyout/states/manage_my_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -378,13 +379,20 @@ class _MainHomeState extends State<MainHome> {
   }
 
   Widget newRowDown(BoxConstraints constraints, int index) {
-    return ShowOutlineButton(
-        label: postModels[index].nameButton,
-        pressFunc: () {
-          processClickButton(
-              postModel: postModels[index],
-              nameButton: postModels[index].nameButton);
-        });
+    return Row(
+      children: [
+        const SizedBox(
+          width: 16,
+        ),
+        ShowOutlineButton(width: postModels[index].nameButton.length < 20 ? 200 : constraints.maxWidth-36 ,
+            label: '${postModels[index].nameButton} >',
+            pressFunc: () {
+              processClickButton2(
+                  postModel: postModels[index],
+                  nameButton: postModels[index].nameButton);
+            }),
+      ],
+    );
   }
 
   SizedBox newDiaplayImage(BoxConstraints constraints, int index) {
@@ -532,7 +540,8 @@ class _MainHomeState extends State<MainHome> {
                 iconData: Icons.more_vert,
                 pressFunc: () async {
                   print('Share Post');
-                  await Share.share('https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${postModels[index].shortcode}');
+                  await Share.share(
+                      'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${postModels[index].shortcode}');
                   //  await Share.share('${docIdPosts[index]}');
                 },
               ),
@@ -704,6 +713,15 @@ class _MainHomeState extends State<MainHome> {
           ),
           (route) => false);
     });
+  }
+
+  void processClickButton2(
+      {required PostModel2 postModel, required String nameButton}) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ListLink(postModel2: postModel),
+        ));
   }
 
   Future<void> processClickButton(
