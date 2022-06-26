@@ -14,6 +14,7 @@ class ShowForm extends StatelessWidget {
   final TextInputType? textInputType;
   final TextEditingController? controller;
   final Function()? pressFunc;
+  final Color? colorTheme;
   const ShowForm({
     Key? key,
     this.width,
@@ -24,6 +25,7 @@ class ShowForm extends StatelessWidget {
     this.textInputType,
     this.controller,
     this.pressFunc,
+    this.colorTheme,
   }) : super(key: key);
 
   @override
@@ -35,21 +37,29 @@ class ShowForm extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         keyboardType: textInputType ?? TextInputType.text,
-        style: MyConstant().h2WhiteStyle(),
+        style: colorTheme == null
+            ? MyConstant().h2WhiteStyle()
+            : MyConstant().h3BlackStyle(),
         obscureText: obscub ?? false,
         onChanged: changeFunc,
         decoration: InputDecoration(
           contentPadding:
               const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-          suffixIcon: ShowIconButton(iconData: iconData, pressFunc: pressFunc ?? (){}),
-          label: ShowText(label: label),
+          suffixIcon:
+              ShowIconButton(iconData: iconData, pressFunc: pressFunc ?? () {}),
+          label: ShowText(
+            label: label,
+            textStyle: colorTheme == null
+                ? MyConstant().h3Style()
+                : MyConstant().h3BlackStyle(),
+          ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: MyConstant.dark),
-            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(color: colorTheme ?? MyConstant.dark),
+            borderRadius: colorTheme == null ? BorderRadius.circular(30) : BorderRadius.circular(10) ,
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: MyConstant.light),
-            borderRadius: BorderRadius.circular(30),
+            borderRadius:colorTheme == null ? BorderRadius.circular(30) : BorderRadius.circular(10) ,
           ),
         ),
       ),
