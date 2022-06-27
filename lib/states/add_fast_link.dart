@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_firebase.dart';
@@ -10,7 +11,9 @@ import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -114,7 +117,36 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   Future<void> processUploadAndInsertFastLink() async {
     String nameImage = '${user!.uid}${Random().nextInt(1000000)}.jpg';
-    print( 'nameImage => $nameImage ==== pathImage ?');
+
+    FirebaseStorage storage = FirebaseStorage.instance;
+    Reference reference = storage.ref().child('photofast/$nameImage');
+    UploadTask uploadTask = reference.putFile(file!);
+    await uploadTask.whenComplete(() async {
+      await reference.getDownloadURL().then((value) async {
+        String urlImage = value;
+
+        DateTime dateTime = DateTime.now();
+        Timestamp timestamp = Timestamp.fromDate(dateTime);
+
+        FastLinkModel fastLinkModel = FastLinkModel(
+            urlImage: urlImage,
+            detail: detail ?? '',
+            linkId: sixCode!,
+            uidPost: user!.uid,
+            linkUrl: addLink!,
+            timestamp: timestamp);
+
+        print('fastLinkModel ==> ${fastLinkModel.toMap()}');
+
+        await FirebaseFirestore.instance
+            .collection('fastlink')
+            .doc()
+            .set(fastLinkModel.toMap())
+            .then((value) {
+          Navigator.pop(context);
+        });
+      });
+    });
   }
 
   Row formDetail(BoxConstraints boxConstraints) {

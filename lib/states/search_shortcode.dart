@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_print
 
+import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/post_model2.dart';
+import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_fast_link.dart';
 import 'package:admanyout/states/add_photo_multi.dart';
 import 'package:admanyout/states/authen.dart';
@@ -9,6 +11,7 @@ import 'package:admanyout/states/show_detail_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
+import 'package:admanyout/widgets/show_circle_image.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
@@ -31,11 +34,36 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   bool? statusLoginBool;
 
   String? addNewLink;
+  TextEditingController textEditingController = TextEditingController();
+
+  var fastLinkModels = <FastLinkModel>[];
+  var userModels = <UserModel>[];
 
   @override
   void initState() {
     super.initState();
     checkStatusLogin();
+    readFastLinkData();
+  }
+
+  Future<void> readFastLinkData() async {
+    await FirebaseFirestore.instance
+        .collection('fastlink')
+        .orderBy('timestamp', descending: true)
+        .get()
+        .then((value) async {
+      for (var element in value.docs) {
+        FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
+        fastLinkModels.add(fastLinkModel);
+
+        await MyFirebase()
+            .findUserModel(uid: fastLinkModel.uidPost)
+            .then((value) {
+          userModels.add(value);
+        });
+      }
+      setState(() {});
+    });
   }
 
   Future<void> checkStatusLogin() async {
@@ -51,7 +79,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: newAppBar(context),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -63,7 +90,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             height: boxConstraints.maxHeight,
             child: Stack(
               children: [
-                formSearchShortCode(),
+                formSearchShortCode(boxConstraints: boxConstraints),
                 newAddLink(),
               ],
             ),
@@ -75,10 +102,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   Positioned newAddLink() {
     return Positioned(
-      bottom: 0,
+      bottom: 16,
       child: Container(
         margin: const EdgeInsets.only(left: 48),
         child: ShowForm(
+          colorTheme: Colors.black,
+          controller: textEditingController,
           label: 'Add Link',
           iconData: Icons.arrow_forward_ios,
           changeFunc: (String string) {
@@ -97,7 +126,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   MaterialPageRoute(
                     builder: (context) =>
                         AddFastLink(sixCode: sixCode, addLink: addNewLink!),
-                  )).then((value) {});
+                  )).then((value) {
+                textEditingController.text = '';
+                
+              });
             }
           },
         ),
@@ -105,27 +137,75 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     );
   }
 
-  Row formSearchShortCode() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget formSearchShortCode({required BoxConstraints boxConstraints}) {
+    return Column(
       children: [
-        ShowForm(
-            controller: controller,
-            label: 'LinkMan #',
-            iconData: Icons.qr_code,
-            changeFunc: (String string) {
-              search = string.trim();
-            }),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ShowForm(
+                colorTheme: Colors.black,
+                controller: controller,
+                label: 'LinkMan #',
+                iconData: Icons.qr_code,
+                changeFunc: (String string) {
+                  search = string.trim();
+                }),
+            Container(
+              margin: const EdgeInsets.only(top: 16, left: 4),
+              child: ShowOutlineButton(
+                  colorTheme: Colors.black,
+                  label: 'OK',
+                  pressFunc: () {
+                    if (!(search?.isEmpty ?? true)) {
+                      print('search ==> $search');
+                      processFindShortCode();
+                    }
+                  }),
+            ),
+          ],
+        ),
         Container(
-          margin: const EdgeInsets.only(top: 16, left: 4),
-          child: ShowOutlineButton(
-              label: 'OK',
-              pressFunc: () {
-                if (!(search?.isEmpty ?? true)) {
-                  print('search ==> $search');
-                  processFindShortCode();
-                }
-              }),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          width: boxConstraints.maxWidth,
+          height: boxConstraints.maxHeight - 150,
+          margin: const EdgeInsets.only(top: 16, bottom: 16),
+          // decoration: BoxDecoration(color: Colors.grey),
+          child: fastLinkModels.isEmpty
+              ? const SizedBox()
+              : ListView.builder(
+                  itemCount: fastLinkModels.length,
+                  itemBuilder: (context, index) => Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ShowCircleImage(
+                              radius: 36,
+                              path: userModels[index].avatar ?? MyConstant.urlLogo),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ShowText(
+                                label: userModels[index].name,
+                                textStyle: MyConstant().h2BlackStyle(),
+                              ),
+                              ShowText(
+                                label: fastLinkModels[index].detail,
+                                textStyle: MyConstant().h3BlackStyle(),
+                              ),
+                              ShowText(label: fastLinkModels[index].linkId, textStyle: MyConstant().h3ActionStyle(),)
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
         ),
       ],
     );
@@ -174,7 +254,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         },
         child: ShowText(
           label: 'LINKMAN',
-          textStyle: MyConstant().h1Style(),
+          textStyle: MyConstant().h1GreenStyle(),
         ),
       ),
       actions: [
@@ -197,8 +277,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           },
         ),
       ],
-      backgroundColor: Colors.black,
-      foregroundColor: Colors.white,
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+      elevation: 0,
     );
   }
 

@@ -10,7 +10,8 @@ class MyConstant {
   static Color light = const Color.fromARGB(255, 92, 92, 218);
   static Color dark = Colors.white;
 
-  static String urlLogo = 'https://firebasestorage.googleapis.com/v0/b/adman-87dfd.appspot.com/o/avatar%2Flogo.png?alt=media&token=64767fbd-371f-4aaa-8854-ba839759751e';
+  static String urlLogo =
+      'https://firebasestorage.googleapis.com/v0/b/adman-87dfd.appspot.com/o/avatar%2Flogo.png?alt=media&token=64767fbd-371f-4aaa-8854-ba839759751e';
 
   BoxDecoration curveBorderBox() => BoxDecoration(
         border: Border.all(),
@@ -23,9 +24,21 @@ class MyConstant {
         fontWeight: FontWeight.bold,
       );
 
+  TextStyle h1GreenStyle() => const TextStyle(
+        fontSize: 36,
+        color: Color.fromARGB(255, 71, 199, 75),
+        fontWeight: FontWeight.bold,
+      );
+
   TextStyle h2Style() => TextStyle(
         fontSize: 18,
         color: dark,
+        fontWeight: FontWeight.w700,
+      );
+
+      TextStyle h2BlackStyle() => const TextStyle(
+        fontSize: 18,
+        color: Colors.black,
         fontWeight: FontWeight.w700,
       );
 

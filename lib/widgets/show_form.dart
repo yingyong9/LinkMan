@@ -45,8 +45,10 @@ class ShowForm extends StatelessWidget {
         decoration: InputDecoration(
           contentPadding:
               const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-          suffixIcon:
-              ShowIconButton(iconData: iconData, pressFunc: pressFunc ?? () {}),
+          suffixIcon: ShowIconButton(color: colorTheme ?? Colors.white,
+            iconData: iconData,
+            pressFunc: pressFunc ?? () {},
+          ),
           label: ShowText(
             label: label,
             textStyle: colorTheme == null
@@ -55,11 +57,15 @@ class ShowForm extends StatelessWidget {
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: colorTheme ?? MyConstant.dark),
-            borderRadius: colorTheme == null ? BorderRadius.circular(30) : BorderRadius.circular(10) ,
+            borderRadius: colorTheme == null
+                ? BorderRadius.circular(30)
+                : BorderRadius.circular(10),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: MyConstant.light),
-            borderRadius:colorTheme == null ? BorderRadius.circular(30) : BorderRadius.circular(10) ,
+            borderRadius: colorTheme == null
+                ? BorderRadius.circular(30)
+                : BorderRadius.circular(10),
           ),
         ),
       ),
