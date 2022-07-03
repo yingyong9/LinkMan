@@ -42,7 +42,7 @@ class ShowForm extends StatelessWidget {
             : MyConstant().h3BlackStyle(),
         obscureText: obscub ?? false,
         onChanged: changeFunc,
-        decoration: InputDecoration(
+        decoration: InputDecoration(filled: true,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
           suffixIcon: ShowIconButton(color: colorTheme ?? Colors.white,

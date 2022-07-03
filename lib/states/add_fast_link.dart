@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/models/fast_group_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
@@ -37,6 +38,8 @@ class _AddFastLinkState extends State<AddFastLink> {
   var user = FirebaseAuth.instance.currentUser;
   UserModel? userModelLogined;
 
+  var fastGroupModels = <FastGroupModel>[];
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +47,24 @@ class _AddFastLinkState extends State<AddFastLink> {
     addLink = widget.addLink;
     processGetImage();
     processFindUserLogined();
+    processReadFastGroup();
+  }
+
+  Future<void> processReadFastGroup() async {
+    if (fastGroupModels.isNotEmpty) {
+      fastGroupModels.clear();
+    }
+
+    await FirebaseFirestore.instance
+        .collection('fastGroup')
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        FastGroupModel fastGroupModel = FastGroupModel.fromMap(element.data());
+        fastGroupModels.add(fastGroupModel);
+      }
+      setState(() {});
+    });
   }
 
   Future<void> processFindUserLogined() async {
@@ -78,7 +99,6 @@ class _AddFastLinkState extends State<AddFastLink> {
               return ListView(
                 children: [
                   Row(
-                    // mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       CircleAvatar(
                         backgroundImage: NetworkImage(
@@ -89,15 +109,46 @@ class _AddFastLinkState extends State<AddFastLink> {
                     ],
                   ),
                   newImage(boxConstraints),
-                  formDetail(boxConstraints),
-                  // newTitle(
-                  //     boxConstraints: boxConstraints,
-                  //     string: 'This is groupFastPost'),
-                  // formAddNewGroupFastPost(boxConstraints),
+                  formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'หัวข้อ :',
+                      changeFunc: (String string) {
+                        detail = string.trim();
+                      }),
+                  formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'อยากบอกอะไร :',
+                      changeFunc: (String string) {}),
+                  formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'อยากบอกอะไร :',
+                      changeFunc: (String string) {}),
+                  newGroup(),
                   buttonPost(),
                 ],
               );
             }),
+    );
+  }
+
+  Widget newGroup() {
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundImage:
+                NetworkImage(userModelLogined!.avatar ?? MyConstant.urlLogo),
+          ),
+          const SizedBox(
+            width: 16,
+          ),
+          fastGroupModels.isEmpty ? const ShowProgress() : ShowText(
+            label: 'For Group ขนาดของ arrey ==> ${fastGroupModels.length}',
+            textStyle: MyConstant().h3ActionStyle(),
+          ) ,
+        ],
+      ),
     );
   }
 
@@ -149,23 +200,36 @@ class _AddFastLinkState extends State<AddFastLink> {
     });
   }
 
-  Row formDetail(BoxConstraints boxConstraints) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(right: 8),
-          width: boxConstraints.maxWidth * 0.65,
-          child: ShowForm(
-            colorTheme: Colors.black,
-            label: 'อยากบอกอะไร :',
-            iconData: Icons.details_outlined,
-            changeFunc: (String string) {
-              detail = string.trim();
-            },
+  Widget formDetail({
+    required BoxConstraints boxConstraints,
+    required String label,
+    required Function(String) changeFunc,
+  }) {
+    return SizedBox(
+      height: 60,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundImage:
+                NetworkImage(userModelLogined!.avatar ?? MyConstant.urlLogo),
           ),
-        ),
-      ],
+          const SizedBox(
+            width: 16,
+          ),
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            width: boxConstraints.maxWidth * 0.65,
+            child: ShowForm(
+              colorTheme: Colors.black,
+              label: label,
+              iconData: Icons.details_outlined,
+              changeFunc: changeFunc,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

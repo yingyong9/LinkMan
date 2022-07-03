@@ -11,6 +11,7 @@ import 'package:admanyout/states/show_detail_post.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
+import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
@@ -128,7 +129,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                         AddFastLink(sixCode: sixCode, addLink: addNewLink!),
                   )).then((value) {
                 textEditingController.text = '';
-                
               });
             }
           },
@@ -175,33 +175,74 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               ? const SizedBox()
               : ListView.builder(
                   itemCount: fastLinkModels.length,
-                  itemBuilder: (context, index) => Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ShowCircleImage(
-                              radius: 36,
-                              path: userModels[index].avatar ?? MyConstant.urlLogo),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ShowText(
-                                label: userModels[index].name,
-                                textStyle: MyConstant().h2BlackStyle(),
+                  itemBuilder: (context, index) => InkWell(
+                    onTap: () async {
+                      String linkUrl = fastLinkModels[index].linkUrl;
+                      if (linkUrl.contains('#')) {
+                        search = fastLinkModels[index].linkUrl;
+                        processFindShortCode();
+                      } else {
+                        String urlLauncher = fastLinkModels[index].linkUrl;
+                        print('urlLauncher ==> $urlLauncher');
+                        await MyProcess().processLaunchUrl(url: urlLauncher);
+                      }
+                    },
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ShowCircleImage(
+                                        radius: 36,
+                                        path: userModels[index].avatar ??
+                                            MyConstant.urlLogo),
+                                    ShowIconButton(
+                                      color: Colors.grey,
+                                      iconData: Icons.more_horiz,
+                                      pressFunc: () {},
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ShowText(
+                                      label: userModels[index].name,
+                                      textStyle: MyConstant().h2BlackStyle(),
+                                    ),
+                                    ShowText(
+                                      label: fastLinkModels[index].detail,
+                                      textStyle: MyConstant().h3BlackStyle(),
+                                    ),
+                                    ShowText(
+                                      label: fastLinkModels[index].linkId,
+                                      textStyle: MyConstant().h3ActionStyle(),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 80,
+                              width: 120,
+                              child: Image.network(
+                                fastLinkModels[index].urlImage,
+                                fit: BoxFit.cover,
                               ),
-                              ShowText(
-                                label: fastLinkModels[index].detail,
-                                textStyle: MyConstant().h3BlackStyle(),
-                              ),
-                              ShowText(label: fastLinkModels[index].linkId, textStyle: MyConstant().h3ActionStyle(),)
-                            ],
-                          )
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
