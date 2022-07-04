@@ -131,6 +131,8 @@ class _AddFastLinkState extends State<AddFastLink> {
     );
   }
 
+  //Test
+
   Widget newGroup() {
     return Container(
       margin: const EdgeInsets.only(top: 16),
@@ -143,10 +145,13 @@ class _AddFastLinkState extends State<AddFastLink> {
           const SizedBox(
             width: 16,
           ),
-          fastGroupModels.isEmpty ? const ShowProgress() : ShowText(
-            label: 'For Group ขนาดของ arrey ==> ${fastGroupModels.length}',
-            textStyle: MyConstant().h3ActionStyle(),
-          ) ,
+          fastGroupModels.isEmpty
+              ? const ShowProgress()
+              : ShowText(
+                  label:
+                      'For Group ขนาดของ arrey ==> ${fastGroupModels.length}',
+                  textStyle: MyConstant().h3ActionStyle(),
+                ),
         ],
       ),
     );
