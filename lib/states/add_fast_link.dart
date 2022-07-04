@@ -34,7 +34,7 @@ class AddFastLink extends StatefulWidget {
 
 class _AddFastLinkState extends State<AddFastLink> {
   File? file;
-  String? sixCode, addLink, detail;
+  String? sixCode, addLink, detail, detail2, head;
   var user = FirebaseAuth.instance.currentUser;
   UserModel? userModelLogined;
 
@@ -113,18 +113,21 @@ class _AddFastLinkState extends State<AddFastLink> {
                       boxConstraints: boxConstraints,
                       label: 'หัวข้อ :',
                       changeFunc: (String string) {
+                        head = string.trim();
+                      }),
+                  formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'อยากบอกอะไร :',
+                      changeFunc: (String string) {
                         detail = string.trim();
                       }),
                   formDetail(
                       boxConstraints: boxConstraints,
                       label: 'อยากบอกอะไร :',
-                      changeFunc: (String string) {}),
-                  formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'อยากบอกอะไร :',
-                      changeFunc: (String string) {}),
-                  newGroup(),
-                  buttonPost(),
+                      changeFunc: (String string) {
+                        detail2 = string.trim();
+                      }),
+                  newGroup(boxConstraints: boxConstraints),
                 ],
               );
             }),
@@ -133,7 +136,7 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   //Test
 
-  Widget newGroup() {
+  Widget newGroup({required BoxConstraints boxConstraints}) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
       child: Row(
@@ -145,13 +148,10 @@ class _AddFastLinkState extends State<AddFastLink> {
           const SizedBox(
             width: 16,
           ),
-          fastGroupModels.isEmpty
-              ? const ShowProgress()
-              : ShowText(
-                  label:
-                      'For Group ขนาดของ arrey ==> ${fastGroupModels.length}',
-                  textStyle: MyConstant().h3ActionStyle(),
-                ),
+          SizedBox(
+            width: boxConstraints.maxWidth * 0.65,
+            child: buttonPost(),
+          ),
         ],
       ),
     );
@@ -185,12 +185,15 @@ class _AddFastLinkState extends State<AddFastLink> {
         Timestamp timestamp = Timestamp.fromDate(dateTime);
 
         FastLinkModel fastLinkModel = FastLinkModel(
-            urlImage: urlImage,
-            detail: detail ?? '',
-            linkId: sixCode!,
-            uidPost: user!.uid,
-            linkUrl: addLink!,
-            timestamp: timestamp);
+          urlImage: urlImage,
+          detail: detail ?? '',
+          linkId: sixCode!,
+          uidPost: user!.uid,
+          linkUrl: addLink!,
+          timestamp: timestamp,
+          detail2: detail2 ?? '',
+          head: head!,
+        );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');
 

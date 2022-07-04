@@ -194,12 +194,16 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            Row(crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    ShowText(
+                                      label: userModels[index].name,
+                                      textStyle: MyConstant().h3BlackStyle(),
+                                    ),
                                     ShowCircleImage(
                                         radius: 36,
                                         path: userModels[index].avatar ??
@@ -218,7 +222,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ShowText(
-                                      label: userModels[index].name,
+                                      label: fastLinkModels[index].head,
                                       textStyle: MyConstant().h2BlackStyle(),
                                     ),
                                     ShowText(
