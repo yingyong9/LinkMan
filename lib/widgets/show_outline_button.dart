@@ -8,26 +8,28 @@ class ShowOutlineButton extends StatelessWidget {
   final String label;
   final Function() pressFunc;
   final double? width;
+  final Color? colorTheme;
   const ShowOutlineButton({
     Key? key,
     required this.label,
     required this.pressFunc,
     this.width,
+    this.colorTheme,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: width,
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Colors.white),
+            side: BorderSide(color: colorTheme ?? Colors.white),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10))),
         onPressed: pressFunc,
         child: ShowText(
           label: label,
-          textStyle: MyConstant().h3WhiteStyle(),
+          textStyle: colorTheme == null ? MyConstant().h3WhiteStyle() : MyConstant().h3BlackStyle() ,
         ),
       ),
     );
