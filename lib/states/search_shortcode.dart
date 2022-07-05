@@ -21,6 +21,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SearchShortCode extends StatefulWidget {
   const SearchShortCode({Key? key}) : super(key: key);
@@ -48,6 +49,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   Future<void> readFastLinkData() async {
+    if (fastLinkModels.isNotEmpty) {
+      fastLinkModels.clear();
+      userModels.clear();
+    }
+
     await FirebaseFirestore.instance
         .collection('fastlink')
         .orderBy('timestamp', descending: true)
@@ -115,21 +121,26 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             addNewLink = string.trim();
           },
           pressFunc: () {
-            if (addNewLink?.isEmpty ?? true) {
-              Fluttertoast.showToast(
-                  msg: 'Please Fill Add Link', textColor: Colors.red);
+            if (statusLoginBool!) {
+              if (addNewLink?.isEmpty ?? true) {
+                Fluttertoast.showToast(
+                    msg: 'Please Fill Add Link', textColor: Colors.red);
+              } else {
+                String sixCode = MyFirebase().getRandom(6);
+                sixCode = '#$sixCode';
+                print('sixCode ===>> $sixCode');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          AddFastLink(sixCode: sixCode, addLink: addNewLink!),
+                    )).then((value) {
+                  textEditingController.text = '';
+                  readFastLinkData();
+                });
+              }
             } else {
-              String sixCode = MyFirebase().getRandom(6);
-              sixCode = '#$sixCode';
-              print('sixCode ===>> $sixCode');
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AddFastLink(sixCode: sixCode, addLink: addNewLink!),
-                  )).then((value) {
-                textEditingController.text = '';
-              });
+              alertLogin(context);
             }
           },
         ),
@@ -194,7 +205,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Column(
@@ -204,14 +216,19 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                       label: userModels[index].name,
                                       textStyle: MyConstant().h3BlackStyle(),
                                     ),
+                                    const SizedBox(
+                                      height: 4,
+                                    ),
                                     ShowCircleImage(
-                                        radius: 36,
+                                        radius: 24,
                                         path: userModels[index].avatar ??
                                             MyConstant.urlLogo),
                                     ShowIconButton(
                                       color: Colors.grey,
                                       iconData: Icons.more_horiz,
-                                      pressFunc: () {},
+                                      pressFunc: () async {
+                                        await Share.share('https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
+                                      },
                                     ),
                                   ],
                                 ),
@@ -225,20 +242,34 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                       label: fastLinkModels[index].head,
                                       textStyle: MyConstant().h2BlackStyle(),
                                     ),
+                                     const SizedBox(
+                                      height: 8,
+                                    ),
                                     ShowText(
                                       label: fastLinkModels[index].detail,
                                       textStyle: MyConstant().h3BlackStyle(),
                                     ),
+                                     const SizedBox(
+                                      height: 8,
+                                    ),
+                                    ShowText(
+                                      label: fastLinkModels[index].detail2,
+                                      textStyle: MyConstant().h3BlackStyle(),
+                                    ),
+                                    const SizedBox(
+                                      height: 34,
+                                    ),
                                     ShowText(
                                       label: fastLinkModels[index].linkId,
-                                      textStyle: MyConstant().h3ActionStyle(),
+                                      textStyle:
+                                          MyConstant().h3ActionPinkStyle(),
                                     )
                                   ],
                                 ),
                               ],
                             ),
                             SizedBox(
-                              height: 80,
+                              height: 120,
                               width: 120,
                               child: Image.network(
                                 fastLinkModels[index].urlImage,
