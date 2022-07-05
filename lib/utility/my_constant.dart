@@ -84,6 +84,12 @@ class MyConstant {
         fontWeight: FontWeight.w500,
       );
 
+      TextStyle h3ActionPinkStyle() => const TextStyle(
+        fontSize: 14,
+        color: Color.fromARGB(255, 225, 47, 148),
+        fontWeight: FontWeight.w500,
+      );
+
   TextStyle h3WhiteStyle() => const TextStyle(
         fontSize: 14,
         color: Colors.white,
