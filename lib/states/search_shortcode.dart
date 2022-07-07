@@ -1,4 +1,15 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: avoid_print
+
+import 'dart:async';
+
+import 'package:admanyout/widgets/show_text_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/post_model2.dart';
@@ -17,11 +28,6 @@ import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:share_plus/share_plus.dart';
 
 class SearchShortCode extends StatefulWidget {
   const SearchShortCode({Key? key}) : super(key: key);
@@ -40,6 +46,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   var fastLinkModels = <FastLinkModel>[];
   var userModels = <UserModel>[];
+
+  final globalQRkey = GlobalKey();
 
   @override
   void initState() {
@@ -123,22 +131,20 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           pressFunc: () {
             if (statusLoginBool!) {
               if (addNewLink?.isEmpty ?? true) {
-                Fluttertoast.showToast(
-                    msg: 'Please Fill Add Link', textColor: Colors.red);
-              } else {
-                String sixCode = MyFirebase().getRandom(6);
-                sixCode = '#$sixCode';
-                print('sixCode ===>> $sixCode');
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AddFastLink(sixCode: sixCode, addLink: addNewLink!),
-                    )).then((value) {
-                  textEditingController.text = '';
-                  readFastLinkData();
-                });
+                addNewLink = '';
               }
+              String sixCode = MyFirebase().getRandom(6);
+              sixCode = '#$sixCode';
+              print('sixCode ===>> $sixCode');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddFastLink(sixCode: sixCode, addLink: addNewLink!),
+                  )).then((value) {
+                // textEditingController.text = '';
+                readFastLinkData();
+              });
             } else {
               alertLogin(context);
             }
@@ -170,7 +176,16 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   pressFunc: () {
                     if (!(search?.isEmpty ?? true)) {
                       print('search ==> $search');
-                      processFindShortCode();
+
+                      processFindSearchFromSixDigi();
+
+                      // if (search!.contains('#')) {
+                      //   print('search for linkID');
+                      // } else {
+                      //   print('search for head');
+                      // }
+
+                      // processFindShortCode();
                     }
                   }),
             ),
@@ -184,104 +199,125 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           // decoration: BoxDecoration(color: Colors.grey),
           child: fastLinkModels.isEmpty
               ? const SizedBox()
-              : ListView.builder(
-                  itemCount: fastLinkModels.length,
-                  itemBuilder: (context, index) => InkWell(
-                    onTap: () async {
-                      String linkUrl = fastLinkModels[index].linkUrl;
-                      if (linkUrl.contains('#')) {
-                        search = fastLinkModels[index].linkUrl;
-                        processFindShortCode();
-                      } else {
-                        String urlLauncher = fastLinkModels[index].linkUrl;
-                        print('urlLauncher ==> $urlLauncher');
-                        await MyProcess().processLaunchUrl(url: urlLauncher);
-                      }
-                    },
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Column(
+              : LayoutBuilder(builder:
+                  (BuildContext context, BoxConstraints boxConstraints) {
+                  return ListView.builder(
+                    itemCount: fastLinkModels.length,
+                    itemBuilder: (context, index) => InkWell(
+                      onTap: () async {
+                        String linkUrl = fastLinkModels[index].linkUrl;
+                        if (linkUrl.contains('#')) {
+                          search = fastLinkModels[index].linkUrl;
+                          processFindShortCode();
+                        } else {
+                          String urlLauncher = fastLinkModels[index].linkUrl;
+                          print('urlLauncher ==> $urlLauncher');
+                          await MyProcess().processLaunchUrl(url: urlLauncher);
+                        }
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: boxConstraints.maxWidth * 0.6 - 8,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    ShowText(
-                                      label: userModels[index].name,
-                                      textStyle: MyConstant().h3BlackStyle(),
+                                    SizedBox(
+                                      width: boxConstraints.maxWidth * 0.3 - 24,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ShowText(
+                                            label: userModels[index].name,
+                                            textStyle:
+                                                MyConstant().h3BlackStyle(),
+                                          ),
+                                          const SizedBox(
+                                            height: 4,
+                                          ),
+                                          ShowCircleImage(
+                                              radius: 24,
+                                              path: userModels[index].avatar ??
+                                                  MyConstant.urlLogo),
+                                          ShowIconButton(
+                                            color: Colors.grey,
+                                            iconData: Icons.more_horiz,
+                                            pressFunc: () async {
+                                              await Share.share(
+                                                  'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
+                                            },
+                                          ),
+                                          ShowTextButton(
+                                            textStyle: MyConstant()
+                                                .h3ActionPinkStyle(),
+                                            label: fastLinkModels[index].linkId,
+                                            pressFunc: () {
+                                              processGenQRcode(
+                                                  linkId: fastLinkModels[index]
+                                                      .linkId);
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     const SizedBox(
-                                      height: 4,
+                                      width: 16,
                                     ),
-                                    ShowCircleImage(
-                                        radius: 24,
-                                        path: userModels[index].avatar ??
-                                            MyConstant.urlLogo),
-                                    ShowIconButton(
-                                      color: Colors.grey,
-                                      iconData: Icons.more_horiz,
-                                      pressFunc: () async {
-                                        await Share.share('https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
-                                      },
+                                    SizedBox(
+                                      width: boxConstraints.maxWidth * 0.3,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ShowText(
+                                            label: fastLinkModels[index].head,
+                                            textStyle:
+                                                MyConstant().h2BlackStyle(),
+                                          ),
+                                          const SizedBox(
+                                            height: 8,
+                                          ),
+                                          ShowText(
+                                            label: fastLinkModels[index].detail,
+                                            textStyle:
+                                                MyConstant().h3BlackStyle(),
+                                          ),
+                                          const SizedBox(
+                                            height: 8,
+                                          ),
+                                          ShowText(
+                                            label:
+                                                fastLinkModels[index].detail2,
+                                            textStyle:
+                                                MyConstant().h3BlackStyle(),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ShowText(
-                                      label: fastLinkModels[index].head,
-                                      textStyle: MyConstant().h2BlackStyle(),
-                                    ),
-                                     const SizedBox(
-                                      height: 8,
-                                    ),
-                                    ShowText(
-                                      label: fastLinkModels[index].detail,
-                                      textStyle: MyConstant().h3BlackStyle(),
-                                    ),
-                                     const SizedBox(
-                                      height: 8,
-                                    ),
-                                    ShowText(
-                                      label: fastLinkModels[index].detail2,
-                                      textStyle: MyConstant().h3BlackStyle(),
-                                    ),
-                                    const SizedBox(
-                                      height: 34,
-                                    ),
-                                    ShowText(
-                                      label: fastLinkModels[index].linkId,
-                                      textStyle:
-                                          MyConstant().h3ActionPinkStyle(),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 120,
-                              width: 120,
-                              child: Image.network(
-                                fastLinkModels[index].urlImage,
-                                fit: BoxFit.cover,
                               ),
-                            ),
-                          ],
+                              SizedBox(
+                                height: 120,
+                                width: boxConstraints.maxWidth * 0.4 - 16,
+                                child: Image.network(
+                                  fastLinkModels[index].urlImage,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
         ),
       ],
     );
@@ -369,8 +405,77 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => Authen(),
+                builder: (context) => const Authen(),
               ));
         });
+  }
+
+  Future<void> processGenQRcode({required String linkId}) async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RepaintBoundary(
+                    key: globalQRkey,
+                    child: SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: QrImage(data: linkId),
+                    ),
+                  ),
+                  ShowText(
+                    label: linkId,
+                    textStyle: MyConstant().h3ActionPinkStyle(),
+                  ),
+                ],
+              ),
+            ));
+  }
+
+  Future<void> processFindSearchFromSixDigi() async {
+    await FirebaseFirestore.instance
+        .collection('fastlink')
+        .where('linkId', isEqualTo: search)
+        .get()
+        .then((value) async {
+      if (value.docs.isEmpty) {
+        Fluttertoast.showToast(msg: 'No Result for $search');
+      } else {
+        for (var element in value.docs) {
+          FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
+
+          String linkUrl = fastLinkModel.linkUrl;
+          if (linkUrl.contains('#')) {
+            search = fastLinkModel.linkUrl;
+            processFindShortCode();
+          } else {
+            String urlLauncher = fastLinkModel.linkUrl;
+
+            if (urlLauncher.isNotEmpty) {
+              await MyProcess().processLaunchUrl(url: urlLauncher);
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+class Dbouncer {
+  final int millisecond;
+  Timer? timer;
+  VoidCallback? callback;
+
+  Dbouncer({
+    required this.millisecond,
+  });
+
+  run(VoidCallback callback) {
+    if (timer != null) {
+      timer!.cancel();
+    }
+    timer = Timer(Duration(milliseconds: millisecond), callback);
   }
 }

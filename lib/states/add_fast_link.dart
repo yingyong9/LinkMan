@@ -111,7 +111,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                   newImage(boxConstraints),
                   formDetail(
                       boxConstraints: boxConstraints,
-                      label: 'หัวข้อ :',
+                      label: '@ หัวข้อ :',
                       changeFunc: (String string) {
                         head = string.trim();
                       }),
@@ -192,7 +192,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           linkUrl: addLink!,
           timestamp: timestamp,
           detail2: detail2 ?? '',
-          head: head!,
+          head: head ?? '',
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');
