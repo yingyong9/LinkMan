@@ -1,4 +1,13 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: avoid_print
+
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/post_model2.dart';
@@ -17,11 +26,6 @@ import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:share_plus/share_plus.dart';
 
 class SearchShortCode extends StatefulWidget {
   const SearchShortCode({Key? key}) : super(key: key);
@@ -170,7 +174,16 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   pressFunc: () {
                     if (!(search?.isEmpty ?? true)) {
                       print('search ==> $search');
-                      processFindShortCode();
+
+                      if (search!.contains('#')) {
+                        print('search for linkID');
+
+                      } else {
+                        print('search for head');
+                        
+                      }
+
+                      // processFindShortCode();
                     }
                   }),
             ),
@@ -227,7 +240,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                       color: Colors.grey,
                                       iconData: Icons.more_horiz,
                                       pressFunc: () async {
-                                        await Share.share('https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
+                                        await Share.share(
+                                            'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
                                       },
                                     ),
                                   ],
@@ -242,14 +256,14 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                       label: fastLinkModels[index].head,
                                       textStyle: MyConstant().h2BlackStyle(),
                                     ),
-                                     const SizedBox(
+                                    const SizedBox(
                                       height: 8,
                                     ),
                                     ShowText(
                                       label: fastLinkModels[index].detail,
                                       textStyle: MyConstant().h3BlackStyle(),
                                     ),
-                                     const SizedBox(
+                                    const SizedBox(
                                       height: 8,
                                     ),
                                     ShowText(
@@ -372,5 +386,22 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 builder: (context) => Authen(),
               ));
         });
+  }
+}
+
+class Dbouncer {
+  final int millisecond;
+  Timer? timer;
+  VoidCallback? callback;
+
+  Dbouncer({
+    required this.millisecond,
+  });
+
+  run(VoidCallback callback) {
+    if (timer != null) {
+      timer!.cancel();
+    }
+    timer = Timer(Duration(milliseconds: millisecond), callback);
   }
 }
