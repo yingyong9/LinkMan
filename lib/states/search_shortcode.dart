@@ -57,6 +57,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   Future<void> readFastLinkData() async {
+    
     if (fastLinkModels.isNotEmpty) {
       fastLinkModels.clear();
       userModels.clear();
