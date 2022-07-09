@@ -59,6 +59,7 @@ class _MainHomeState extends State<MainHome> {
   var documentLists = <DocumentSnapshot>[];
 
   int factor = 0;
+  int lastIndex = 4;
 
   @override
   void initState() {
@@ -73,14 +74,14 @@ class _MainHomeState extends State<MainHome> {
 
   Future<void> findDocumentLists() async {
     await FirebaseFirestore.instance
-        .collection('post')
+        .collection('post2')
         .orderBy('timePost', descending: true)
         .get()
         .then((value) {
       for (var element in value.docs) {
         documentLists.add(element);
       }
-      print('ขนาดของ documentLists ==>> ${documentLists.length}');
+      print('##9july on main home documentLists ==>> ${documentLists.length}');
     });
   }
 
@@ -88,13 +89,13 @@ class _MainHomeState extends State<MainHome> {
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
-        print('Load More on Top');
+        print('##9july Load More on Top');
         readPost();
       }
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        print('## Load More on Botton');
+        print('##9july Load More on Botton');
         readMorePost();
         factor++;
       }
@@ -143,14 +144,11 @@ class _MainHomeState extends State<MainHome> {
     await FirebaseFirestore.instance
         .collection('post2')
         .orderBy('timePost', descending: true)
-        // .limit(10)
+        .limit(5)
         .get()
         .then((value) async {
-      // print('##10june value ==> ${value.docs}');
       for (var item in value.docs) {
         PostModel2 postModel = PostModel2.fromMap(item.data());
-        // print('##10june postmodel ==> ${postModel.toMap()}');
-
         postModels.add(postModel);
         docIdPosts.add(item.id);
 
@@ -191,16 +189,20 @@ class _MainHomeState extends State<MainHome> {
   }
 
   Future<void> readMorePost() async {
-    if (factor * 10 + 10 <= documentLists.length) {
+    if (factor * 5 + 5 <= documentLists.length) {
+      print('##9july readMorePost Work');
       await FirebaseFirestore.instance
-          .collection('post')
+          .collection('post2')
           .orderBy('timePost', descending: true)
-          .startAfterDocument(documentLists[10 * factor])
-          .limit(10)
+          .startAfterDocument(documentLists[lastIndex + 1])
+          .limit(5)
           .get()
           .then((value) async {
+        print('##9july ก่อน postModels.length ==> ${postModels.length}');
+        print('##9july value ==> ${value.docs}');
         for (var item in value.docs) {
           PostModel2 postModel = PostModel2.fromMap(item.data());
+          print('##9july postModel ==> ${postModel.toMap()}');
           postModels.add(postModel);
           docIdPosts.add(item.id);
 
@@ -229,8 +231,10 @@ class _MainHomeState extends State<MainHome> {
             bolFollows.add(result);
           });
         }
-
-        load = false;
+        lastIndex = lastIndex + 5;
+        print('##9july lastIndex ===> $lastIndex');
+        print('##9july postModels.length ==> ${postModels.length}');
+        // load = false;
         setState(() {});
       });
     }
@@ -384,7 +388,10 @@ class _MainHomeState extends State<MainHome> {
         const SizedBox(
           width: 16,
         ),
-        ShowOutlineButton(width: postModels[index].nameButton.length < 20 ? 200 : constraints.maxWidth-36 ,
+        ShowOutlineButton(
+            width: postModels[index].nameButton.length < 20
+                ? 200
+                : constraints.maxWidth - 36,
             label: '${postModels[index].nameButton} >',
             pressFunc: () {
               processClickButton2(
