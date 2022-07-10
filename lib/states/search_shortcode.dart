@@ -49,23 +49,89 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   final globalQRkey = GlobalKey();
 
+  var documentLists = <DocumentSnapshot>[];
+  ScrollController scrollController = ScrollController();
+  int factor = 0;
+  int lastIndex = 4;
+
   @override
   void initState() {
     super.initState();
     checkStatusLogin();
     readFastLinkData();
+    findDocumentLists();
+    setupScorllController();
+  }
+
+  void setupScorllController() {
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.minScrollExtent) {
+        print('##9july Load More on Top');
+        readFastLinkData();
+      }
+
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        readMoreFastLinkData();
+      }
+    });
+  }
+
+  Future<void> readMoreFastLinkData() async {
+    factor++;
+    if (factor * 5 + 5 <= documentLists.length) {
+      print('##9july Load More on Botton factor ==> $factor');
+
+      await FirebaseFirestore.instance
+          .collection('fastlink')
+          .orderBy('timestamp', descending: true)
+          .startAfterDocument(documentLists[lastIndex + 1])
+          .limit(5)
+          .get()
+          .then((value) async {
+        for (var element in value.docs) {
+          FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
+          fastLinkModels.add(fastLinkModel);
+
+          await MyFirebase()
+              .findUserModel(uid: fastLinkModel.uidPost)
+              .then((value) {
+            userModels.add(value);
+          });
+        }
+        lastIndex = lastIndex + 5;
+        print('##9july lastindex ==> $lastIndex');
+        setState(() {});
+      });
+    }
+  }
+
+  Future<void> findDocumentLists() async {
+    await FirebaseFirestore.instance
+        .collection('fastlink')
+        .orderBy('timestamp', descending: true)
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        documentLists.add(element);
+      }
+      print('##9july ขนาดของ documentLists ==>> ${documentLists.length}');
+    });
   }
 
   Future<void> readFastLinkData() async {
-    
+    print('##9july readFastLink Work');
     if (fastLinkModels.isNotEmpty) {
       fastLinkModels.clear();
       userModels.clear();
+      documentLists.clear();
     }
 
     await FirebaseFirestore.instance
         .collection('fastlink')
         .orderBy('timestamp', descending: true)
+        .limit(5)
         .get()
         .then((value) async {
       for (var element in value.docs) {
@@ -125,7 +191,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           colorTheme: Colors.black,
           controller: textEditingController,
           label: 'Add Link',
-          iconData: Icons.arrow_forward_ios,
+          iconData: Icons.add_box_outlined,
           changeFunc: (String string) {
             addNewLink = string.trim();
           },
@@ -203,6 +269,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               : LayoutBuilder(builder:
                   (BuildContext context, BoxConstraints boxConstraints) {
                   return ListView.builder(
+                    controller: scrollController,
                     itemCount: fastLinkModels.length,
                     itemBuilder: (context, index) => InkWell(
                       onTap: () async {
@@ -305,7 +372,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                 ),
                               ),
                               SizedBox(
-                                height: 120,
+                                height: boxConstraints.maxHeight * 0.5,
                                 width: boxConstraints.maxWidth * 0.4 - 16,
                                 child: Image.network(
                                   fastLinkModels[index].urlImage,
@@ -370,26 +437,26 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           textStyle: MyConstant().h1GreenStyle(),
         ),
       ),
-      actions: [
-        ShowIconButton(
-          size: 36,
-          color: const Color.fromARGB(255, 236, 12, 12),
-          iconData: Icons.add_box_outlined,
-          pressFunc: () {
-            if (statusLoginBool!) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  // builder: (context) => const AddPhoto(),
-                  builder: (context) => const AddPhotoMulti(),
-                ),
-              );
-            } else {
-              alertLogin(context);
-            }
-          },
-        ),
-      ],
+      // actions: [
+      //   ShowIconButton(
+      //     size: 36,
+      //     color: const Color.fromARGB(255, 236, 12, 12),
+      //     iconData: Icons.add_box_outlined,
+      //     pressFunc: () {
+      //       if (statusLoginBool!) {
+      //         Navigator.push(
+      //           context,
+      //           MaterialPageRoute(
+      //             // builder: (context) => const AddPhoto(),
+      //             builder: (context) => const AddPhotoMulti(),
+      //           ),
+      //         );
+      //       } else {
+      //         alertLogin(context);
+      //       }
+      //     },
+      //   ),
+      // ],
       backgroundColor: Colors.white,
       foregroundColor: Colors.black,
       elevation: 0,
@@ -432,6 +499,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   ),
                 ],
               ),
+              actions: [
+                ShowTextButton(
+                    label: 'Save',
+                    pressFunc: () {
+                      Navigator.pop(context);
+                    })
+              ],
             ));
   }
 
