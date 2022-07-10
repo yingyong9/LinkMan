@@ -22,77 +22,90 @@ class MyConstant {
         fontSize: 36,
         color: dark,
         fontWeight: FontWeight.bold,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h1GreenStyle() => const TextStyle(
         fontSize: 36,
         color: Color.fromARGB(255, 71, 199, 75),
         fontWeight: FontWeight.bold,
+        
       );
 
   TextStyle h2Style() => TextStyle(
         fontSize: 18,
         color: dark,
         fontWeight: FontWeight.w700,
+        fontFamily: 'Sarabun',
       );
 
       TextStyle h2BlackStyle() => const TextStyle(
         fontSize: 18,
-        color: Colors.black,
+        color: Color.fromARGB(255, 230, 24, 24),
         fontWeight: FontWeight.w700,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h2redStyle() => const TextStyle(
         fontSize: 30,
         color: Color.fromARGB(255, 236, 48, 34),
         fontWeight: FontWeight.w700,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h2v2Style() => TextStyle(
         fontSize: 30,
         color: dark,
         fontWeight: FontWeight.w700,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h2WhiteStyle() => const TextStyle(
         fontSize: 16,
         color: Colors.white,
         fontWeight: FontWeight.w500,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h2WhiteBigStyle() => const TextStyle(
         fontSize: 24,
         color: Colors.white,
         fontWeight: FontWeight.w500,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h3Style() => TextStyle(
         fontSize: 14,
         color: dark,
         fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h3BlackStyle() => const TextStyle(
         fontSize: 14,
         color: Colors.black,
         fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h3ActionStyle() => const TextStyle(
         fontSize: 14,
         color: Colors.lime,
         fontWeight: FontWeight.w500,
+        fontFamily: 'Sarabun',
       );
 
       TextStyle h3ActionPinkStyle() => const TextStyle(
         fontSize: 14,
         color: Color.fromARGB(255, 225, 47, 148),
         fontWeight: FontWeight.w500,
+        fontFamily: 'Sarabun',
       );
 
   TextStyle h3WhiteStyle() => const TextStyle(
         fontSize: 14,
         color: Colors.white,
         fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
       );
 }

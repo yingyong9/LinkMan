@@ -372,7 +372,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                 ),
                               ),
                               SizedBox(
-                                height: 120,
+                                height: boxConstraints.maxHeight * 0.5,
                                 width: boxConstraints.maxWidth * 0.4 - 16,
                                 child: Image.network(
                                   fastLinkModels[index].urlImage,
@@ -499,6 +499,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   ),
                 ],
               ),
+              actions: [
+                ShowTextButton(
+                    label: 'Save',
+                    pressFunc: () {
+                      Navigator.pop(context);
+                    })
+              ],
             ));
   }
 

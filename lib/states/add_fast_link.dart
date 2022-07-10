@@ -212,6 +212,7 @@ class _AddFastLinkState extends State<AddFastLink> {
     required BoxConstraints boxConstraints,
     required String label,
     required Function(String) changeFunc,
+    Color? textColor,
   }) {
     return SizedBox(
       height: 60,
