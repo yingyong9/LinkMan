@@ -15,6 +15,8 @@ class ShowForm extends StatelessWidget {
   final TextEditingController? controller;
   final Function()? pressFunc;
   final Color? colorTheme;
+  final Widget? prefixWidget;
+  final Color? colorSuffixIcon;
   const ShowForm({
     Key? key,
     this.width,
@@ -26,6 +28,8 @@ class ShowForm extends StatelessWidget {
     this.controller,
     this.pressFunc,
     this.colorTheme,
+    this.prefixWidget,
+    this.colorSuffixIcon,
   }) : super(key: key);
 
   @override
@@ -42,10 +46,13 @@ class ShowForm extends StatelessWidget {
             : MyConstant().h3BlackStyle(),
         obscureText: obscub ?? false,
         onChanged: changeFunc,
-        decoration: InputDecoration(filled: true,
+        decoration: InputDecoration(
+          prefixIcon: prefixWidget,
+          filled: true,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-          suffixIcon: ShowIconButton(color: colorTheme ?? Colors.white,
+          suffixIcon: ShowIconButton(
+            color: colorSuffixIcon ?? colorTheme ?? Colors.white,
             iconData: iconData,
             pressFunc: pressFunc ?? () {},
           ),

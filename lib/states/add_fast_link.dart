@@ -6,6 +6,7 @@ import 'package:admanyout/models/fast_group_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
@@ -172,6 +173,8 @@ class _AddFastLinkState extends State<AddFastLink> {
   }
 
   Future<void> processUploadAndInsertFastLink() async {
+    MyDialog(context: context).processDialog();
+
     String nameImage = '${user!.uid}${Random().nextInt(1000000)}.jpg';
 
     FirebaseStorage storage = FirebaseStorage.instance;
@@ -202,6 +205,7 @@ class _AddFastLinkState extends State<AddFastLink> {
             .doc()
             .set(fastLinkModel.toMap())
             .then((value) {
+          Navigator.pop(context);
           Navigator.pop(context);
         });
       });

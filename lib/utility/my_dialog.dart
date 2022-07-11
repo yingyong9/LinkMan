@@ -11,8 +11,6 @@ class MyDialog {
     required this.context,
   });
 
-  
-
   Future<void> processDialog() async {
     showDialog(
         context: context,
@@ -33,7 +31,10 @@ class MyDialog {
       builder: (BuildContext context) => AlertDialog(
         backgroundColor: Colors.grey.shade900,
         title: ListTile(
-          leading: const ShowImage(path: 'images/logo.png',width: 80,),
+          leading: const ShowImage(
+            path: 'images/logo.png',
+            width: 80,
+          ),
           title: ShowText(
             label: title,
             textStyle: MyConstant().h2Style(),
