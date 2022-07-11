@@ -188,10 +188,19 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       child: Container(
         margin: const EdgeInsets.only(left: 48),
         child: ShowForm(
+          prefixWidget: ShowIconButton(
+            color: Colors.black,
+            iconData: Icons.backspace_outlined,
+            pressFunc: () {
+              textEditingController.text = '';
+              setState(() {});
+            },
+          ),
           colorTheme: Colors.black,
           controller: textEditingController,
           label: 'Add Link',
           iconData: Icons.add_box_outlined,
+          colorSuffixIcon: const Color.fromARGB(255, 34, 174, 13),
           changeFunc: (String string) {
             addNewLink = string.trim();
           },
