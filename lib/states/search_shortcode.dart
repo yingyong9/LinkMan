@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +16,6 @@ import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/post_model2.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_fast_link.dart';
-import 'package:admanyout/states/add_photo_multi.dart';
 import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/main_home.dart';
 import 'package:admanyout/states/show_detail_post.dart';
@@ -45,6 +45,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   TextEditingController textEditingController = TextEditingController();
 
   var fastLinkModels = <FastLinkModel>[];
+  var titleLinks = <String>[];
   var userModels = <UserModel>[];
 
   final globalQRkey = GlobalKey();
@@ -93,6 +94,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         for (var element in value.docs) {
           FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
           fastLinkModels.add(fastLinkModel);
+          titleLinks.add('UnLink');
 
           await MyFirebase()
               .findUserModel(uid: fastLinkModel.uidPost)
@@ -126,6 +128,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       fastLinkModels.clear();
       userModels.clear();
       documentLists.clear();
+      titleLinks.clear();
     }
 
     await FirebaseFirestore.instance
@@ -142,6 +145,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             .findUserModel(uid: fastLinkModel.uidPost)
             .then((value) {
           userModels.add(value);
+          titleLinks.add('UnLink');
         });
       }
       setState(() {});
@@ -239,7 +243,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             ShowForm(
                 colorTheme: Colors.black,
                 controller: controller,
-                label: 'LinkMan #',
+                label: 'กรอก Link ID เพื่อหา Link',
                 iconData: Icons.qr_code,
                 changeFunc: (String string) {
                   search = string.trim();
@@ -296,98 +300,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(
-                                width: boxConstraints.maxWidth * 0.6 - 8,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(
-                                      width: boxConstraints.maxWidth * 0.3 - 24,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ShowText(
-                                            label: userModels[index].name,
-                                            textStyle:
-                                                MyConstant().h3BlackStyle(),
-                                          ),
-                                          const SizedBox(
-                                            height: 4,
-                                          ),
-                                          ShowCircleImage(
-                                              radius: 24,
-                                              path: userModels[index].avatar ??
-                                                  MyConstant.urlLogo),
-                                          ShowIconButton(
-                                            color: Colors.grey,
-                                            iconData: Icons.more_horiz,
-                                            pressFunc: () async {
-                                              await Share.share(
-                                                  'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
-                                            },
-                                          ),
-                                          ShowTextButton(
-                                            textStyle: MyConstant()
-                                                .h3ActionPinkStyle(),
-                                            label: fastLinkModels[index].linkId,
-                                            pressFunc: () {
-                                              processGenQRcode(
-                                                  linkId: fastLinkModels[index]
-                                                      .linkId);
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 16,
-                                    ),
-                                    SizedBox(
-                                      width: boxConstraints.maxWidth * 0.3,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ShowText(
-                                            label: fastLinkModels[index].head,
-                                            textStyle:
-                                                MyConstant().h2BlackStyle(),
-                                          ),
-                                          const SizedBox(
-                                            height: 8,
-                                          ),
-                                          ShowText(
-                                            label: fastLinkModels[index].detail,
-                                            textStyle:
-                                                MyConstant().h3BlackStyle(),
-                                          ),
-                                          const SizedBox(
-                                            height: 8,
-                                          ),
-                                          ShowText(
-                                            label:
-                                                fastLinkModels[index].detail2,
-                                            textStyle:
-                                                MyConstant().h3BlackStyle(),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: boxConstraints.maxHeight * 0.5,
-                                width: boxConstraints.maxWidth * 0.4 - 16,
-                                child: Image.network(
-                                  fastLinkModels[index].urlImage,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                              newContent1(boxConstraints, index),
+                              newContent2(boxConstraints, index),
+                              newImageListView(boxConstraints, index),
                             ],
                           ),
                         ),
@@ -397,6 +314,89 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }),
         ),
       ],
+    );
+  }
+
+  Widget newContent1(BoxConstraints boxConstraints, int index) {
+    return SizedBox(
+      width: boxConstraints.maxWidth * 0.3 - 8,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ShowText(
+            label: userModels[index].name,
+            textStyle: MyConstant().h3BlackStyle(),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          ShowCircleImage(
+              radius: 24, path: userModels[index].avatar ?? MyConstant.urlLogo),
+          ShowButton(
+              label: titleLinks[index],
+              pressFunc: () {
+                if (titleLinks[index] == 'UnLink') {
+                  titleLinks[index] = 'Link';
+                } else {
+                  titleLinks[index] = 'UnLink';
+                }
+                setState(() {});
+              }),
+          ShowIconButton(
+            color: Colors.grey,
+            iconData: Icons.more_horiz,
+            pressFunc: () async {
+              await Share.share(
+                  'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
+            },
+          ),
+          ShowButton(
+              label: 'Link ID',
+              pressFunc: () {
+                processGenQRcode(linkId: fastLinkModels[index].linkId);
+              }),
+        ],
+      ),
+    );
+  }
+
+  SizedBox newContent2(BoxConstraints boxConstraints, int index) {
+    return SizedBox(
+      width: boxConstraints.maxWidth * 0.35 - 8,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShowText(
+            label: fastLinkModels[index].head,
+            textStyle: MyConstant().h2BlackStyle(),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          ShowText(
+            label: fastLinkModels[index].detail,
+            textStyle: MyConstant().h3BlackStyle(),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          ShowText(
+            label: fastLinkModels[index].detail2,
+            textStyle: MyConstant().h3BlackStyle(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SizedBox newImageListView(BoxConstraints boxConstraints, int index) {
+    return SizedBox(
+      height: boxConstraints.maxHeight * 0.5,
+      width: boxConstraints.maxWidth * 0.35 - 8,
+      child: Image.network(
+        fastLinkModels[index].urlImage,
+        fit: BoxFit.cover,
+      ),
     );
   }
 
