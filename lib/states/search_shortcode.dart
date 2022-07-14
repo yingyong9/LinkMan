@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:admanyout/models/linkfriend_model.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -45,15 +46,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   TextEditingController textEditingController = TextEditingController();
 
   var fastLinkModels = <FastLinkModel>[];
-  var titleLinks = <String>[];
   var userModels = <UserModel>[];
+  var documentLists = <DocumentSnapshot>[];
+  var showButtonLinks = <bool>[];
+  int factor = 0;
+  int lastIndex = 4;
 
   final globalQRkey = GlobalKey();
 
-  var documentLists = <DocumentSnapshot>[];
   ScrollController scrollController = ScrollController();
-  int factor = 0;
-  int lastIndex = 4;
+
+  var user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -69,17 +72,23 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
         print('##9july Load More on Top');
+        findDocumentLists();
         readFastLinkData();
       }
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
+        print('##9july Load More on Button');
         readMoreFastLinkData();
       }
     });
   }
 
   Future<void> readMoreFastLinkData() async {
+    print(
+        '##9july เริ่มทำงาน readMoreFastLinkData factor --> $factor, lastIndex ---> $lastIndex');
+    print(
+        '##9july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
     factor++;
     if (factor * 5 + 5 <= documentLists.length) {
       print('##9july Load More on Botton factor ==> $factor');
@@ -94,7 +103,20 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         for (var element in value.docs) {
           FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
           fastLinkModels.add(fastLinkModel);
-          titleLinks.add('UnLink');
+
+          await FirebaseFirestore.instance
+              .collection('user')
+              .doc(user!.uid)
+              .collection('linkfriend')
+              .where('uidLinkFriend', isEqualTo: fastLinkModel.uidPost)
+              .get()
+              .then((value) {
+            if (value.docs.isEmpty) {
+              showButtonLinks.add(true);
+            } else {
+              showButtonLinks.add(false);
+            }
+          });
 
           await MyFirebase()
               .findUserModel(uid: fastLinkModel.uidPost)
@@ -124,12 +146,18 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   Future<void> readFastLinkData() async {
     print('##9july readFastLink Work');
+
     if (fastLinkModels.isNotEmpty) {
       fastLinkModels.clear();
       userModels.clear();
       documentLists.clear();
-      titleLinks.clear();
+      showButtonLinks.clear();
+      factor = 0;
+      lastIndex = 4;
     }
+
+    print('##9july Load More on Botton factor at readFastLinkData ==> $factor');
+    print('##9july lastindex ==> $lastIndex');
 
     await FirebaseFirestore.instance
         .collection('fastlink')
@@ -141,13 +169,27 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
         fastLinkModels.add(fastLinkModel);
 
+        await FirebaseFirestore.instance
+            .collection('user')
+            .doc(user!.uid)
+            .collection('linkfriend')
+            .where('uidLinkFriend', isEqualTo: fastLinkModel.uidPost)
+            .get()
+            .then((value) {
+          if (value.docs.isEmpty) {
+            showButtonLinks.add(true);
+          } else {
+            showButtonLinks.add(false);
+          }
+        });
+
         await MyFirebase()
             .findUserModel(uid: fastLinkModel.uidPost)
             .then((value) {
           userModels.add(value);
-          titleLinks.add('UnLink');
         });
       }
+      print('showButtonLinks ===> $showButtonLinks');
       setState(() {});
     });
   }
@@ -332,16 +374,28 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           ),
           ShowCircleImage(
               radius: 24, path: userModels[index].avatar ?? MyConstant.urlLogo),
-          ShowButton(
-              label: titleLinks[index],
-              pressFunc: () {
-                if (titleLinks[index] == 'UnLink') {
-                  titleLinks[index] = 'Link';
-                } else {
-                  titleLinks[index] = 'UnLink';
-                }
-                setState(() {});
-              }),
+          showButtonLinks[index]
+              ? ShowButton(
+                  label: 'Link',
+                  pressFunc: () async {
+                    String uidPost = fastLinkModels[index].uidPost;
+                    String uidLogin = user!.uid;
+                    print(
+                        'You Click Link uidPost ===>> $uidPost, uidLogin = $uidLogin');
+                    LinkFriendModel linkFriendModel =
+                        LinkFriendModel(uidLinkFriend: uidPost);
+                    await FirebaseFirestore.instance
+                        .collection('user')
+                        .doc(uidLogin)
+                        .collection('linkfriend')
+                        .doc()
+                        .set(linkFriendModel.toMap())
+                        .then((value) {
+                      print('Create LinkFriend Success');
+                      readFastLinkData();
+                    });
+                  })
+              : const SizedBox(),
           ShowIconButton(
             color: Colors.grey,
             iconData: Icons.more_horiz,
