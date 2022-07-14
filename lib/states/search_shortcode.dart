@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:admanyout/models/linkfriend_model.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -45,15 +46,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   TextEditingController textEditingController = TextEditingController();
 
   var fastLinkModels = <FastLinkModel>[];
-  var titleLinks = <String>[];
   var userModels = <UserModel>[];
   var documentLists = <DocumentSnapshot>[];
+  var showButtonLinks = <bool>[];
   int factor = 0;
   int lastIndex = 4;
 
   final globalQRkey = GlobalKey();
 
   ScrollController scrollController = ScrollController();
+
+  var user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -100,7 +103,20 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         for (var element in value.docs) {
           FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
           fastLinkModels.add(fastLinkModel);
-          titleLinks.add('UnLink');
+
+          await FirebaseFirestore.instance
+              .collection('user')
+              .doc(user!.uid)
+              .collection('linkfriend')
+              .where('uidLinkFriend', isEqualTo: fastLinkModel.uidPost)
+              .get()
+              .then((value) {
+            if (value.docs.isEmpty) {
+              showButtonLinks.add(true);
+            } else {
+              showButtonLinks.add(false);
+            }
+          });
 
           await MyFirebase()
               .findUserModel(uid: fastLinkModel.uidPost)
@@ -135,7 +151,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       fastLinkModels.clear();
       userModels.clear();
       documentLists.clear();
-      titleLinks.clear();
+      showButtonLinks.clear();
       factor = 0;
       lastIndex = 4;
     }
@@ -153,13 +169,27 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
         fastLinkModels.add(fastLinkModel);
 
+        await FirebaseFirestore.instance
+            .collection('user')
+            .doc(user!.uid)
+            .collection('linkfriend')
+            .where('uidLinkFriend', isEqualTo: fastLinkModel.uidPost)
+            .get()
+            .then((value) {
+          if (value.docs.isEmpty) {
+            showButtonLinks.add(true);
+          } else {
+            showButtonLinks.add(false);
+          }
+        });
+
         await MyFirebase()
             .findUserModel(uid: fastLinkModel.uidPost)
             .then((value) {
           userModels.add(value);
-          titleLinks.add('UnLink');
         });
       }
+      print('showButtonLinks ===> $showButtonLinks');
       setState(() {});
     });
   }
@@ -344,16 +374,28 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           ),
           ShowCircleImage(
               radius: 24, path: userModels[index].avatar ?? MyConstant.urlLogo),
-          ShowButton(
-              label: titleLinks[index],
-              pressFunc: () {
-                if (titleLinks[index] == 'UnLink') {
-                  titleLinks[index] = 'Link';
-                } else {
-                  titleLinks[index] = 'UnLink';
-                }
-                setState(() {});
-              }),
+          showButtonLinks[index]
+              ? ShowButton(
+                  label: 'Link',
+                  pressFunc: () async {
+                    String uidPost = fastLinkModels[index].uidPost;
+                    String uidLogin = user!.uid;
+                    print(
+                        'You Click Link uidPost ===>> $uidPost, uidLogin = $uidLogin');
+                    LinkFriendModel linkFriendModel =
+                        LinkFriendModel(uidLinkFriend: uidPost);
+                    await FirebaseFirestore.instance
+                        .collection('user')
+                        .doc(uidLogin)
+                        .collection('linkfriend')
+                        .doc()
+                        .set(linkFriendModel.toMap())
+                        .then((value) {
+                      print('Create LinkFriend Success');
+                      readFastLinkData();
+                    });
+                  })
+              : const SizedBox(),
           ShowIconButton(
             color: Colors.grey,
             iconData: Icons.more_horiz,
