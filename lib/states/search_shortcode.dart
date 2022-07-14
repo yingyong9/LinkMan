@@ -47,13 +47,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   var fastLinkModels = <FastLinkModel>[];
   var titleLinks = <String>[];
   var userModels = <UserModel>[];
+  var documentLists = <DocumentSnapshot>[];
+  int factor = 0;
+  int lastIndex = 4;
 
   final globalQRkey = GlobalKey();
 
-  var documentLists = <DocumentSnapshot>[];
   ScrollController scrollController = ScrollController();
-  int factor = 0;
-  int lastIndex = 4;
 
   @override
   void initState() {
@@ -69,17 +69,23 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
         print('##9july Load More on Top');
+        findDocumentLists();
         readFastLinkData();
       }
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
+        print('##9july Load More on Button');
         readMoreFastLinkData();
       }
     });
   }
 
   Future<void> readMoreFastLinkData() async {
+    print(
+        '##9july เริ่มทำงาน readMoreFastLinkData factor --> $factor, lastIndex ---> $lastIndex');
+    print(
+        '##9july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
     factor++;
     if (factor * 5 + 5 <= documentLists.length) {
       print('##9july Load More on Botton factor ==> $factor');
@@ -124,12 +130,18 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   Future<void> readFastLinkData() async {
     print('##9july readFastLink Work');
+
     if (fastLinkModels.isNotEmpty) {
       fastLinkModels.clear();
       userModels.clear();
       documentLists.clear();
       titleLinks.clear();
+      factor = 0;
+      lastIndex = 4;
     }
+
+    print('##9july Load More on Botton factor at readFastLinkData ==> $factor');
+    print('##9july lastindex ==> $lastIndex');
 
     await FirebaseFirestore.instance
         .collection('fastlink')
