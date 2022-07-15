@@ -421,22 +421,30 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ShowText(
-            label: fastLinkModels[index].head,
+            label: MyProcess()
+                .cutWord(string: fastLinkModels[index].head, word: 100),
             textStyle: MyConstant().h2BlackStyle(),
           ),
           const SizedBox(
             height: 8,
           ),
           ShowText(
-            label: fastLinkModels[index].detail,
+            label: MyProcess()
+                .cutWord(string: fastLinkModels[index].detail, word: 50),
             textStyle: MyConstant().h3BlackStyle(),
           ),
           const SizedBox(
             height: 8,
           ),
           ShowText(
-            label: fastLinkModels[index].detail2,
+            label: MyProcess()
+                .cutWord(string: fastLinkModels[index].detail2, word: 50),
             textStyle: MyConstant().h3BlackStyle(),
+          ),
+          ShowText(
+            label:
+                MyProcess().showSource(string: fastLinkModels[index].linkUrl),
+            textStyle: MyConstant().h3RedStyle(),
           ),
         ],
       ),
