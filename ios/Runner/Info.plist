@@ -31,11 +31,24 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>audio</string>
+        <string>fetch</string>
+    </array>
+    <key>com.apple.security.app-sandbox</key>
+        <true/>
+        <key>com.apple.security.cs.allow-jit</key>
+        <true/>
+        <key>com.apple.security.network.server</key>
+        <true/>
+        <key>com.apple.security.network.client</key>
+        <true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Need to upload image</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -61,5 +74,6 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+    
 </dict>
 </plist>

@@ -46,6 +46,8 @@ class _AddFastLinkState extends State<AddFastLink> {
   String? urlSongChoose;
   var urlSongModels = <SongModel>[];
 
+  AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +57,12 @@ class _AddFastLinkState extends State<AddFastLink> {
     processFindUserLogined();
     processReadFastGroup();
     readSongFromData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    assetsAudioPlayer.dispose();
   }
 
   Future<void> readSongFromData() async {
@@ -152,12 +160,16 @@ class _AddFastLinkState extends State<AddFastLink> {
     );
   }
 
-  Row newSong() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: RadioListTile(
+  Widget newSong() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(),
+      ),
+      child: Column(
+        children: [
+          RadioListTile(
             title: ShowText(
               label: 'Song1',
               textStyle: MyConstant().h3BlackStyle(),
@@ -171,10 +183,7 @@ class _AddFastLinkState extends State<AddFastLink> {
               });
             },
           ),
-        ),
-        Expanded(
-          flex: 1,
-          child: RadioListTile(
+          RadioListTile(
             title: ShowText(
               label: 'Song2',
               textStyle: MyConstant().h3BlackStyle(),
@@ -188,10 +197,7 @@ class _AddFastLinkState extends State<AddFastLink> {
               });
             },
           ),
-        ),
-        Expanded(
-          flex: 1,
-          child: RadioListTile(
+          RadioListTile(
             title: ShowText(
               label: 'Song3',
               textStyle: MyConstant().h3BlackStyle(),
@@ -205,16 +211,34 @@ class _AddFastLinkState extends State<AddFastLink> {
               });
             },
           ),
-        ),
-      ],
+          RadioListTile(
+            title: ShowText(
+              label: 'Nothing',
+              textStyle: MyConstant().h3BlackStyle(),
+            ),
+            value: '',
+            groupValue: urlSongChoose,
+            onChanged: (value) {
+              setState(() {
+                urlSongChoose = value.toString();
+                processPlaySong();
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 
   Future<void> processPlaySong() async {
     print('urlSong ===> $urlSongChoose');
 
-    await AssetsAudioPlayer().open(Audio.network(urlSongChoose!)).then((value) {
-      print('AssetsAudio oK');
+    await assetsAudioPlayer.stop().then((value) async {
+      if (urlSongChoose!.isNotEmpty) {
+        await assetsAudioPlayer
+            .open(Audio.network(urlSongChoose!))
+            .then((value) {});
+      }
     });
 
     try {} catch (e) {
@@ -281,6 +305,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           timestamp: timestamp,
           detail2: detail2 ?? '',
           head: head ?? '',
+          urlSong: urlSongChoose ?? '',
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');
