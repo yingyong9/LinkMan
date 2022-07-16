@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:admanyout/models/fast_group_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
+import 'package:admanyout/models/song_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -13,6 +14,7 @@ import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -41,6 +43,11 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   var fastGroupModels = <FastGroupModel>[];
 
+  String? urlSongChoose;
+  var urlSongModels = <SongModel>[];
+
+  AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +56,23 @@ class _AddFastLinkState extends State<AddFastLink> {
     processGetImage();
     processFindUserLogined();
     processReadFastGroup();
+    readSongFromData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    assetsAudioPlayer.dispose();
+  }
+
+  Future<void> readSongFromData() async {
+    await FirebaseFirestore.instance.collection('song').get().then((value) {
+      for (var element in value.docs) {
+        SongModel songModel = SongModel.fromMap(element.data());
+        urlSongModels.add(songModel);
+      }
+      setState(() {});
+    });
   }
 
   Future<void> processReadFastGroup() async {
@@ -128,6 +152,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                       changeFunc: (String string) {
                         detail2 = string.trim();
                       }),
+                  urlSongModels.isEmpty ? const SizedBox() : newSong(),
                   newGroup(boxConstraints: boxConstraints),
                 ],
               );
@@ -135,7 +160,91 @@ class _AddFastLinkState extends State<AddFastLink> {
     );
   }
 
-  //Test
+  Widget newSong() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(),
+      ),
+      child: Column(
+        children: [
+          RadioListTile(
+            title: ShowText(
+              label: 'Song1',
+              textStyle: MyConstant().h3BlackStyle(),
+            ),
+            value: urlSongModels[0].url,
+            groupValue: urlSongChoose,
+            onChanged: (value) {
+              setState(() {
+                urlSongChoose = value.toString();
+                processPlaySong();
+              });
+            },
+          ),
+          RadioListTile(
+            title: ShowText(
+              label: 'Song2',
+              textStyle: MyConstant().h3BlackStyle(),
+            ),
+            value: urlSongModels[1].url,
+            groupValue: urlSongChoose,
+            onChanged: (value) {
+              setState(() {
+                urlSongChoose = value.toString();
+                processPlaySong();
+              });
+            },
+          ),
+          RadioListTile(
+            title: ShowText(
+              label: 'Song3',
+              textStyle: MyConstant().h3BlackStyle(),
+            ),
+            value: urlSongModels[2].url,
+            groupValue: urlSongChoose,
+            onChanged: (value) {
+              setState(() {
+                urlSongChoose = value.toString();
+                processPlaySong();
+              });
+            },
+          ),
+          RadioListTile(
+            title: ShowText(
+              label: 'Nothing',
+              textStyle: MyConstant().h3BlackStyle(),
+            ),
+            value: '',
+            groupValue: urlSongChoose,
+            onChanged: (value) {
+              setState(() {
+                urlSongChoose = value.toString();
+                processPlaySong();
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> processPlaySong() async {
+    print('urlSong ===> $urlSongChoose');
+
+    await assetsAudioPlayer.stop().then((value) async {
+      if (urlSongChoose!.isNotEmpty) {
+        await assetsAudioPlayer
+            .open(Audio.network(urlSongChoose!))
+            .then((value) {});
+      }
+    });
+
+    try {} catch (e) {
+      print('Error processPlaySong ===>> $e');
+    }
+  }
 
   Widget newGroup({required BoxConstraints boxConstraints}) {
     return Container(
@@ -196,6 +305,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           timestamp: timestamp,
           detail2: detail2 ?? '',
           head: head ?? '',
+          urlSong: urlSongChoose ?? '',
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');

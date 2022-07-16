@@ -108,4 +108,11 @@ class MyConstant {
         fontWeight: FontWeight.normal,
         fontFamily: 'Sarabun',
       );
+
+       TextStyle h3RedStyle() => const TextStyle(
+        fontSize: 14,
+        color: Color.fromARGB(255, 228, 36, 36),
+        fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
+      );
 }
