@@ -345,7 +345,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               newContent1(boxConstraints, index),
-                              newContent2(boxConstraints, index),
                               newImageListView(boxConstraints, index),
                             ],
                           ),
@@ -409,6 +408,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               pressFunc: () {
                 processGenQRcode(linkId: fastLinkModels[index].linkId);
               }),
+              newContent2(boxConstraints, index),
         ],
       ),
     );
@@ -453,8 +453,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   SizedBox newImageListView(BoxConstraints boxConstraints, int index) {
     return SizedBox(
-      height: boxConstraints.maxHeight * 0.5,
-      width: boxConstraints.maxWidth * 0.35 - 8,
+      // height: boxConstraints.maxHeight * 0.5,
+      width: boxConstraints.maxWidth * 0.7 - 16,
       child: Image.network(
         fastLinkModels[index].urlImage,
         fit: BoxFit.cover,
