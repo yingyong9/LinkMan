@@ -49,7 +49,7 @@ class FastLinkModel {
       timestamp: (map['timestamp']),
       detail2: (map['detail2'] ?? '') as String,
       head: (map['head'] ?? '') as String,
-      urlSong: (map['urlSong'] ?? '') as String,
+      urlSong: (map['urlSong'] ?? 'aa') as String,
     );
   }
 
