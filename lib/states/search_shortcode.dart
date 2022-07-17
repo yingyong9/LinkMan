@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:admanyout/models/linkfriend_model.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -50,13 +51,15 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   var documentLists = <DocumentSnapshot>[];
   var showButtonLinks = <bool>[];
   int factor = 0;
-  int lastIndex = 4;
+  int lastIndex = 0;
 
   final globalQRkey = GlobalKey();
 
   ScrollController scrollController = ScrollController();
 
   var user = FirebaseAuth.instance.currentUser;
+
+  AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
 
   @override
   void initState() {
@@ -78,26 +81,30 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        print('##9july Load More on Button');
         readMoreFastLinkData();
+
+        assetsAudioPlayer.stop();
       }
     });
   }
 
-  Future<void> readMoreFastLinkData() async {
-    print(
-        '##9july เริ่มทำงาน readMoreFastLinkData factor --> $factor, lastIndex ---> $lastIndex');
-    print(
-        '##9july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
-    factor++;
-    if (factor * 5 + 5 <= documentLists.length) {
-      print('##9july Load More on Botton factor ==> $factor');
+  Future<void> processPlaySongBg({required String urlSong}) async {
+    await assetsAudioPlayer.open(Audio.network(urlSong));
+  }
 
+  Future<void> readMoreFastLinkData() async {
+    
+
+    print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
+    print(
+        '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
+
+    if (lastIndex + 1 <= documentLists.length) {
       await FirebaseFirestore.instance
           .collection('fastlink')
           .orderBy('timestamp', descending: true)
-          .startAfterDocument(documentLists[lastIndex + 1])
-          .limit(5)
+          .startAfterDocument(documentLists[lastIndex])
+          .limit(1)
           .get()
           .then((value) async {
         for (var element in value.docs) {
@@ -124,8 +131,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             userModels.add(value);
           });
         }
-        lastIndex = lastIndex + 5;
-        print('##9july lastindex ==> $lastIndex');
+        lastIndex++;
         setState(() {});
       });
     }
@@ -152,8 +158,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       userModels.clear();
       documentLists.clear();
       showButtonLinks.clear();
-      factor = 0;
-      lastIndex = 4;
+      lastIndex = 0;
     }
 
     print('##9july Load More on Botton factor at readFastLinkData ==> $factor');
@@ -162,7 +167,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     await FirebaseFirestore.instance
         .collection('fastlink')
         .orderBy('timestamp', descending: true)
-        .limit(5)
+        .limit(1)
         .get()
         .then((value) async {
       for (var element in value.docs) {
@@ -326,31 +331,41 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   return ListView.builder(
                     controller: scrollController,
                     itemCount: fastLinkModels.length,
-                    itemBuilder: (context, index) => InkWell(
-                      onTap: () async {
-                        String linkUrl = fastLinkModels[index].linkUrl;
-                        if (linkUrl.contains('#')) {
-                          search = fastLinkModels[index].linkUrl;
-                          processFindShortCode();
-                        } else {
-                          String urlLauncher = fastLinkModels[index].linkUrl;
-                          print('urlLauncher ==> $urlLauncher');
-                          await MyProcess().processLaunchUrl(url: urlLauncher);
-                        }
-                      },
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              newContent1(boxConstraints, index),
-                              newImageListView(boxConstraints, index),
-                            ],
+                    itemBuilder: (context, index) {
+                      print('##17july lastIndex ที่ listview ---> $lastIndex');
+                      String urlSong = fastLinkModels[lastIndex].urlSong;
+
+                      if (urlSong.isNotEmpty) {
+                        processPlaySongBg(urlSong: urlSong);
+                      }
+
+                      return InkWell(
+                        onTap: () async {
+                          String linkUrl = fastLinkModels[index].linkUrl;
+                          if (linkUrl.contains('#')) {
+                            search = fastLinkModels[index].linkUrl;
+                            processFindShortCode();
+                          } else {
+                            String urlLauncher = fastLinkModels[index].linkUrl;
+                            print('urlLauncher ==> $urlLauncher');
+                            await MyProcess()
+                                .processLaunchUrl(url: urlLauncher);
+                          }
+                        },
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                newContent1(boxConstraints, index),
+                                newImageListView(boxConstraints, index),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   );
                 }),
         ),
@@ -408,7 +423,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               pressFunc: () {
                 processGenQRcode(linkId: fastLinkModels[index].linkId);
               }),
-              newContent2(boxConstraints, index),
+          newContent2(boxConstraints, index),
         ],
       ),
     );
