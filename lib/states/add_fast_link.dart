@@ -152,7 +152,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                       changeFunc: (String string) {
                         detail2 = string.trim();
                       }),
-                  urlSongModels.isEmpty ? const SizedBox() : newSong(),
+                  // urlSongModels.isEmpty ? const SizedBox() : newSong(),
                   newGroup(boxConstraints: boxConstraints),
                 ],
               );
