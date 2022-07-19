@@ -6,12 +6,12 @@ import 'package:admanyout/models/post_model2.dart';
 import 'package:admanyout/models/special_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_photo_multi.dart';
-import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/states/key_special.dart';
 import 'package:admanyout/states/list_link.dart';
 import 'package:admanyout/states/manage_my_post.dart';
+import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
@@ -716,7 +716,7 @@ class _MainHomeState extends State<MainHome> {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => const Authen(),
+            builder: (context) => const SearchShortCode(),
           ),
           (route) => false);
     });

@@ -4,9 +4,10 @@
 import 'dart:async';
 
 import 'package:admanyout/models/linkfriend_model.dart';
+import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/widgets/show_button.dart';
+import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -120,19 +121,23 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
         fastLinkModels.add(fastLinkModel);
 
-        await FirebaseFirestore.instance
-            .collection('user')
-            .doc(user!.uid)
-            .collection('linkfriend')
-            .where('uidLinkFriend', isEqualTo: fastLinkModel.uidPost)
-            .get()
-            .then((value) {
-          if (value.docs.isEmpty) {
-            showButtonLinks.add(true);
-          } else {
-            showButtonLinks.add(false);
-          }
-        });
+        if (user != null) {
+          await FirebaseFirestore.instance
+              .collection('user')
+              .doc(user!.uid)
+              .collection('linkfriend')
+              .where('uidLinkFriend', isEqualTo: fastLinkModel.uidPost)
+              .get()
+              .then((value) {
+            if (value.docs.isEmpty) {
+              showButtonLinks.add(true);
+            } else {
+              showButtonLinks.add(false);
+            }
+          });
+        } else {
+          showButtonLinks.add(false);
+        }
 
         await MyFirebase()
             .findUserModel(uid: fastLinkModel.uidPost)
@@ -162,19 +167,23 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
           fastLinkModels.add(fastLinkModel);
 
-          await FirebaseFirestore.instance
-              .collection('user')
-              .doc(user!.uid)
-              .collection('linkfriend')
-              .where('uidLinkFriend', isEqualTo: fastLinkModel.uidPost)
-              .get()
-              .then((value) {
-            if (value.docs.isEmpty) {
-              showButtonLinks.add(true);
-            } else {
-              showButtonLinks.add(false);
-            }
-          });
+          if (user != null) {
+            await FirebaseFirestore.instance
+                .collection('user')
+                .doc(user!.uid)
+                .collection('linkfriend')
+                .where('uidLinkFriend', isEqualTo: fastLinkModel.uidPost)
+                .get()
+                .then((value) {
+              if (value.docs.isEmpty) {
+                showButtonLinks.add(true);
+              } else {
+                showButtonLinks.add(false);
+              }
+            });
+          } else {
+            showButtonLinks.add(false);
+          }
 
           await MyFirebase()
               .findUserModel(uid: fastLinkModel.uidPost)
@@ -235,49 +244,82 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     );
   }
 
-  Positioned newAddLink() {
+  Widget newAddLink() {
     return Positioned(
       bottom: 16,
       child: Container(
-        margin: const EdgeInsets.only(left: 48),
-        child: ShowForm(
-          prefixWidget: ShowIconButton(
-            color: Colors.black,
-            iconData: Icons.backspace_outlined,
-            pressFunc: () {
-              textEditingController.text = '';
-              setState(() {});
-            },
-          ),
-          colorTheme: Colors.black,
-          controller: textEditingController,
-          label: 'Add Link',
-          iconData: Icons.add_box_outlined,
-          colorSuffixIcon: const Color.fromARGB(255, 34, 174, 13),
-          changeFunc: (String string) {
-            addNewLink = string.trim();
-          },
-          pressFunc: () {
-            if (statusLoginBool!) {
-              if (addNewLink?.isEmpty ?? true) {
-                addNewLink = '';
-              }
-              String sixCode = MyFirebase().getRandom(6);
-              sixCode = '#$sixCode';
-              // assetsAudioPlayer.stop();
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AddFastLink(sixCode: sixCode, addLink: addNewLink!),
-                  )).then((value) {
-                // textEditingController.text = '';
-                readFastLinkData();
-              });
-            } else {
-              alertLogin(context);
-            }
-          },
+        margin: const EdgeInsets.only(left: 24),
+        child: Row(
+          children: [
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BaseManageMyLink(),
+                    )).then((value) {
+                  print('pop from BaseMenageLink');
+                });
+              },
+              child: const ShowImage(
+                path: 'images/logo.png',
+                width: 36,
+              ),
+            ),
+            const SizedBox(
+              width: 4,
+            ),
+            ShowForm(
+              topMargin: 2,
+              prefixWidget: ShowIconButton(
+                color: Colors.black,
+                iconData: Icons.backspace_outlined,
+                pressFunc: () {
+                  textEditingController.text = '';
+                  setState(() {});
+                },
+              ),
+              colorTheme: Colors.black,
+              controller: textEditingController,
+              label: 'Add Link',
+              iconData: Icons.add_box_outlined,
+              colorSuffixIcon: const Color.fromARGB(255, 34, 174, 13),
+              changeFunc: (String string) {
+                addNewLink = string.trim();
+              },
+              pressFunc: () {
+                if (statusLoginBool!) {
+                  if (addNewLink?.isEmpty ?? true) {
+                    addNewLink = '';
+                  }
+                  String sixCode = MyFirebase().getRandom(6);
+                  sixCode = '#$sixCode';
+                  // assetsAudioPlayer.stop();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AddFastLink(sixCode: sixCode, addLink: addNewLink!),
+                      )).then((value) {
+                    // textEditingController.text = '';
+                    readFastLinkData();
+                  });
+                } else {
+                  alertLogin(context);
+                }
+              },
+            ),
+            ShowIconButton(
+              iconData: Icons.play_circle,
+              color: Colors.green,
+              size: 36,
+              pressFunc: () {
+                if (addNewLink?.isNotEmpty ?? false) {
+                  MyProcess().processLaunchUrl(url: addNewLink!);
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -289,35 +331,25 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ShowForm(
-                colorTheme: Colors.black,
-                controller: controller,
-                label: 'กรอก Link ID เพื่อหา Link',
-                iconData: Icons.qr_code,
-                changeFunc: (String string) {
-                  search = string.trim();
-                }),
-            Container(
-              margin: const EdgeInsets.only(top: 16, left: 4),
-              child: ShowOutlineButton(
-                  colorTheme: Colors.black,
-                  label: 'OK',
-                  pressFunc: () {
-                    if (!(search?.isEmpty ?? true)) {
-                      print('search ==> $search');
-
-                      processFindSearchFromSixDigi();
-
-                      // if (search!.contains('#')) {
-                      //   print('search for linkID');
-                      // } else {
-                      //   print('search for head');
-                      // }
-
-                      // processFindShortCode();
-                    }
-                  }),
-            ),
+            // ShowForm(
+            //     colorTheme: Colors.black,
+            //     controller: controller,
+            //     label: 'กรอก Link ID เพื่อหา Link',
+            //     iconData: Icons.qr_code,
+            //     changeFunc: (String string) {
+            //       search = string.trim();
+            //     }),
+            // Container(
+            //   margin: const EdgeInsets.only(top: 16, left: 4),
+            //   child: ShowOutlineButton(
+            //       colorTheme: Colors.black,
+            //       label: 'OK',
+            //       pressFunc: () {
+            //         if (!(search?.isEmpty ?? true)) {
+            //           processFindSearchFromSixDigi();
+            //         }
+            //       }),
+            // ),
           ],
         ),
         Container(
@@ -390,7 +422,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           ),
           ShowCircleImage(
               radius: 24, path: userModels[index].avatar ?? MyConstant.urlLogo),
-          showButtonLinks[index]
+          (showButtonLinks[index])
               ? ShowButton(
                   label: 'Link',
                   pressFunc: () async {
@@ -520,9 +552,18 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             alertLogin(context);
           }
         },
-        child: ShowText(
-          label: 'LINKMAN',
-          textStyle: MyConstant().h1GreenStyle(),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ShowText(
+              label: 'LINKMAN',
+              textStyle: MyConstant().h1GreenStyle(),
+            ),const SizedBox(width: 16,),
+            ShowIconButton(
+              iconData: Icons.search,color: Colors.black,size: 36,
+              pressFunc: () {},
+            ),
+          ],
         ),
       ),
       // actions: [
