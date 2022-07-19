@@ -17,6 +17,7 @@ class ShowForm extends StatelessWidget {
   final Color? colorTheme;
   final Widget? prefixWidget;
   final Color? colorSuffixIcon;
+  final double? topMargin;
   const ShowForm({
     Key? key,
     this.width,
@@ -30,12 +31,13 @@ class ShowForm extends StatelessWidget {
     this.colorTheme,
     this.prefixWidget,
     this.colorSuffixIcon,
+    this.topMargin,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 16),
+      margin:  EdgeInsets.only(top: topMargin ?? 16),
       width: width ?? 250,
       height: 40,
       child: TextFormField(
