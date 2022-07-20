@@ -29,7 +29,6 @@ import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
-import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 
 class SearchShortCode extends StatefulWidget {
@@ -68,6 +67,16 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     setupScorllController();
     findDocumentLists();
     readFastLinkData();
+    // processAutoMove();
+  }
+
+  Future<void> processAutoMove() async {
+    Duration duration = const Duration(seconds: 3);
+    await Timer(duration, () {
+      readMoreFastLinkData();
+      processAutoMove();
+      
+    });
   }
 
   @override
@@ -192,6 +201,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           });
         }
         lastIndex++;
+        print('##20july นี่คือ lastIndex ที่โหลดมาใหม่ ===>>> $lastIndex');
         setState(() {});
       });
     }
@@ -328,35 +338,35 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   Widget formSearchShortCode({required BoxConstraints boxConstraints}) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // ShowForm(
-            //     colorTheme: Colors.black,
-            //     controller: controller,
-            //     label: 'กรอก Link ID เพื่อหา Link',
-            //     iconData: Icons.qr_code,
-            //     changeFunc: (String string) {
-            //       search = string.trim();
-            //     }),
-            // Container(
-            //   margin: const EdgeInsets.only(top: 16, left: 4),
-            //   child: ShowOutlineButton(
-            //       colorTheme: Colors.black,
-            //       label: 'OK',
-            //       pressFunc: () {
-            //         if (!(search?.isEmpty ?? true)) {
-            //           processFindSearchFromSixDigi();
-            //         }
-            //       }),
-            // ),
-          ],
-        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: [
+        //     // ShowForm(
+        //     //     colorTheme: Colors.black,
+        //     //     controller: controller,
+        //     //     label: 'กรอก Link ID เพื่อหา Link',
+        //     //     iconData: Icons.qr_code,
+        //     //     changeFunc: (String string) {
+        //     //       search = string.trim();
+        //     //     }),
+        //     // Container(
+        //     //   margin: const EdgeInsets.only(top: 16, left: 4),
+        //     //   child: ShowOutlineButton(
+        //     //       colorTheme: Colors.black,
+        //     //       label: 'OK',
+        //     //       pressFunc: () {
+        //     //         if (!(search?.isEmpty ?? true)) {
+        //     //           processFindSearchFromSixDigi();
+        //     //         }
+        //     //       }),
+        //     // ),
+        //   ],
+        // ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          // padding: const EdgeInsets.symmetric(horizontal: 8),
           width: boxConstraints.maxWidth,
-          height: boxConstraints.maxHeight - 150,
-          margin: const EdgeInsets.only(top: 16, bottom: 16),
+          height: boxConstraints.maxHeight - 80,
+          margin: const EdgeInsets.only(bottom: 16),
           // decoration: BoxDecoration(color: Colors.grey),
           child: fastLinkModels.isEmpty
               ? const SizedBox()
@@ -387,15 +397,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           }
                         },
                         child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                newContent1(boxConstraints, index),
-                                newImageListView(boxConstraints, index),
-                              ],
-                            ),
+                          child: Stack(
+                            children: [
+                              newImageListView(boxConstraints, index),
+                              newContent1(boxConstraints, index),
+                            ],
                           ),
                         ),
                       );
@@ -409,19 +415,40 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   Widget newContent1(BoxConstraints boxConstraints, int index) {
     return SizedBox(
-      width: boxConstraints.maxWidth * 0.3 - 8,
+      width: boxConstraints.maxWidth,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ShowText(
-            label: userModels[index].name,
-            textStyle: MyConstant().h3BlackStyle(),
-          ),
           const SizedBox(
-            height: 4,
+            height: 32,
           ),
-          ShowCircleImage(
-              radius: 24, path: userModels[index].avatar ?? MyConstant.urlLogo),
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.75),
+                  ),
+                  child: Row(
+                    children: [
+                      ShowCircleImage(
+                          radius: 24,
+                          path: userModels[index].avatar ?? MyConstant.urlLogo),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      ShowText(
+                        label: userModels[index].name,
+                        textStyle: MyConstant().h2BlackBBBStyle(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
           (showButtonLinks[index])
               ? ShowButton(
                   label: 'Link',
@@ -444,13 +471,19 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     });
                   })
               : const SizedBox(),
-          ShowIconButton(
-            color: Colors.grey,
-            iconData: Icons.more_horiz,
-            pressFunc: () async {
-              await Share.share(
-                  'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
-            },
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            child: Container(
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
+              child: ShowIconButton(
+                color: Colors.grey,
+                iconData: Icons.more_horiz,
+                pressFunc: () async {
+                  await Share.share(
+                      'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
+                },
+              ),
+            ),
           ),
           ShowButton(
               label: 'Link ID',
@@ -465,35 +498,51 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   SizedBox newContent2(BoxConstraints boxConstraints, int index) {
     return SizedBox(
-      width: boxConstraints.maxWidth * 0.35 - 8,
+      width: boxConstraints.maxWidth,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ShowText(
-            label: MyProcess()
-                .cutWord(string: fastLinkModels[index].head, word: 100),
-            textStyle: MyConstant().h2BlackStyle(),
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            child: Container(
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
+              child: ShowText(
+                label: fastLinkModels[index].head,
+                textStyle: MyConstant().h2BlackStyle(),
+              ),
+            ),
           ),
           const SizedBox(
             height: 8,
           ),
-          ShowText(
-            label: MyProcess()
-                .cutWord(string: fastLinkModels[index].detail, word: 50),
-            textStyle: MyConstant().h3BlackStyle(),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
+              child: ShowText(
+                label: fastLinkModels[index].detail,
+                textStyle: MyConstant().h3BlackStyle(),
+              ),
+            ),
           ),
           const SizedBox(
             height: 8,
           ),
-          ShowText(
-            label: MyProcess()
-                .cutWord(string: fastLinkModels[index].detail2, word: 50),
-            textStyle: MyConstant().h3BlackStyle(),
+          Container(
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
+            child: ShowText(
+              label: MyProcess()
+                  .cutWord(string: fastLinkModels[index].detail2, word: 50),
+              textStyle: MyConstant().h3BlackStyle(),
+            ),
           ),
-          ShowText(
-            label:
-                MyProcess().showSource(string: fastLinkModels[index].linkUrl),
-            textStyle: MyConstant().h3RedStyle(),
+          Container(
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
+            child: ShowText(
+              label:
+                  MyProcess().showSource(string: fastLinkModels[index].linkUrl),
+              textStyle: MyConstant().h3RedStyle(),
+            ),
           ),
         ],
       ),
@@ -503,10 +552,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   SizedBox newImageListView(BoxConstraints boxConstraints, int index) {
     return SizedBox(
       height: boxConstraints.maxHeight,
-      width: boxConstraints.maxWidth * 0.7 - 16,
+      // width: boxConstraints.maxWidth * 0.7 - 16,
+      width: boxConstraints.maxWidth,
       child: Image.network(
         fastLinkModels[index].urlImage,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
       ),
     );
   }
@@ -558,9 +608,14 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             ShowText(
               label: 'LINKMAN',
               textStyle: MyConstant().h1GreenStyle(),
-            ),const SizedBox(width: 16,),
+            ),
+            const SizedBox(
+              width: 16,
+            ),
             ShowIconButton(
-              iconData: Icons.search,color: Colors.black,size: 36,
+              iconData: Icons.search,
+              color: Colors.black,
+              size: 36,
               pressFunc: () {},
             ),
           ],
