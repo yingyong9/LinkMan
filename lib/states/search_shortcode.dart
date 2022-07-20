@@ -29,7 +29,6 @@ import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
-import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 
 class SearchShortCode extends StatefulWidget {
@@ -68,6 +67,16 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     setupScorllController();
     findDocumentLists();
     readFastLinkData();
+    // processAutoMove();
+  }
+
+  Future<void> processAutoMove() async {
+    Duration duration = const Duration(seconds: 3);
+    await Timer(duration, () {
+      readMoreFastLinkData();
+      processAutoMove();
+      
+    });
   }
 
   @override
@@ -192,6 +201,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           });
         }
         lastIndex++;
+        print('##20july นี่คือ lastIndex ที่โหลดมาใหม่ ===>>> $lastIndex');
         setState(() {});
       });
     }
@@ -492,7 +502,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
             child: Container(
               decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
               child: ShowText(
@@ -504,7 +515,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           const SizedBox(
             height: 8,
           ),
-          ClipRRect(borderRadius: BorderRadius.circular(10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
             child: Container(
               decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
               child: ShowText(
