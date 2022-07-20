@@ -46,6 +46,13 @@ class MyConstant {
         fontFamily: 'Sarabun',
       );
 
+       TextStyle h2BlackBBBStyle() => const TextStyle(
+        fontSize: 18,
+        color: Colors.black,
+        fontWeight: FontWeight.w700,
+        fontFamily: 'Sarabun',
+      );
+
   TextStyle h2redStyle() => const TextStyle(
         fontSize: 30,
         color: Color.fromARGB(255, 236, 48, 34),

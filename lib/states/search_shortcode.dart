@@ -426,13 +426,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                       ShowCircleImage(
                           radius: 24,
                           path: userModels[index].avatar ?? MyConstant.urlLogo),
-                      // const SizedBox(
-                      //   width: 4,
-                      // ),
-                      // ShowText(
-                      //   label: userModels[index].name,
-                      //   textStyle: MyConstant().h2WhiteBigStyle(),
-                      // ),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      ShowText(
+                        label: userModels[index].name,
+                        textStyle: MyConstant().h2BlackBBBStyle(),
+                      ),
                     ],
                   ),
                 ),
