@@ -75,7 +75,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     await Timer(duration, () {
       readMoreFastLinkData();
       processAutoMove();
-      
     });
   }
 
@@ -304,16 +303,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   }
                   String sixCode = MyFirebase().getRandom(6);
                   sixCode = '#$sixCode';
-                  // assetsAudioPlayer.stop();
-                  Navigator.push(
+                  Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
                             AddFastLink(sixCode: sixCode, addLink: addNewLink!),
-                      )).then((value) {
-                    // textEditingController.text = '';
-                    readFastLinkData();
-                  });
+                      ),
+                      (route) => false);
                 } else {
                   alertLogin(context);
                 }
@@ -443,53 +439,54 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                         label: userModels[index].name,
                         textStyle: MyConstant().h2BlackBBBStyle(),
                       ),
+                      // ShowText(label: 'ติดตาม', textStyle: MyConstant().h2BlackBBBStyle(),)
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          (showButtonLinks[index])
-              ? ShowButton(
-                  label: 'Link',
-                  pressFunc: () async {
-                    String uidPost = fastLinkModels[index].uidPost;
-                    String uidLogin = user!.uid;
-                    print(
-                        'You Click Link uidPost ===>> $uidPost, uidLogin = $uidLogin');
-                    LinkFriendModel linkFriendModel =
-                        LinkFriendModel(uidLinkFriend: uidPost);
-                    await FirebaseFirestore.instance
-                        .collection('user')
-                        .doc(uidLogin)
-                        .collection('linkfriend')
-                        .doc()
-                        .set(linkFriendModel.toMap())
-                        .then((value) {
-                      print('Create LinkFriend Success');
-                      readFastLinkData();
-                    });
-                  })
-              : const SizedBox(),
-          ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-            child: Container(
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
-              child: ShowIconButton(
-                color: Colors.grey,
-                iconData: Icons.more_horiz,
-                pressFunc: () async {
-                  await Share.share(
-                      'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
-                },
-              ),
-            ),
-          ),
-          ShowButton(
-              label: 'Link ID',
-              pressFunc: () {
-                processGenQRcode(linkId: fastLinkModels[index].linkId);
-              }),
+          // (showButtonLinks[index])
+          //     ? ShowButton(
+          //         label: 'Link',
+          //         pressFunc: () async {
+          //           String uidPost = fastLinkModels[index].uidPost;
+          //           String uidLogin = user!.uid;
+          //           print(
+          //               'You Click Link uidPost ===>> $uidPost, uidLogin = $uidLogin');
+          //           LinkFriendModel linkFriendModel =
+          //               LinkFriendModel(uidLinkFriend: uidPost);
+          //           await FirebaseFirestore.instance
+          //               .collection('user')
+          //               .doc(uidLogin)
+          //               .collection('linkfriend')
+          //               .doc()
+          //               .set(linkFriendModel.toMap())
+          //               .then((value) {
+          //             print('Create LinkFriend Success');
+          //             readFastLinkData();
+          //           });
+          //         })
+          //     : const SizedBox(),
+          // ClipRRect(
+          //   borderRadius: const BorderRadius.all(Radius.circular(10)),
+          //   child: Container(
+          //     decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
+          //     child: ShowIconButton(
+          //       color: Colors.grey,
+          //       iconData: Icons.more_horiz,
+          //       pressFunc: () async {
+          //         await Share.share(
+          //             'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
+          //       },
+          //     ),
+          //   ),
+          // ),
+          // ShowButton(
+          //     label: 'Link ID',
+          //     pressFunc: () {
+          //       processGenQRcode(linkId: fastLinkModels[index].linkId);
+          //     }),
           newContent2(boxConstraints, index),
         ],
       ),
@@ -502,6 +499,20 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(
+            height: 8,
+          ),
+          Container(
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
+            child: ShowText(
+              label:
+                  MyProcess().showSource(string: fastLinkModels[index].linkUrl),
+              textStyle: MyConstant().h3RedStyle(),
+            ),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
           ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             child: Container(
@@ -534,14 +545,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               label: MyProcess()
                   .cutWord(string: fastLinkModels[index].detail2, word: 50),
               textStyle: MyConstant().h3BlackStyle(),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
-            child: ShowText(
-              label:
-                  MyProcess().showSource(string: fastLinkModels[index].linkUrl),
-              textStyle: MyConstant().h3RedStyle(),
             ),
           ),
         ],

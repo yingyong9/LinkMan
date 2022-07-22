@@ -6,6 +6,7 @@ import 'package:admanyout/models/fast_group_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/song_model.dart';
 import 'package:admanyout/models/user_model.dart';
+import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
@@ -316,7 +317,12 @@ class _AddFastLinkState extends State<AddFastLink> {
             .set(fastLinkModel.toMap())
             .then((value) {
           Navigator.pop(context);
-          Navigator.pop(context);
+           Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SearchShortCode(),
+                ),
+                (route) => false);
         });
       });
     });
@@ -425,6 +431,16 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   AppBar newAppBar() {
     return AppBar(
+      leading: ShowIconButton(color: Colors.black,
+          iconData: Icons.arrow_back_ios,
+          pressFunc: () {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SearchShortCode(),
+                ),
+                (route) => false);
+          }),
       title: Text(widget.sixCode),
       foregroundColor: Colors.black,
       elevation: 0,
