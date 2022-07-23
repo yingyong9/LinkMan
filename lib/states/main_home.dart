@@ -46,7 +46,7 @@ class _MainHomeState extends State<MainHome> {
   var bolFollows = <bool>[];
   var userModelPosts = <UserModel>[];
   bool load = true;
-  var titles = <String>['แก้ไขโปรไฟร์', 'Sign Out'];
+  var titles = <String>['EditProfile', 'Sign Out'];
   String? title, token;
   UserModel? userModelLogin;
   ScrollController scrollController = ScrollController();

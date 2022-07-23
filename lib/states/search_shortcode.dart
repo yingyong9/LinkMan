@@ -78,12 +78,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    // assetsAudioPlayer.dispose();
-  }
-
   void setupScorllController() {
     print('##17july setupScorellController work');
     scrollController.addListener(() {
@@ -231,8 +225,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: newAppBar(context),
+    return Scaffold(backgroundColor: Colors.black,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
@@ -255,7 +248,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   Widget newAddLink() {
     return Positioned(
-      bottom: 16,
+      bottom: 0,
       child: Container(
         margin: const EdgeInsets.only(left: 24),
         child: Row(
@@ -280,15 +273,26 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             ),
             ShowForm(
               topMargin: 2,
+              // prefixWidget: ShowIconButton(
+              //   color: Colors.white,
+              //   iconData: Icons.backspace_outlined,
+              //   pressFunc: () {
+              //     textEditingController.text = '';
+              //     setState(() {});
+              //   },
+              // ),
+
               prefixWidget: ShowIconButton(
-                color: Colors.black,
-                iconData: Icons.backspace_outlined,
-                pressFunc: () {
-                  textEditingController.text = '';
-                  setState(() {});
-                },
-              ),
-              colorTheme: Colors.black,
+              iconData: Icons.play_circle,
+              color: Colors.green,
+             
+              pressFunc: () {
+                if (addNewLink?.isNotEmpty ?? false) {
+                  MyProcess().processLaunchUrl(url: addNewLink!);
+                }
+              },
+            ),
+              
               controller: textEditingController,
               label: 'Add Link',
               iconData: Icons.add_box_outlined,
@@ -315,16 +319,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }
               },
             ),
-            ShowIconButton(
-              iconData: Icons.play_circle,
-              color: Colors.green,
-              size: 36,
-              pressFunc: () {
-                if (addNewLink?.isNotEmpty ?? false) {
-                  MyProcess().processLaunchUrl(url: addNewLink!);
-                }
-              },
-            ),
+            
           ],
         ),
       ),
@@ -361,7 +356,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         Container(
           // padding: const EdgeInsets.symmetric(horizontal: 8),
           width: boxConstraints.maxWidth,
-          height: boxConstraints.maxHeight - 80,
+          height: boxConstraints.maxHeight - 45,
           margin: const EdgeInsets.only(bottom: 16),
           // decoration: BoxDecoration(color: Colors.grey),
           child: fastLinkModels.isEmpty
@@ -593,37 +588,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   AppBar newAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      title: InkWell(
-        onTap: () {
-          if (statusLoginBool!) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainHome(),
-                ));
-          } else {
-            alertLogin(context);
-          }
-        },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ShowText(
-              label: 'LINKMAN',
-              textStyle: MyConstant().h1GreenStyle(),
-            ),
-            const SizedBox(
-              width: 16,
-            ),
-            ShowIconButton(
-              iconData: Icons.search,
-              color: Colors.black,
-              size: 36,
-              pressFunc: () {},
-            ),
-          ],
-        ),
-      ),
+      title: textLINKMAN(context),
       // actions: [
       //   ShowIconButton(
       //     size: 36,
@@ -647,6 +612,40 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       backgroundColor: Colors.white,
       foregroundColor: Colors.black,
       elevation: 0,
+    );
+  }
+
+  InkWell textLINKMAN(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        if (statusLoginBool!) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MainHome(),
+              ));
+        } else {
+          alertLogin(context);
+        }
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ShowText(
+            label: 'LINKMAN',
+            textStyle: MyConstant().h1GreenStyle(),
+          ),
+          const SizedBox(
+            width: 16,
+          ),
+          ShowIconButton(
+            iconData: Icons.search,
+            color: Colors.black,
+            size: 36,
+            pressFunc: () {},
+          ),
+        ],
+      ),
     );
   }
 
