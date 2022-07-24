@@ -32,11 +32,29 @@ class _EditProfileState extends State<EditProfile> {
   UserModel? userModel;
   String? newName;
   Map<String, dynamic> map = {};
+  bool? shopBool;
 
   @override
   void initState() {
     super.initState();
     findCurrentUser();
+    findShopUser();
+  }
+
+  Future<void> findShopUser() async {
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .collection('shop')
+        .get()
+        .then((value) {
+      if (value.docs.isEmpty) {
+        shopBool = false;
+      } else {
+        shopBool = true;
+      }
+      setState(() {});
+    });
   }
 
   Future<void> findCurrentUser() async {
@@ -55,14 +73,8 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: ShowText(
-          label: 'แก้ไขโปรไฟร์',
-          textStyle: MyConstant().h2Style(),
-        ),
-        backgroundColor: Colors.black,
-      ),
+      backgroundColor: Colors.white,
+      appBar: newAppBar(),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
@@ -77,6 +89,19 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
+  AppBar newAppBar() {
+    return AppBar(
+      centerTitle: true,
+      elevation: 0,
+      title: ShowText(
+        label: 'แก้ไขโปรไฟร์',
+        textStyle: MyConstant().h2BlackBBBStyle(),
+      ),
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+    );
+  }
+
   Column newContent(BoxConstraints constraints, BuildContext context) {
     return Column(
       children: [
@@ -86,7 +111,6 @@ class _EditProfileState extends State<EditProfile> {
           height: constraints.maxWidth * 0.6,
           child: InkWell(
             onTap: () {
-              print('u click');
               MyDialog(context: context).twoActionDilalog(
                 title: 'กรุณาเลือกรูป',
                 message: 'คุณสามารถเลือกรูป จาก การถ่ายภาพ หรือ คลังภาพ',
@@ -106,16 +130,21 @@ class _EditProfileState extends State<EditProfile> {
                 ? userModel!.avatar!.isEmpty
                     ? const ShowImage(
                         path: 'images/avatar2.png',
-                        // width: 250,
                       )
-                    : CircleAvatar(backgroundImage: NetworkImage(userModel!.avatar!),)
+                    : CircleAvatar(
+                        backgroundImage: NetworkImage(userModel!.avatar!),
+                      )
                 : CircleAvatar(
                     backgroundImage: FileImage(file!),
                   ),
           ),
         ),
-        const ShowText(label: 'แตะที่รูป เพื่อเปลี่ยนรูป'),
+        ShowText(
+          label: 'แตะที่รูป เพื่อเปลี่ยนรูป',
+          textStyle: MyConstant().h3RedStyle(),
+        ),
         ShowForm(
+            colorTheme: Colors.black,
             controller: textEditingController,
             label: 'ชื่อ :',
             iconData: Icons.fingerprint,
@@ -123,20 +152,52 @@ class _EditProfileState extends State<EditProfile> {
               active = true;
               newName = string.trim();
             }),
-        ShowButton(
-            label: 'แก้ไขโปรไฟร์',
-            pressFunc: () {
-              print('active ==> $active');
-              if (active) {
-                if (file != null) {
-                  //upload image
-                  processUploadImage();
-                } else {
-                  // edit name
-                  processEditName();
-                }
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              border: Border.all(),
+              borderRadius: BorderRadius.circular(10)),
+          width: constraints.maxWidth * 0.6,
+          child: CheckboxListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            title: ShowText(
+              label: 'เปิดใช้งาน Link Shop',
+              textStyle: MyConstant().h3BlackStyle(),
+            ),
+            value: shopBool ?? false,
+            onChanged: (value) {
+              if (!shopBool!) {
+                shopBool = value;
+                setState(() {});
               }
-            }),
+            },
+          ),
+        ),
+        shopBool == null
+            ? const SizedBox()
+            : shopBool!
+                ? const SizedBox()
+                : ShowText(
+                    label: 'ถ้าเปิดใช้งาน Link Shop จะแก้ไขไม่ได้',
+                    textStyle: MyConstant().h3RedStyle(),
+                  ),
+        SizedBox(
+          width: constraints.maxWidth * 0.6,
+          child: ShowButton(
+              label: 'EditProfile',
+              pressFunc: () {
+                if (active) {
+                  if (file != null) {
+                    //upload image
+                    processUploadImage();
+                  } else {
+                    // edit name
+                    processEditName();
+                  }
+                }
+              }),
+        ),
       ],
     );
   }
