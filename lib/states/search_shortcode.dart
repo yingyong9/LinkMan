@@ -225,7 +225,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Colors.black,
+    return Scaffold(
+      backgroundColor: Colors.black,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
@@ -237,7 +238,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             child: Stack(
               children: [
                 formSearchShortCode(boxConstraints: boxConstraints),
-                newAddLink(),
+                newAddLink(boxConstraints: boxConstraints),
               ],
             ),
           );
@@ -246,53 +247,25 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     );
   }
 
-  Widget newAddLink() {
+  Widget newAddLink({required BoxConstraints boxConstraints}) {
     return Positioned(
       bottom: 0,
       child: Container(
         margin: const EdgeInsets.only(left: 24),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const BaseManageMyLink(),
-                    )).then((value) {
-                  print('pop from BaseMenageLink');
-                });
-              },
-              child: const ShowImage(
-                path: 'images/logo.png',
-                width: 36,
-              ),
-            ),
-            const SizedBox(
-              width: 4,
-            ),
-            ShowForm(
+            ShowForm(width: boxConstraints.maxWidth - 75,
               topMargin: 2,
-              // prefixWidget: ShowIconButton(
-              //   color: Colors.white,
-              //   iconData: Icons.backspace_outlined,
-              //   pressFunc: () {
-              //     textEditingController.text = '';
-              //     setState(() {});
-              //   },
-              // ),
-
               prefixWidget: ShowIconButton(
-              iconData: Icons.play_circle,
-              color: Colors.green,
-             
-              pressFunc: () {
-                if (addNewLink?.isNotEmpty ?? false) {
-                  MyProcess().processLaunchUrl(url: addNewLink!);
-                }
-              },
-            ),
-              
+                iconData: Icons.play_circle,
+                color: Colors.green,
+                pressFunc: () {
+                  if (addNewLink?.isNotEmpty ?? false) {
+                    MyProcess().processLaunchUrl(url: addNewLink!);
+                  }
+                },
+              ),
               controller: textEditingController,
               label: 'Add Link',
               iconData: Icons.add_box_outlined,
@@ -319,7 +292,22 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }
               },
             ),
-            
+            const SizedBox(
+              width: 8,
+            ),
+            InkWell(
+              onTap: () {
+                if (statusLoginBool!) {
+                  MyDialog(context: context).buttonSheetDialog();
+                } else {
+                  alertLogin(context);
+                }
+              },
+              child: const ShowImage(
+                path: 'images/logo.png',
+                width: 36,
+              ),
+            ),
           ],
         ),
       ),
