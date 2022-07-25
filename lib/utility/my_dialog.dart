@@ -16,6 +16,7 @@ class MyDialog {
 
   Future<void> buttonSheetDialog() async {
     var iconDatas = <IconData>[
+      Icons.search,
       Icons.link_outlined,
       Icons.group,
       Icons.videocam,
@@ -25,6 +26,7 @@ class MyDialog {
     ];
 
     var titles = <String>[
+      'Search',
       'Follow',
       '@Group',
       'Live',
@@ -34,14 +36,17 @@ class MyDialog {
     ];
 
     var tapFuncs = <Function()>[
-      () {
-         Navigator.pop(context);
+       () {
+        Navigator.pop(context);
       },
       () {
-         Navigator.pop(context);
+        Navigator.pop(context);
       },
       () {
-         Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      () {
+        Navigator.pop(context);
       },
       () {
         print('Click StockLink');
@@ -70,37 +75,38 @@ class MyDialog {
       },
     ];
 
-    showModalBottomSheet(
+    showModalBottomSheet(backgroundColor: Colors.transparent,
       context: context,
       builder: (context) =>
           LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
         return Container(
-          decoration: const BoxDecoration(color: Colors.black),
-          height: boxConstraints.maxWidth * 0.6 + 16,
-          child: GridView.builder(
+          // decoration:  BoxDecoration(color: Colors.black.withOpacity(0.25)),
+          height: boxConstraints.maxWidth * 0.3 + 16,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
             itemCount: titles.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3),
             itemBuilder: (context, index) => Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 InkWell(
                   onTap: tapFuncs[index],
                   child: SizedBox(
-                    width: boxConstraints.maxWidth * 0.3,
-                    height: boxConstraints.maxWidth * 0.3,
+                    width: boxConstraints.maxWidth * 0.2,
+                    height: boxConstraints.maxWidth * 0.2,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: 60,
-                          height: 60,
+                          width:48,
+                          height: 48,
                           child: Card(
                             color: const Color.fromARGB(255, 51, 49, 49),
                             child: Icon(
                               iconDatas[index],
                               color: Colors.white,
-                              size: 48,
+                              size: 24,
                             ),
                           ),
                         ),
