@@ -363,6 +363,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                     whoPost(index),
                                     iconShare(index),
                                     showDialogGenQRcode(index),
+                                    SizedBox(width: boxConstraints.maxWidth*0.35,),
+                                    showTextSourceLink(index),
                                   ],
                                 ),
                               ),
@@ -453,14 +455,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           const SizedBox(
             height: 8,
           ),
-          Container(
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
-            child: ShowText(
-              label:
-                  MyProcess().showSource(string: fastLinkModels[index].linkUrl),
-              textStyle: MyConstant().h3RedStyle(),
-            ),
-          ),
+          
           const SizedBox(
             height: 8,
           ),
@@ -501,6 +496,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         ],
       ),
     );
+  }
+
+  Container showTextSourceLink(int index) {
+    return Container(padding: const EdgeInsets.symmetric(vertical: 4,horizontal: 6),
+          decoration: BoxDecoration(color: Color.fromARGB(255, 194, 18, 5)),
+          child: ShowText(
+            label:
+                MyProcess().showSource(string: fastLinkModels[index].linkUrl),
+            textStyle: MyConstant().h3WhiteStyle(),
+          ),
+        );
   }
 
   SizedBox newImageListView(BoxConstraints boxConstraints, int index) {
