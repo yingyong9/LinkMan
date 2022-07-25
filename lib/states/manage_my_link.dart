@@ -78,199 +78,161 @@ class _ManageMyLinkState extends State<ManageMyLink> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: load
-          ? const ShowProgress()
-          : haveData!
-              ? LayoutBuilder(builder: (context, constraints) {
-                  return Stack(
+        backgroundColor: Colors.black,
+        body: load
+            ? const ShowProgress()
+            : LayoutBuilder(builder: (context, constraints) {
+                return Stack(
+                  children: [
+                    haveData! ? listLink() : showNoLink() ,
+                    controlAddLink(constraints),
+                  ],
+                );
+              }));
+  }
+
+  Widget listLink() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const ScrollPhysics(),
+      itemCount: linkModels.length,
+      itemBuilder: (context, index) => Card(
+        color: Colors.grey.shade900,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                  flex: 1,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const ScrollPhysics(),
-                        itemCount: linkModels.length,
-                        itemBuilder: (context, index) => Card(
-                          color: Colors.grey.shade900,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      ShowText(label: linkModels[index].nameLink),
+                      displayIconButtons[index]
+                          ? Row(
                               children: [
-                                Expanded(
-                                    flex: 1,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        ShowText(
-                                            label: linkModels[index].nameLink),
-                                        displayIconButtons[index]
-                                            ? Row(
-                                                children: [
-                                                  ShowIconButton(
-                                                      iconData:
-                                                          Icons.delete_forever,
-                                                      pressFunc: () {
-                                                        MyDialog(
-                                                                context:
-                                                                    context)
-                                                            .twoActionDilalog(
-                                                                title:
-                                                                    'Confirm Delete ?',
-                                                                message:
-                                                                    'You Want Delete link ${linkModels[index].nameLink}',
-                                                                label1:
-                                                                    'Delete',
-                                                                label2:
-                                                                    'Cancel',
-                                                                pressFunc1:
-                                                                    () async {
-                                                                  print(
-                                                                      'Delete at idDoc ==> ${docIdLinks[index]}');
-                                                                  await FirebaseFirestore
-                                                                      .instance
-                                                                      .collection(
-                                                                          'user')
-                                                                      .doc(user!
-                                                                          .uid)
-                                                                      .collection(
-                                                                          'link')
-                                                                      .doc(docIdLinks[
-                                                                          index])
-                                                                      .delete()
-                                                                      .then(
-                                                                          (value) {
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                    readMyLink();
-                                                                  });
-                                                                },
-                                                                pressFunc2: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                });
-                                                      }),
-                                                  Theme(
-                                                      data: Theme.of(context)
-                                                          .copyWith(
-                                                              unselectedWidgetColor:
-                                                                  Colors.white),
-                                                      child: Checkbox(
-                                                          value: sharePublics[
-                                                              index],
-                                                          onChanged:
-                                                              (value) async {
-                                                            print(
-                                                                'You tap share Public');
-                                                            sharePublics[
-                                                                    index] =
-                                                                !sharePublics[
-                                                                    index];
+                                ShowIconButton(
+                                    iconData: Icons.delete_forever,
+                                    pressFunc: () {
+                                      MyDialog(context: context)
+                                          .twoActionDilalog(
+                                              title: 'Confirm Delete ?',
+                                              message:
+                                                  'You Want Delete link ${linkModels[index].nameLink}',
+                                              label1: 'Delete',
+                                              label2: 'Cancel',
+                                              pressFunc1: () async {
+                                                print(
+                                                    'Delete at idDoc ==> ${docIdLinks[index]}');
+                                                await FirebaseFirestore.instance
+                                                    .collection('user')
+                                                    .doc(user!.uid)
+                                                    .collection('link')
+                                                    .doc(docIdLinks[index])
+                                                    .delete()
+                                                    .then((value) {
+                                                  Navigator.pop(context);
+                                                  readMyLink();
+                                                });
+                                              },
+                                              pressFunc2: () {
+                                                Navigator.pop(context);
+                                              });
+                                    }),
+                                Theme(
+                                    data: Theme.of(context).copyWith(
+                                        unselectedWidgetColor: Colors.white),
+                                    child: Checkbox(
+                                        value: sharePublics[index],
+                                        onChanged: (value) async {
+                                          print('You tap share Public');
+                                          sharePublics[index] =
+                                              !sharePublics[index];
 
-                                                            if (sharePublics[
-                                                                index]) {
-                                                              print(
-                                                                  'process add database publiclink');
+                                          if (sharePublics[index]) {
+                                            print(
+                                                'process add database publiclink');
 
-                                                              DateTime
-                                                                  dateTime =
-                                                                  DateTime
-                                                                      .now();
-                                                              Timestamp
-                                                                  timestamp =
-                                                                  Timestamp
-                                                                      .fromDate(
-                                                                          dateTime);
+                                            DateTime dateTime = DateTime.now();
+                                            Timestamp timestamp =
+                                                Timestamp.fromDate(dateTime);
 
-                                                              PublicLinkModel publicLinkModel = PublicLinkModel(
-                                                                  groupLink: '',
-                                                                  namelink: linkModels[
-                                                                          index]
-                                                                      .nameLink,
-                                                                  timeAdd:
-                                                                      timestamp,
-                                                                  uidAdd:
-                                                                      user!.uid,
-                                                                  urlLink: linkModels[
-                                                                          index]
-                                                                      .urlLink,
-                                                                  docIdOwner:
-                                                                      docIdLinks[
-                                                                          index]);
+                                            PublicLinkModel publicLinkModel =
+                                                PublicLinkModel(
+                                                    groupLink: '',
+                                                    namelink: linkModels[index]
+                                                        .nameLink,
+                                                    timeAdd: timestamp,
+                                                    uidAdd: user!.uid,
+                                                    urlLink: linkModels[index]
+                                                        .urlLink,
+                                                    docIdOwner:
+                                                        docIdLinks[index]);
 
-                                                              await FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      'publiclink')
-                                                                  .doc()
-                                                                  .set(publicLinkModel
-                                                                      .toMap())
-                                                                  .then(
-                                                                      (value) async {
-                                                                print(
-                                                                    'success add publiclink');
-                                                              });
-                                                            } else {
-                                                              print(
-                                                                  'process delete publiclink at docIdlink ==> ${docIdLinks[index]}');
-                                                            }
+                                            await FirebaseFirestore.instance
+                                                .collection('publiclink')
+                                                .doc()
+                                                .set(publicLinkModel.toMap())
+                                                .then((value) async {
+                                              print('success add publiclink');
+                                            });
+                                          } else {
+                                            print(
+                                                'process delete publiclink at docIdlink ==> ${docIdLinks[index]}');
+                                          }
 
-                                                            setState(() {});
-                                                          })),
-                                                ],
-                                              )
-                                            : ShowIconButton(
-                                                iconData: Icons.more_horiz,
-                                                pressFunc: () {
-                                                  setState(() {
-                                                    displayIconButtons[index] =
-                                                        true;
-                                                  });
-                                                }),
-                                      ],
-                                    )),
-                                Expanded(
-                                  flex: 1,
-                                  child: InkWell(
-                                    onTap: () {
-                                      print('You tab url ==>> $index');
-                                      processLanchUrl(
-                                          url: linkModels[index].urlLink);
-                                    },
-                                    child: ShowText(
-                                      label: linkModels[index].urlLink,
-                                      textStyle: MyConstant().h3ActionStyle(),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: ShowIconButton(
-                                      iconData: Icons.copy,
-                                      pressFunc: () {
-                                        Clipboard.setData(ClipboardData(
-                                                text:
-                                                    linkModels[index].urlLink))
-                                            .then((value) {
-                                          Fluttertoast.showToast(
-                                              msg: 'Success Copy');
-                                        });
-                                      }),
-                                ),
+                                          setState(() {});
+                                        })),
                               ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      controlAddLink(constraints),
+                            )
+                          : ShowIconButton(
+                              iconData: Icons.more_horiz,
+                              pressFunc: () {
+                                setState(() {
+                                  displayIconButtons[index] = true;
+                                });
+                              }),
                     ],
-                  );
-                })
-              : Center(
+                  )),
+              Expanded(
+                flex: 1,
+                child: InkWell(
+                  onTap: () {
+                    print('You tab url ==>> $index');
+                    processLanchUrl(url: linkModels[index].urlLink);
+                  },
                   child: ShowText(
-                  label: 'No Link',
-                  textStyle: MyConstant().h1Style(),
-                )),
+                    label: linkModels[index].urlLink,
+                    textStyle: MyConstant().h3ActionStyle(),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: ShowIconButton(
+                    iconData: Icons.copy,
+                    pressFunc: () {
+                      Clipboard.setData(
+                              ClipboardData(text: linkModels[index].urlLink))
+                          .then((value) {
+                        Fluttertoast.showToast(msg: 'Success Copy');
+                      });
+                    }),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
+  }
+
+  Center showNoLink() {
+    return Center(
+        child: ShowText(
+      label: 'No Link',
+      textStyle: MyConstant().h1Style(),
+    ));
   } // build
 
   Future<void> processLanchUrl({required String url}) async {
