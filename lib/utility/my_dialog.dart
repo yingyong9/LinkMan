@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
 import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/states/edit_profile.dart';
 import 'package:admanyout/utility/my_constant.dart';

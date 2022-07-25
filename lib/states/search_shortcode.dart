@@ -255,7 +255,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            ShowForm(width: boxConstraints.maxWidth - 75,
+            ShowForm(
+              width: boxConstraints.maxWidth - 75,
               topMargin: 2,
               prefixWidget: ShowIconButton(
                 iconData: Icons.play_circle,
@@ -317,36 +318,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   Widget formSearchShortCode({required BoxConstraints boxConstraints}) {
     return Column(
       children: [
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: [
-        //     // ShowForm(
-        //     //     colorTheme: Colors.black,
-        //     //     controller: controller,
-        //     //     label: 'กรอก Link ID เพื่อหา Link',
-        //     //     iconData: Icons.qr_code,
-        //     //     changeFunc: (String string) {
-        //     //       search = string.trim();
-        //     //     }),
-        //     // Container(
-        //     //   margin: const EdgeInsets.only(top: 16, left: 4),
-        //     //   child: ShowOutlineButton(
-        //     //       colorTheme: Colors.black,
-        //     //       label: 'OK',
-        //     //       pressFunc: () {
-        //     //         if (!(search?.isEmpty ?? true)) {
-        //     //           processFindSearchFromSixDigi();
-        //     //         }
-        //     //       }),
-        //     // ),
-        //   ],
-        // ),
         Container(
-          // padding: const EdgeInsets.symmetric(horizontal: 8),
           width: boxConstraints.maxWidth,
           height: boxConstraints.maxHeight - 45,
           margin: const EdgeInsets.only(bottom: 16),
-          // decoration: BoxDecoration(color: Colors.grey),
           child: fastLinkModels.isEmpty
               ? const SizedBox()
               : LayoutBuilder(builder:
@@ -380,6 +355,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             children: [
                               newImageListView(boxConstraints, index),
                               newContent1(boxConstraints, index),
+                              Positioned(
+                                bottom: 30,
+                                left: 10,
+                                child: Row(
+                                  children: [
+                                    whoPost(index),
+                                    iconShare(index),
+                                    showDialogGenQRcode(index),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -389,6 +375,27 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }),
         ),
       ],
+    );
+  }
+
+  ShowIconButton showDialogGenQRcode(int index) {
+    return ShowIconButton(
+      iconData: Icons.qr_code,
+      color: Colors.white,
+      pressFunc: () {
+        processGenQRcode(linkId: fastLinkModels[index].linkId);
+      },
+    );
+  }
+
+  Widget iconShare(int index) {
+    return ShowIconButton(
+      color: Colors.white,
+      iconData: Icons.more_vert,
+      pressFunc: () async {
+        await Share.share(
+            'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
+      },
     );
   }
 
@@ -402,77 +409,38 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           const SizedBox(
             height: 32,
           ),
-          Row(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.75),
-                  ),
-                  child: Row(
-                    children: [
-                      ShowCircleImage(
-                          radius: 24,
-                          path: userModels[index].avatar ?? MyConstant.urlLogo),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      ShowText(
-                        label: userModels[index].name,
-                        textStyle: MyConstant().h2BlackBBBStyle(),
-                      ),
-                      // ShowText(label: 'ติดตาม', textStyle: MyConstant().h2BlackBBBStyle(),)
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // (showButtonLinks[index])
-          //     ? ShowButton(
-          //         label: 'Link',
-          //         pressFunc: () async {
-          //           String uidPost = fastLinkModels[index].uidPost;
-          //           String uidLogin = user!.uid;
-          //           print(
-          //               'You Click Link uidPost ===>> $uidPost, uidLogin = $uidLogin');
-          //           LinkFriendModel linkFriendModel =
-          //               LinkFriendModel(uidLinkFriend: uidPost);
-          //           await FirebaseFirestore.instance
-          //               .collection('user')
-          //               .doc(uidLogin)
-          //               .collection('linkfriend')
-          //               .doc()
-          //               .set(linkFriendModel.toMap())
-          //               .then((value) {
-          //             print('Create LinkFriend Success');
-          //             readFastLinkData();
-          //           });
-          //         })
-          //     : const SizedBox(),
-          // ClipRRect(
-          //   borderRadius: const BorderRadius.all(Radius.circular(10)),
-          //   child: Container(
-          //     decoration: BoxDecoration(color: Colors.white.withOpacity(0.75)),
-          //     child: ShowIconButton(
-          //       color: Colors.grey,
-          //       iconData: Icons.more_horiz,
-          //       pressFunc: () async {
-          //         await Share.share(
-          //             'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
-          //       },
-          //     ),
-          //   ),
-          // ),
-          // ShowButton(
-          //     label: 'Link ID',
-          //     pressFunc: () {
-          //       processGenQRcode(linkId: fastLinkModels[index].linkId);
-          //     }),
           newContent2(boxConstraints, index),
         ],
       ),
+    );
+  }
+
+  Row whoPost(int index) {
+    return Row(
+      children: [
+        ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.75),
+            ),
+            child: Row(
+              children: [
+                ShowCircleImage(
+                    radius: 24,
+                    path: userModels[index].avatar ?? MyConstant.urlLogo),
+                const SizedBox(
+                  width: 4,
+                ),
+                // ShowText(
+                //   label: userModels[index].name,
+                //   textStyle: MyConstant().h2BlackBBBStyle(),
+                // ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
