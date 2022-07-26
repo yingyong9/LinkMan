@@ -2,6 +2,8 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:admanyout/models/linkfriend_model.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
@@ -9,9 +11,12 @@ import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -68,6 +73,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     findDocumentLists();
     readFastLinkData();
     // processAutoMove();
+    openStorageForAndroid();
+  }
+
+  Future<void> openStorageForAndroid() async {
+    if (Platform.isAndroid) {
+      var result = await Permission.storage.status;
+      if (result.isDenied) {
+        print('result ==> denied');
+        Permission.storage.request();
+      }
+    }
   }
 
   Future<void> processAutoMove() async {
@@ -363,7 +379,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                     whoPost(index),
                                     iconShare(index),
                                     showDialogGenQRcode(index),
-                                    SizedBox(width: boxConstraints.maxWidth*0.35,),
+                                    SizedBox(
+                                      width: boxConstraints.maxWidth * 0.35,
+                                    ),
                                     showTextSourceLink(index),
                                   ],
                                 ),
@@ -455,7 +473,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           const SizedBox(
             height: 8,
           ),
-          
           const SizedBox(
             height: 8,
           ),
@@ -499,14 +516,14 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   Container showTextSourceLink(int index) {
-    return Container(padding: const EdgeInsets.symmetric(vertical: 4,horizontal: 6),
-          decoration: BoxDecoration(color: Color.fromARGB(255, 194, 18, 5)),
-          child: ShowText(
-            label:
-                MyProcess().showSource(string: fastLinkModels[index].linkUrl),
-            textStyle: MyConstant().h3WhiteStyle(),
-          ),
-        );
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+      decoration: BoxDecoration(color: Color.fromARGB(255, 194, 18, 5)),
+      child: ShowText(
+        label: MyProcess().showSource(string: fastLinkModels[index].linkUrl),
+        textStyle: MyConstant().h3WhiteStyle(),
+      ),
+    );
   }
 
   SizedBox newImageListView(BoxConstraints boxConstraints, int index) {
@@ -652,6 +669,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     label: 'Save',
                     pressFunc: () {
                       Navigator.pop(context);
+                      processSaveQRcodeOnStorage(qrGen: linkId);
                     })
               ],
             ));
@@ -683,6 +701,29 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         }
       }
     });
+  }
+
+  Future<void> processSaveQRcodeOnStorage({required String qrGen}) async {
+    print('##26july qrGen ที่ต้องการสร้าง ---> $qrGen');
+
+    String nameFile = qrGen.substring(1);
+
+    String pathQrcode =
+        'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=%23$nameFile';
+    print('##26july pathQrcode ==> $pathQrcode');
+
+    var response = await Dio()
+        .get(pathQrcode, options: Options(responseType: ResponseType.bytes));
+    final result = await ImageGallerySaver.saveImage(
+      Uint8List.fromList(response.data),
+      quality: 60,
+      name: '$qrGen.png',
+    );
+    if (result['isSuccess']) {
+      Fluttertoast.showToast(msg: 'Save QrCode Success');
+    } else {
+      Fluttertoast.showToast(msg: 'Cannot Save QrCode');
+    }
   }
 }
 
