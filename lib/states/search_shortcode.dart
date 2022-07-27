@@ -2,16 +2,23 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:admanyout/models/linkfriend_model.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
+import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -68,6 +75,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     findDocumentLists();
     readFastLinkData();
     // processAutoMove();
+    openStorageForAndroid();
+  }
+
+  Future<void> openStorageForAndroid() async {
+    if (Platform.isAndroid) {
+      var result = await Permission.storage.status;
+      if (result.isDenied) {
+        print('result ==> denied');
+        Permission.storage.request();
+      }
+    }
   }
 
   Future<void> processAutoMove() async {
@@ -251,12 +269,28 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     return Positioned(
       bottom: 0,
       child: Container(
-        margin: const EdgeInsets.only(left: 24),
+        margin: const EdgeInsets.only(left: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ReadQRcode(),
+                    ));
+              },
+              child: const ShowImage(
+                path: 'images/logo.png',
+                width: 36,
+              ),
+            ),
+            const SizedBox(
+              width: 8,
+            ),
             ShowForm(
-              width: boxConstraints.maxWidth - 75,
+              width: boxConstraints.maxWidth - 115,
               topMargin: 2,
               prefixWidget: ShowIconButton(
                 iconData: Icons.play_circle,
@@ -363,7 +397,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                     whoPost(index),
                                     iconShare(index),
                                     showDialogGenQRcode(index),
-                                    SizedBox(width: boxConstraints.maxWidth*0.35,),
+                                    iconSaveImage(index),
+                                    SizedBox(
+                                      width: boxConstraints.maxWidth * 0.2,
+                                    ),
                                     showTextSourceLink(index),
                                   ],
                                 ),
@@ -378,6 +415,18 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         ),
       ],
     );
+  }
+
+  ShowIconButton iconSaveImage(int index) {
+    return ShowIconButton(
+                                    iconData: Icons.save,
+                                    pressFunc: () {
+                                      String urlSave =
+                                          fastLinkModels[index].urlImage;
+                                      processSaveQRcodeOnStorage(
+                                          urlImage: urlSave);
+                                    },
+                                  );
   }
 
   ShowIconButton showDialogGenQRcode(int index) {
@@ -426,7 +475,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.75),
             ),
-            child: Row(
+            child: Column(
               children: [
                 ShowCircleImage(
                     radius: 24,
@@ -434,10 +483,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 const SizedBox(
                   width: 4,
                 ),
-                // ShowText(
-                //   label: userModels[index].name,
-                //   textStyle: MyConstant().h2BlackBBBStyle(),
-                // ),
+                ShowText(
+                  label: userModels[index].name,
+                  textStyle: MyConstant().h2BlackBBBStyle(),
+                ),
               ],
             ),
           ),
@@ -455,7 +504,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           const SizedBox(
             height: 8,
           ),
-          
           const SizedBox(
             height: 8,
           ),
@@ -499,14 +547,14 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   Container showTextSourceLink(int index) {
-    return Container(padding: const EdgeInsets.symmetric(vertical: 4,horizontal: 6),
-          decoration: BoxDecoration(color: Color.fromARGB(255, 194, 18, 5)),
-          child: ShowText(
-            label:
-                MyProcess().showSource(string: fastLinkModels[index].linkUrl),
-            textStyle: MyConstant().h3WhiteStyle(),
-          ),
-        );
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+      decoration: BoxDecoration(color: Color.fromARGB(255, 194, 18, 5)),
+      child: ShowText(
+        label: MyProcess().showSource(string: fastLinkModels[index].linkUrl),
+        textStyle: MyConstant().h3WhiteStyle(),
+      ),
+    );
   }
 
   SizedBox newImageListView(BoxConstraints boxConstraints, int index) {
@@ -652,6 +700,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     label: 'Save',
                     pressFunc: () {
                       Navigator.pop(context);
+                      processSaveQRcodeOnStorage(qrGen: linkId);
                     })
               ],
             ));
@@ -683,6 +732,39 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         }
       }
     });
+  }
+
+  Future<void> processSaveQRcodeOnStorage(
+      {String? qrGen, String? urlImage}) async {
+    print('##26july qrGen ที่ต้องการสร้าง ---> $qrGen');
+
+    if (qrGen != null) {
+      String nameFile = qrGen.substring(1);
+
+      String pathQrcode =
+          'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=%23$nameFile';
+
+      processSave(urlSave: pathQrcode, nameFile: '$qrGen.png');
+    } else if (urlImage != null) {
+      processSave(
+          urlSave: urlImage, nameFile: 'image${Random().nextInt(1000)}.png');
+    }
+  }
+
+  Future<void> processSave(
+      {required String urlSave, required String nameFile}) async {
+    var response = await Dio()
+        .get(urlSave, options: Options(responseType: ResponseType.bytes));
+    final result = await ImageGallerySaver.saveImage(
+      Uint8List.fromList(response.data),
+      quality: 60,
+      name: nameFile,
+    );
+    if (result['isSuccess']) {
+      Fluttertoast.showToast(msg: 'Save Success');
+    } else {
+      Fluttertoast.showToast(msg: 'Cannot Save QrCode');
+    }
   }
 }
 

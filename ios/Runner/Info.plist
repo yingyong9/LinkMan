@@ -49,6 +49,8 @@
         <true/>
         <key>com.apple.security.network.client</key>
         <true/>
+        <key>io.flutter.embedded_views_preview</key>
+        <true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Need to upload image</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -74,6 +76,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-    
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Need to Save Image on Storage</string>
 </dict>
 </plist>
