@@ -7,6 +7,7 @@ import 'dart:typed_data';
 
 import 'package:admanyout/models/linkfriend_model.dart';
 import 'package:admanyout/states/base_manage_my_link.dart';
+import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
@@ -267,12 +268,28 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     return Positioned(
       bottom: 0,
       child: Container(
-        margin: const EdgeInsets.only(left: 24),
+        margin: const EdgeInsets.only(left: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ReadQRcode(),
+                    ));
+              },
+              child: const ShowImage(
+                path: 'images/logo.png',
+                width: 36,
+              ),
+            ),
+            const SizedBox(
+              width: 8,
+            ),
             ShowForm(
-              width: boxConstraints.maxWidth - 75,
+              width: boxConstraints.maxWidth - 115,
               topMargin: 2,
               prefixWidget: ShowIconButton(
                 iconData: Icons.play_circle,
