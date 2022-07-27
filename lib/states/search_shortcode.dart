@@ -3,6 +3,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:admanyout/models/linkfriend_model.dart';
@@ -396,8 +397,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                     whoPost(index),
                                     iconShare(index),
                                     showDialogGenQRcode(index),
+                                    iconSaveImage(index),
                                     SizedBox(
-                                      width: boxConstraints.maxWidth * 0.35,
+                                      width: boxConstraints.maxWidth * 0.2,
                                     ),
                                     showTextSourceLink(index),
                                   ],
@@ -413,6 +415,18 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         ),
       ],
     );
+  }
+
+  ShowIconButton iconSaveImage(int index) {
+    return ShowIconButton(
+                                    iconData: Icons.save,
+                                    pressFunc: () {
+                                      String urlSave =
+                                          fastLinkModels[index].urlImage;
+                                      processSaveQRcodeOnStorage(
+                                          urlImage: urlSave);
+                                    },
+                                  );
   }
 
   ShowIconButton showDialogGenQRcode(int index) {
@@ -461,7 +475,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.75),
             ),
-            child: Row(
+            child: Column(
               children: [
                 ShowCircleImage(
                     radius: 24,
@@ -469,10 +483,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 const SizedBox(
                   width: 4,
                 ),
-                // ShowText(
-                //   label: userModels[index].name,
-                //   textStyle: MyConstant().h2BlackBBBStyle(),
-                // ),
+                ShowText(
+                  label: userModels[index].name,
+                  textStyle: MyConstant().h2BlackBBBStyle(),
+                ),
               ],
             ),
           ),
@@ -720,24 +734,34 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     });
   }
 
-  Future<void> processSaveQRcodeOnStorage({required String qrGen}) async {
+  Future<void> processSaveQRcodeOnStorage(
+      {String? qrGen, String? urlImage}) async {
     print('##26july qrGen ที่ต้องการสร้าง ---> $qrGen');
 
-    String nameFile = qrGen.substring(1);
+    if (qrGen != null) {
+      String nameFile = qrGen.substring(1);
 
-    String pathQrcode =
-        'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=%23$nameFile';
-    print('##26july pathQrcode ==> $pathQrcode');
+      String pathQrcode =
+          'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=%23$nameFile';
 
+      processSave(urlSave: pathQrcode, nameFile: '$qrGen.png');
+    } else if (urlImage != null) {
+      processSave(
+          urlSave: urlImage, nameFile: 'image${Random().nextInt(1000)}.png');
+    }
+  }
+
+  Future<void> processSave(
+      {required String urlSave, required String nameFile}) async {
     var response = await Dio()
-        .get(pathQrcode, options: Options(responseType: ResponseType.bytes));
+        .get(urlSave, options: Options(responseType: ResponseType.bytes));
     final result = await ImageGallerySaver.saveImage(
       Uint8List.fromList(response.data),
       quality: 60,
-      name: '$qrGen.png',
+      name: nameFile,
     );
     if (result['isSuccess']) {
-      Fluttertoast.showToast(msg: 'Save QrCode Success');
+      Fluttertoast.showToast(msg: 'Save Success');
     } else {
       Fluttertoast.showToast(msg: 'Cannot Save QrCode');
     }
