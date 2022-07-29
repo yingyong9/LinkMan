@@ -398,9 +398,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                     iconShare(index),
                                     showDialogGenQRcode(index),
                                     iconSaveImage(index),
-                                    SizedBox(
-                                      width: boxConstraints.maxWidth * 0.2,
-                                    ),
+                                    // SizedBox(
+                                    //   width: boxConstraints.maxWidth * 0.1-20,
+                                    // ),
                                     showTextSourceLink(index),
                                   ],
                                 ),
@@ -419,14 +419,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   ShowIconButton iconSaveImage(int index) {
     return ShowIconButton(
-                                    iconData: Icons.save,
-                                    pressFunc: () {
-                                      String urlSave =
-                                          fastLinkModels[index].urlImage;
-                                      processSaveQRcodeOnStorage(
-                                          urlImage: urlSave);
-                                    },
-                                  );
+      iconData: Icons.save,
+      pressFunc: () {
+        String urlSave = fastLinkModels[index].urlImage;
+        processSaveQRcodeOnStorage(urlImage: urlSave);
+      },
+    );
   }
 
   ShowIconButton showDialogGenQRcode(int index) {
@@ -469,27 +467,42 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   Row whoPost(int index) {
     return Row(
       children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.75),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [  ShowText(label: '999 คน'),
+            const Icon(
+              Icons.favorite,
+              color: Color.fromARGB(255, 207, 18, 5),
+              size: 36,
             ),
-            child: Column(
+            const SizedBox(
+              height: 8,
+            ),
+            ShowCircleImage(
+                radius: 24,
+                path: userModels[index].avatar ?? MyConstant.urlLogo),
+            const SizedBox(
+              height: 8,
+            ),
+            Row(
               children: [
-                ShowCircleImage(
-                    radius: 24,
-                    path: userModels[index].avatar ?? MyConstant.urlLogo),
-                const SizedBox(
-                  width: 4,
-                ),
                 ShowText(
                   label: userModels[index].name,
-                  textStyle: MyConstant().h2BlackBBBStyle(),
+                  textStyle: MyConstant().h2WhiteStyle(),
                 ),
+                Container(
+                  margin: const EdgeInsets.only(left: 10),
+                  decoration:
+                      BoxDecoration(color: Color.fromARGB(255, 207, 18, 5)),
+                  child: ShowText(label: 'ติดตาม'),
+                ),
+                 const SizedBox(
+              width: 8,
+            ),
+                ShowText(label: '999 คน')
               ],
             ),
-          ),
+          ],
         ),
       ],
     );
