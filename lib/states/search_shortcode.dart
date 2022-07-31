@@ -6,10 +6,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:admanyout/models/linkfriend_model.dart';
-import 'package:admanyout/states/base_manage_my_link.dart';
 import 'package:admanyout/states/read_qr_code.dart';
-import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -46,26 +43,19 @@ class SearchShortCode extends StatefulWidget {
 }
 
 class _SearchShortCodeState extends State<SearchShortCode> {
-  String? search;
+
+  String? search, addNewLink;
   TextEditingController controller = TextEditingController();
   bool? statusLoginBool;
-
-  String? addNewLink;
   TextEditingController textEditingController = TextEditingController();
-
   var fastLinkModels = <FastLinkModel>[];
   var userModels = <UserModel>[];
   var documentLists = <DocumentSnapshot>[];
   var showButtonLinks = <bool>[];
   int lastIndex = 0;
-
   final globalQRkey = GlobalKey();
-
   ScrollController scrollController = ScrollController();
-
   var user = FirebaseAuth.instance.currentUser;
-
-  // AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
 
   @override
   void initState() {
@@ -74,7 +64,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     setupScorllController();
     findDocumentLists();
     readFastLinkData();
-    // processAutoMove();
     openStorageForAndroid();
   }
 
@@ -82,7 +71,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     if (Platform.isAndroid) {
       var result = await Permission.storage.status;
       if (result.isDenied) {
-        print('result ==> denied');
+        // print('result ==> denied');
         Permission.storage.request();
       }
     }
@@ -97,6 +86,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   void setupScorllController() {
+    
     print('##17july setupScorellController work');
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
@@ -138,6 +128,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         .get()
         .then((value) async {
       for (var element in value.docs) {
+        
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
         fastLinkModels.add(fastLinkModel);
 
@@ -282,7 +273,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     ));
               },
               child: const ShowImage(
-                path: 'images/logo.png',
+                path: 'images/qr1.png',
                 width: 36,
               ),
             ),
@@ -290,11 +281,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               width: 8,
             ),
             ShowForm(
-              width: boxConstraints.maxWidth - 115,
+              width: boxConstraints.maxWidth - 145,
               topMargin: 2,
               prefixWidget: ShowIconButton(
                 iconData: Icons.play_circle,
-                color: Colors.green,
+                color: Colors.white,
                 pressFunc: () {
                   if (addNewLink?.isNotEmpty ?? false) {
                     MyProcess().processLaunchUrl(url: addNewLink!);
@@ -304,10 +295,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               controller: textEditingController,
               label: 'Add Link',
               iconData: Icons.add_box_outlined,
-              colorSuffixIcon: const Color.fromARGB(255, 34, 174, 13),
+              colorSuffixIcon: Colors.black,
               changeFunc: (String string) {
                 addNewLink = string.trim();
               },
+            ),
+            ShowIconButton(
+              iconData: Icons.add_box_outlined,
               pressFunc: () {
                 if (statusLoginBool!) {
                   if (addNewLink?.isEmpty ?? true) {
@@ -338,9 +332,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   alertLogin(context);
                 }
               },
-              child: const ShowImage(
-                path: 'images/logo.png',
-                width: 36,
+              child: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 24,
               ),
             ),
           ],
@@ -392,16 +387,49 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                               Positioned(
                                 bottom: 30,
                                 left: 10,
-                                child: Row(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    whoPost(index),
-                                    iconShare(index),
-                                    showDialogGenQRcode(index),
                                     iconSaveImage(index),
-                                    // SizedBox(
-                                    //   width: boxConstraints.maxWidth * 0.1-20,
-                                    // ),
-                                    showTextSourceLink(index),
+                                    showDialogGenQRcode(index),
+                                    iconShare(index),
+                                    ShowText(
+                                        label: fastLinkModels[index].favorite!),
+                                    iconFavorite(index: index),
+                                    const SizedBox(
+                                      height: 8,
+                                    ),
+                                    Row(
+                                      children: [
+                                        whoPost(index),
+                                        SizedBox(
+                                          width: boxConstraints.maxWidth * 0.3,
+                                        ),
+                                        showTextSourceLink(index),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        ShowText(
+                                          label: userModels[index].name,
+                                          textStyle:
+                                              MyConstant().h2WhiteStyle(),
+                                        ),
+                                        Container(
+                                          margin:
+                                              const EdgeInsets.only(left: 10),
+                                          decoration: const BoxDecoration(
+                                              color: Color.fromARGB(
+                                                  255, 207, 18, 5)),
+                                          child:
+                                              const ShowText(label: 'ติดตาม'),
+                                        ),
+                                        const SizedBox(
+                                          width: 8,
+                                        ),
+                                        const ShowText(label: '999 คน')
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -417,34 +445,61 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     );
   }
 
-  ShowIconButton iconSaveImage(int index) {
+  ShowIconButton iconFavorite({required int index}) {
     return ShowIconButton(
-      iconData: Icons.save,
+      size: 36,
+      color: const Color.fromARGB(255, 197, 20, 7),
+      iconData: Icons.favorite,
       pressFunc: () {
-        String urlSave = fastLinkModels[index].urlImage;
-        processSaveQRcodeOnStorage(urlImage: urlSave);
+        int favoriteInt = int.parse(fastLinkModels[index].favorite!);
+        favoriteInt++;
+       
+        print('favoiteInt ==> $favoriteInt, ขนาด ของ docId == > ${documentLists.length}');
       },
     );
   }
 
-  ShowIconButton showDialogGenQRcode(int index) {
-    return ShowIconButton(
-      iconData: Icons.qr_code,
-      color: Colors.white,
-      pressFunc: () {
-        processGenQRcode(linkId: fastLinkModels[index].linkId);
-      },
+  Widget iconSaveImage(int index) {
+    return Container(
+      // decoration: MyConstant().curveBorderBox(curve: 30, color: Colors.white),
+      child: ShowIconButton(
+        size: 36,
+        iconData: Icons.save,
+        pressFunc: () {
+          String urlSave = fastLinkModels[index].urlImage;
+          processSaveQRcodeOnStorage(urlImage: urlSave);
+        },
+      ),
+    );
+  }
+
+  Widget showDialogGenQRcode(int index) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      // decoration: MyConstant().curveBorderBox(curve: 30, color: Colors.white),
+      child: ShowIconButton(
+        size: 36,
+        iconData: Icons.qr_code,
+        color: Colors.white,
+        pressFunc: () {
+          processGenQRcode(linkId: fastLinkModels[index].linkId);
+        },
+      ),
     );
   }
 
   Widget iconShare(int index) {
-    return ShowIconButton(
-      color: Colors.white,
-      iconData: Icons.more_vert,
-      pressFunc: () async {
-        await Share.share(
-            'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
-      },
+    return Container(
+      // decoration: MyConstant().curveBorderBox(curve: 30, color: Colors.white),
+      child: ShowIconButton(
+        size: 36,
+        color: Colors.white,
+        iconData: Icons.more_vert,
+        pressFunc: () async {
+          await Share.share(
+              'https://play.google.com/store/apps/details?id=com.flutterthailand.admanyout ${fastLinkModels[index].linkId}');
+        },
+      ),
     );
   }
 
@@ -469,38 +524,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [  ShowText(label: '999 คน'),
-            const Icon(
-              Icons.favorite,
-              color: Color.fromARGB(255, 207, 18, 5),
-              size: 36,
-            ),
-            const SizedBox(
-              height: 8,
-            ),
+          children: [
             ShowCircleImage(
                 radius: 24,
                 path: userModels[index].avatar ?? MyConstant.urlLogo),
             const SizedBox(
               height: 8,
-            ),
-            Row(
-              children: [
-                ShowText(
-                  label: userModels[index].name,
-                  textStyle: MyConstant().h2WhiteStyle(),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(left: 10),
-                  decoration:
-                      BoxDecoration(color: Color.fromARGB(255, 207, 18, 5)),
-                  child: ShowText(label: 'ติดตาม'),
-                ),
-                 const SizedBox(
-              width: 8,
-            ),
-                ShowText(label: '999 คน')
-              ],
             ),
           ],
         ),
@@ -673,18 +702,24 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   void alertLogin(BuildContext context) {
-    MyDialog(context: context).normalActionDilalog(
-        title: 'No Login ?',
-        message: 'Please Login',
-        label: 'Login',
-        pressFunc: () {
-          Navigator.pop(context);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const Authen(),
-              ));
-        });
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Authen(),
+        ));
+
+    // MyDialog(context: context).normalActionDilalog(
+    //     title: 'No Login ?',
+    //     message: 'Please Login',
+    //     label: 'Login',
+    //     pressFunc: () {
+    //       Navigator.pop(context);
+    //       Navigator.push(
+    //           context,
+    //           MaterialPageRoute(
+    //             builder: (context) => const Authen(),
+    //           ));
+    //     });
   }
 
   Future<void> processGenQRcode({required String linkId}) async {

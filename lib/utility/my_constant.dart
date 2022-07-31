@@ -13,9 +13,13 @@ class MyConstant {
   static String urlLogo =
       'https://firebasestorage.googleapis.com/v0/b/adman-87dfd.appspot.com/o/avatar%2Flogo.png?alt=media&token=64767fbd-371f-4aaa-8854-ba839759751e';
 
-  BoxDecoration curveBorderBox() => BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.circular(10),
+  
+  
+  
+  
+  BoxDecoration curveBorderBox({double? curve, Color? color}) => BoxDecoration(
+        border: Border.all(color: color ?? Colors.black),
+        borderRadius: BorderRadius.circular(curve ?? 10,),
       );
 
   TextStyle h1Style() => TextStyle(
