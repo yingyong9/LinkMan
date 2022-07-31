@@ -13,7 +13,7 @@ class FastLinkModel {
   final String detail2;
   final String head;
   final String urlSong;
-  final String? favorite;
+ 
   FastLinkModel({
     required this.urlImage,
     required this.detail,
@@ -24,7 +24,7 @@ class FastLinkModel {
     required this.detail2,
     required this.head,
     required this.urlSong,
-    this.favorite,
+   
   });
 
   Map<String, dynamic> toMap() {
@@ -38,7 +38,7 @@ class FastLinkModel {
       'detail2': detail2,
       'head': head,
       'urlSong': urlSong,
-      'favorite': favorite,
+    
     };
   }
 
@@ -53,7 +53,7 @@ class FastLinkModel {
       detail2: (map['detail2'] ?? '') as String,
       head: (map['head'] ?? '') as String,
       urlSong: (map['urlSong'] ?? '') as String,
-      favorite: map['favorite'] ?? '0'  ,
+     
     );
   }
 

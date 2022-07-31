@@ -43,12 +43,12 @@ class SearchShortCode extends StatefulWidget {
 }
 
 class _SearchShortCodeState extends State<SearchShortCode> {
-
   String? search, addNewLink;
   TextEditingController controller = TextEditingController();
   bool? statusLoginBool;
   TextEditingController textEditingController = TextEditingController();
   var fastLinkModels = <FastLinkModel>[];
+  var docIdFastLinks = <String>[];
   var userModels = <UserModel>[];
   var documentLists = <DocumentSnapshot>[];
   var showButtonLinks = <bool>[];
@@ -86,7 +86,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   void setupScorllController() {
-    
     print('##17july setupScorellController work');
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
@@ -116,6 +115,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       documentLists.clear();
       showButtonLinks.clear();
       lastIndex = 0;
+      docIdFastLinks.clear();
     }
 
     print(
@@ -128,9 +128,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         .get()
         .then((value) async {
       for (var element in value.docs) {
-        
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
         fastLinkModels.add(fastLinkModel);
+        docIdFastLinks.add(element.id);
 
         if (user != null) {
           await FirebaseFirestore.instance
@@ -177,6 +177,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         for (var element in value.docs) {
           FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
           fastLinkModels.add(fastLinkModel);
+          docIdFastLinks.add(element.id);
 
           if (user != null) {
             await FirebaseFirestore.instance
@@ -393,8 +394,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                     iconSaveImage(index),
                                     showDialogGenQRcode(index),
                                     iconShare(index),
-                                    ShowText(
-                                        label: fastLinkModels[index].favorite!),
+                                    ShowText(label: '999'),
                                     iconFavorite(index: index),
                                     const SizedBox(
                                       height: 8,
@@ -450,11 +450,55 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       size: 36,
       color: const Color.fromARGB(255, 197, 20, 7),
       iconData: Icons.favorite,
-      pressFunc: () {
-        int favoriteInt = int.parse(fastLinkModels[index].favorite!);
-        favoriteInt++;
-       
-        print('favoiteInt ==> $favoriteInt, ขนาด ของ docId == > ${documentLists.length}');
+      pressFunc: () async {
+        print('##31july docIdFastLink ==> ${docIdFastLinks[index]}');
+        print('##31july uid login ==>> ${user!.uid}');
+
+        await FirebaseFirestore.instance
+            .collection('fastlink')
+            .doc(docIdFastLinks[index])
+            .collection('favorite')
+            .where('uidfavorite', isEqualTo: user!.uid)
+            .get()
+            .then((value) async {
+          print('##31july value favorite ---> ${value.docs}');
+
+          if (value.docs.isEmpty) {
+            // allow favorite
+
+            Map<String, dynamic> map = {};
+            map['uidfavorite'] = user!.uid;
+
+            await FirebaseFirestore.instance
+                .collection('fastlink')
+                .doc(docIdFastLinks[index])
+                .collection('favorite')
+                .doc()
+                .set(map)
+                .then((value) {
+              print('##31july Success add Favorite');
+            });
+          } else {
+            // unallow favoite
+
+            for (var element in value.docs) {
+              String docFavorite = element.id;
+              print('##31july docFavorite ===>> $docFavorite');
+
+              await FirebaseFirestore.instance
+                  .collection('fastlink')
+                  .doc(docIdFastLinks[index])
+                  .collection('favorite')
+                  .doc(docFavorite)
+                  .delete()
+                  .then((value) {
+                    print('##31july Delete Favorite');
+                  });
+            }
+
+           
+          }
+        });
       },
     );
   }
