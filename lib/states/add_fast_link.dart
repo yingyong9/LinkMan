@@ -13,6 +13,7 @@ import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
+import 'package:admanyout/widgets/show_form_long.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
@@ -122,40 +123,56 @@ class _AddFastLinkState extends State<AddFastLink> {
           ? const ShowProgress()
           : LayoutBuilder(
               builder: (BuildContext context, BoxConstraints boxConstraints) {
-              return ListView(
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            userModelLogined!.avatar ?? MyConstant.urlLogo),
-                      ),
-                      newTitle(
-                          boxConstraints: boxConstraints, string: addLink!),
-                    ],
-                  ),
-                  newImage(boxConstraints),
-                  formDetail(
-                      boxConstraints: boxConstraints,
-                      label: '@ หัวข้อ :',
-                      changeFunc: (String string) {
-                        head = string.trim();
-                      }),
-                  formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'อยากบอกอะไร :',
-                      changeFunc: (String string) {
-                        detail = string.trim();
-                      }),
-                  formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'อยากบอกอะไร :',
-                      changeFunc: (String string) {
-                        detail2 = string.trim();
-                      }),
-                  // urlSongModels.isEmpty ? const SizedBox() : newSong(),
-                  newGroup(boxConstraints: boxConstraints),
-                ],
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    FocusScope.of(context).requestFocus(FocusScopeNode()),
+                child: ListView(
+                  children: [
+                    addLink?.isEmpty ?? true
+                      
+                        ? formDetail(
+                            boxConstraints: boxConstraints,
+                            label: 'ใส่ลิ้งค์ที่นี่ (add link)',
+                            changeFunc: (p0) {
+                              addLink = p0.trim();
+                            },
+                          )
+                        : Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    userModelLogined!.avatar ??
+                                        MyConstant.urlLogo),
+                              ),
+                              newTitle(
+                                  boxConstraints: boxConstraints,
+                                  string: addLink!),
+                            ],
+                          ),
+                    newImage(boxConstraints),
+                    formDetail(
+                        boxConstraints: boxConstraints,
+                        label: '@ หัวข้อ :',
+                        changeFunc: (String string) {
+                          head = string.trim();
+                        }),
+                    formDetail(
+                        boxConstraints: boxConstraints,
+                        label: 'อยากบอกอะไร :',
+                        changeFunc: (String string) {
+                          detail = string.trim();
+                        }),
+                    formDetail(
+                        boxConstraints: boxConstraints,
+                        label: 'อยากบอกอะไร :',
+                        changeFunc: (String string) {
+                          detail2 = string.trim();
+                        }),
+                    // urlSongModels.isEmpty ? const SizedBox() : newSong(),
+                    newGroup(boxConstraints: boxConstraints),
+                  ],
+                ),
               );
             }),
     );
@@ -317,12 +334,12 @@ class _AddFastLinkState extends State<AddFastLink> {
             .set(fastLinkModel.toMap())
             .then((value) {
           Navigator.pop(context);
-           Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SearchShortCode(),
-                ),
-                (route) => false);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SearchShortCode(),
+              ),
+              (route) => false);
         });
       });
     });
@@ -334,10 +351,10 @@ class _AddFastLinkState extends State<AddFastLink> {
     required Function(String) changeFunc,
     Color? textColor,
   }) {
-    return SizedBox(
-      height: 60,
+    return Container(margin: const EdgeInsets.only(top: 16),
+      // height: 60,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           CircleAvatar(
@@ -350,12 +367,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           Container(
             margin: const EdgeInsets.only(right: 8),
             width: boxConstraints.maxWidth * 0.65,
-            child: ShowForm(
-              colorTheme: Colors.black,
-              label: label,
-              iconData: Icons.details_outlined,
-              changeFunc: changeFunc,
-            ),
+            child: ShowFormLong(label: label, changeFunc: changeFunc),
           ),
         ],
       ),
@@ -431,7 +443,8 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   AppBar newAppBar() {
     return AppBar(
-      leading: ShowIconButton(color: Colors.black,
+      leading: ShowIconButton(
+          color: Colors.black,
           iconData: Icons.arrow_back_ios,
           pressFunc: () {
             Navigator.pushAndRemoveUntil(
