@@ -56,6 +56,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   final globalQRkey = GlobalKey();
   ScrollController scrollController = ScrollController();
   var user = FirebaseAuth.instance.currentUser;
+  bool processLoad = false;
 
   @override
   void initState() {
@@ -86,19 +87,21 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   void setupScorllController() {
-    print('##17july setupScorellController work');
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
-        print('##9july Load More on Top');
+        print('##6Aug Load More on Top');
+        MyDialog(context: context).processDialog();
+        processLoad = true;
         findDocumentLists();
         readFastLinkData();
       }
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        print('17july Load More on Button Work');
-        // assetsAudioPlayer.stop();
+        print('##6Aug Load More on Button Work');
+        MyDialog(context: context).processDialog();
+        processLoad = true;
         readMoreFastLinkData();
       }
     });
@@ -157,6 +160,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         });
       }
       print('##17july showButtonLinks ===> $showButtonLinks');
+
+      if (processLoad) {
+        processLoad = false;
+        Navigator.pop(context);
+      }
+
       setState(() {});
     });
   }
@@ -205,6 +214,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         }
         lastIndex++;
         print('##20july นี่คือ lastIndex ที่โหลดมาใหม่ ===>>> $lastIndex');
+
+        if (processLoad) {
+          processLoad = false;
+          Navigator.pop(context);
+        }
+
         setState(() {});
       });
     }
@@ -260,10 +275,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   Widget newAddLink({required BoxConstraints boxConstraints}) {
     return Positioned(
       bottom: 0,
-      child: Container(
+      child: Container(width: boxConstraints.maxWidth-20,
+        // color: Colors.green,
         margin: const EdgeInsets.only(left: 10),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             InkWell(
               onTap: () {
@@ -278,32 +294,31 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 width: 36,
               ),
             ),
-            const SizedBox(
-              width: 8,
-            ),
-            ShowForm(
-              width: boxConstraints.maxWidth - 145,
-              topMargin: 2,
-              prefixWidget: ShowIconButton(
-                iconData: Icons.play_circle,
-                color: Colors.white,
-                pressFunc: () {
-                  if (addNewLink?.isNotEmpty ?? false) {
-                    MyProcess().processLaunchUrl(url: addNewLink!);
-                  }
-                },
-              ),
-              controller: textEditingController,
-              label: 'Add Link',
-              iconData: Icons.add_box_outlined,
-              colorSuffixIcon: Colors.black,
-              changeFunc: (String string) {
-                addNewLink = string.trim();
-              },
-            ),
-            ShowIconButton(
-              iconData: Icons.add_box_outlined,
-              pressFunc: () {
+            // const SizedBox(
+            //   width: 8,
+            // ),
+            // ShowForm(
+            //   width: boxConstraints.maxWidth - 145,
+            //   topMargin: 2,
+            //   prefixWidget: ShowIconButton(
+            //     iconData: Icons.play_circle,
+            //     color: Colors.white,
+            //     pressFunc: () {
+            //       if (addNewLink?.isNotEmpty ?? false) {
+            //         MyProcess().processLaunchUrl(url: addNewLink!);
+            //       }
+            //     },
+            //   ),
+            //   controller: textEditingController,
+            //   label: 'Add Link',
+            //   iconData: Icons.add_box_outlined,
+            //   colorSuffixIcon: Colors.black,
+            //   changeFunc: (String string) {
+            //     addNewLink = string.trim();
+            //   },
+            // ),
+            InkWell(
+              onTap: () {
                 if (statusLoginBool!) {
                   if (addNewLink?.isEmpty ?? true) {
                     addNewLink = '';
@@ -321,10 +336,14 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   alertLogin(context);
                 }
               },
+              child: const ShowImage(
+                path: 'images/addbox.png',
+                width: 36,
+              ),
             ),
-            const SizedBox(
-              width: 8,
-            ),
+            // const SizedBox(
+            //   width: 8,
+            // ),
             InkWell(
               onTap: () {
                 if (statusLoginBool!) {
@@ -334,9 +353,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }
               },
               child: const Icon(
-                Icons.arrow_back_ios_new,
+                Icons.settings,
                 color: Colors.white,
-                size: 24,
+                size: 36,
               ),
             ),
           ],
@@ -492,11 +511,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   .doc(docFavorite)
                   .delete()
                   .then((value) {
-                    print('##31july Delete Favorite');
-                  });
+                print('##31july Delete Favorite');
+              });
             }
-
-           
           }
         });
       },
