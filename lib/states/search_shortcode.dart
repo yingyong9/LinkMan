@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:admanyout/states/choose_category_room.dart';
 import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/widgets/show_image.dart';
@@ -347,7 +348,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               size: 36,
               iconData: Icons.video_call,
               pressFunc: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageMeeting(),));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ChooseCategoryRoom(),));
               },
             ),
             // const SizedBox(

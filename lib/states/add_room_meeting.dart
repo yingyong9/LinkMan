@@ -5,6 +5,7 @@ import 'package:admanyout/models/category_room_model.dart';
 import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
@@ -55,6 +56,7 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
   Future<void> readCategoryRoom() async {
     await FirebaseFirestore.instance
         .collection('categoryRoom')
+        .orderBy('item')
         .get()
         .then((value) {
       for (var element in value.docs) {
@@ -110,12 +112,19 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
               formNameRoom(boxConstraints),
               formLinkMeeting(boxConstraints),
               formLinkContact(boxConstraints),
+              Container(
+                margin: const EdgeInsets.all(16),
+                child: ShowText(
+                  label: 'เลือกหมวดหมู่ ได้มากกว่า 1',
+                  textStyle: MyConstant().h2BlackBBBStyle(),
+                ),
+              ),
               categoryRoomModels.isEmpty
                   ? const ShowProgress()
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const ScrollPhysics(),
-                      itemCount: categoryRoomModels.length,
+                  : GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              childAspectRatio: 2.0, crossAxisCount: 3),
                       itemBuilder: (context, index) => CheckboxListTile(
                         controlAffinity: ListTileControlAffinity.leading,
                         title: ShowText(
@@ -128,6 +137,9 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
                           setState(() {});
                         },
                       ),
+                      itemCount: categoryRoomModels.length,
+                      physics: const ScrollPhysics(),
+                      shrinkWrap: true,
                     ),
               createCenter(
                 boxConstraints: boxConstraints,
@@ -346,6 +358,13 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
   Future<void> processInsertRoom() async {
     DateTime dateTime = DateTime.now();
 
+    var categorys = <String>[];
+    for (var i = 0; i < chooseCategoryRooms.length; i++) {
+      if (chooseCategoryRooms[i]) {
+        categorys.add(categoryRoomModels[i].category);
+      }
+    }
+
     RoomModel roomModel = RoomModel(
         idRoom: idRoom!,
         linkContact: linkContact,
@@ -355,10 +374,23 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
         timeDateAdd: Timestamp.fromDate(dateTime),
         uidOwner: user!.uid,
         urlImage: urlImageRoom!,
-        usePassword: false);
+        usePassword: usePassword,
+        categorys: categorys);
+
+    print('roomModel ===>>> ${roomModel.toMap()}');
+
+    await FirebaseFirestore.instance
+        .collection('room')
+        .doc()
+        .set(roomModel.toMap())
+        .then((value) {
+      Navigator.pop(context);
+    });
   }
 
   Future<void> processUploadImage() async {
+    MyDialog(context: context).processDialog();
+
     String nameImage = '${user!.uid}${Random().nextInt(10000)}.jpg';
     FirebaseStorage storage = FirebaseStorage.instance;
     Reference reference = storage.ref().child('room/$nameImage');
@@ -367,6 +399,7 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
       await reference.getDownloadURL().then((value) {
         urlImageRoom = value;
         print('urlImageRoom ==> $urlImageRoom');
+        Navigator.pop(context);
         processInsertRoom();
       });
     });

@@ -13,6 +13,7 @@ class RoomModel {
   final String uidOwner;
   final String urlImage;
   final bool usePassword;
+  final List<String> categorys;
   RoomModel({
     required this.idRoom,
     required this.linkContact,
@@ -23,6 +24,7 @@ class RoomModel {
     required this.uidOwner,
     required this.urlImage,
     required this.usePassword,
+    required this.categorys,
   });
 
   Map<String, dynamic> toMap() {
@@ -36,6 +38,7 @@ class RoomModel {
       'uidOwner': uidOwner,
       'urlImage': urlImage,
       'usePassword': usePassword,
+      'categorys': categorys,
     };
   }
 
@@ -50,6 +53,7 @@ class RoomModel {
       uidOwner: (map['uidOwner'] ?? '') as String,
       urlImage: (map['urlImage'] ?? '') as String,
       usePassword: (map['usePassword'] ?? false) as bool,
+      categorys: List<String>.from(map['categorys'] ?? []),
     );
   }
 
