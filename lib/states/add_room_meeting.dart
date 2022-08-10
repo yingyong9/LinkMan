@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/models/category_room_model.dart';
 import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_style.dart';
+import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
 import 'package:admanyout/widgets/show_form.dart';
@@ -39,11 +41,30 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
 
   GlobalKey globalKey = GlobalKey();
 
+  var categoryRoomModels = <CategoryRoomModel>[];
+  var chooseCategoryRooms = <bool>[];
+
   @override
   void initState() {
     super.initState();
     processFindUserModel();
     readAllRoom();
+    readCategoryRoom();
+  }
+
+  Future<void> readCategoryRoom() async {
+    await FirebaseFirestore.instance
+        .collection('categoryRoom')
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        CategoryRoomModel categoryRoomModel =
+            CategoryRoomModel.fromMap(element.data());
+        categoryRoomModels.add(categoryRoomModel);
+        chooseCategoryRooms.add(false);
+      }
+      setState(() {});
+    });
   }
 
   void createPassword() {
@@ -85,89 +106,29 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
           onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
           child: ListView(
             children: [
-              createCenter(
-                boxConstraints: boxConstraints,
-                widget: ShowForm(
-                  colorTheme: MyStyle.dark,
-                  label: 'อยากบอกอะไร',
-                  iconData: Icons.room,
-                  changeFunc: (p0) {
-                    nameRoom = p0.trim();
-                  },
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Stack(
-                    children: [
-                      SizedBox(
-                        width: boxConstraints.maxWidth * 0.6,
-                        height: boxConstraints.maxWidth * 0.6,
-                        child: InkWell(
-                          onTap: () {
-                            processTakePhoto(source: ImageSource.gallery);
-                          },
-                          child: file == null
-                              ? const ShowImage(
-                                  path: 'images/logo.png',
-                                )
-                              : Image.file(file!),
+              newImage(boxConstraints),
+              formNameRoom(boxConstraints),
+              formLinkMeeting(boxConstraints),
+              formLinkContact(boxConstraints),
+              categoryRoomModels.isEmpty
+                  ? const ShowProgress()
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const ScrollPhysics(),
+                      itemCount: categoryRoomModels.length,
+                      itemBuilder: (context, index) => CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: ShowText(
+                          label: categoryRoomModels[index].category,
+                          textStyle: MyConstant().h3BlackStyle(),
                         ),
+                        value: chooseCategoryRooms[index],
+                        onChanged: (value) {
+                          chooseCategoryRooms[index] = value!;
+                          setState(() {});
+                        },
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: ShowIconButton(
-                          color: Colors.red,
-                          size: 36,
-                          iconData: Icons.camera,
-                          pressFunc: () {
-                            processTakePhoto(source: ImageSource.camera);
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-              createCenter(
-                boxConstraints: boxConstraints,
-                widget: ShowFormLong(
-                  label: 'กรุณาใส่ Link Meeting',
-                  changeFunc: (p0) {
-                    linkMeeting = p0.trim();
-                  },
-                ),
-              ),
-              createCenter(
-                  boxConstraints: boxConstraints,
-                  widget: ShowFormLong(
-                    label: 'Link ที่ใช้ติดต่อ',
-                    changeFunc: (p0) {
-                      linkContact = p0.trim();
-                    },
-                  )),
-              createCenter(
-                boxConstraints: boxConstraints,
-                widget: ShowButton(
-                  label: 'OK',
-                  pressFunc: () {
-                    if (nameRoom?.isEmpty ?? true) {
-                      Fluttertoast.showToast(msg: 'กรุณากรอก อยากบอกอะไร');
-                    } else if (linkMeeting?.isEmpty ?? true) {
-                      Fluttertoast.showToast(msg: 'กรุณากรอก Link Meeting');
-                    } else {
-                      if (file == null) {
-                        urlImageRoom = MyConstant.urlLogo;
-                        processInsertRoom();
-                      } else {
-                        processUploadImage();
-                      }
-                    }
-                  },
-                ),
-              ),
+                    ),
               createCenter(
                 boxConstraints: boxConstraints,
                 widget: SwitchListTile(
@@ -217,13 +178,117 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
               password.isNotEmpty
                   ? RepaintBoundary(
                       key: globalKey,
-                      child: createCenter(boxConstraints: boxConstraints, widget: QrImage(data: password)),
+                      child: createCenter(
+                          boxConstraints: boxConstraints,
+                          widget: QrImage(data: password)),
                     )
                   : const SizedBox(),
+              buttonOK(boxConstraints),
             ],
           ),
         );
       }),
+    );
+  }
+
+  Row buttonOK(BoxConstraints boxConstraints) {
+    return createCenter(
+      boxConstraints: boxConstraints,
+      widget: ShowButton(
+        label: 'OK',
+        pressFunc: () {
+          if (nameRoom?.isEmpty ?? true) {
+            Fluttertoast.showToast(msg: 'กรุณากรอก อยากบอกอะไร');
+          } else if (linkMeeting?.isEmpty ?? true) {
+            Fluttertoast.showToast(msg: 'กรุณากรอก Link Meeting');
+          } else {
+            if (file == null) {
+              urlImageRoom = MyConstant.urlLogo;
+              processInsertRoom();
+            } else {
+              processUploadImage();
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  Row formLinkContact(BoxConstraints boxConstraints) {
+    return createCenter(
+        boxConstraints: boxConstraints,
+        widget: ShowFormLong(
+          label: 'Link ที่ใช้ติดต่อ',
+          changeFunc: (p0) {
+            linkContact = p0.trim();
+          },
+        ));
+  }
+
+  Row formLinkMeeting(BoxConstraints boxConstraints) {
+    return createCenter(
+      boxConstraints: boxConstraints,
+      widget: ShowFormLong(
+        label: 'กรุณาใส่ Link Meeting',
+        changeFunc: (p0) {
+          linkMeeting = p0.trim();
+        },
+      ),
+    );
+  }
+
+  Container newImage(BoxConstraints boxConstraints) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            children: [
+              SizedBox(
+                width: boxConstraints.maxWidth * 0.6,
+                height: boxConstraints.maxWidth * 0.6,
+                child: InkWell(
+                  onTap: () {
+                    processTakePhoto(source: ImageSource.gallery);
+                  },
+                  child: file == null
+                      ? const ShowImage(
+                          path: 'images/logo.png',
+                        )
+                      : Image.file(file!),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: ShowIconButton(
+                  color: Colors.red,
+                  size: 36,
+                  iconData: Icons.camera,
+                  pressFunc: () {
+                    processTakePhoto(source: ImageSource.camera);
+                  },
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Row formNameRoom(BoxConstraints boxConstraints) {
+    return createCenter(
+      boxConstraints: boxConstraints,
+      widget: ShowForm(
+        colorTheme: MyStyle.dark,
+        label: 'อยากบอกอะไร',
+        iconData: Icons.room,
+        changeFunc: (p0) {
+          nameRoom = p0.trim();
+        },
+      ),
     );
   }
 
