@@ -4,15 +4,18 @@ import 'dart:convert';
 class CategoryRoomModel {
   final int item;
   final String category;
+  final int room;
   CategoryRoomModel({
     required this.item,
     required this.category,
+    required this.room,
   });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'item': item,
       'category': category,
+      'room': room,
     };
   }
 
@@ -20,6 +23,7 @@ class CategoryRoomModel {
     return CategoryRoomModel(
       item: (map['item'] ?? 0) as int,
       category: (map['category'] ?? '') as String,
+      room: (map['room'] ?? 0) as int,
     );
   }
 

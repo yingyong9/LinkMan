@@ -45,6 +45,9 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
   var categoryRoomModels = <CategoryRoomModel>[];
   var chooseCategoryRooms = <bool>[];
 
+  var roomCategoryInts = <int>[];
+  var docIdCategorys = <String>[];
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +67,8 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
             CategoryRoomModel.fromMap(element.data());
         categoryRoomModels.add(categoryRoomModel);
         chooseCategoryRooms.add(false);
+        roomCategoryInts.add(categoryRoomModel.room);
+        docIdCategorys.add(element.id);
       }
       setState(() {});
     });
@@ -128,12 +133,18 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
                       itemBuilder: (context, index) => CheckboxListTile(
                         controlAffinity: ListTileControlAffinity.leading,
                         title: ShowText(
-                          label: categoryRoomModels[index].category,
+                          label:
+                              '${categoryRoomModels[index].category} (${roomCategoryInts[index]})',
                           textStyle: MyConstant().h3BlackStyle(),
                         ),
                         value: chooseCategoryRooms[index],
                         onChanged: (value) {
                           chooseCategoryRooms[index] = value!;
+                          if (value) {
+                            roomCategoryInts[index]++;
+                          } else {
+                            roomCategoryInts[index]--;
+                          }
                           setState(() {});
                         },
                       ),
@@ -383,8 +394,22 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
         .collection('room')
         .doc()
         .set(roomModel.toMap())
-        .then((value) {
-      Navigator.pop(context);
+        .then((value) async {
+
+      for (var i = 0; i < roomCategoryInts.length; i++) {
+
+        Map<String, dynamic> map = categoryRoomModels[i].toMap();
+        map['room'] = roomCategoryInts[i];
+
+        await FirebaseFirestore.instance
+            .collection('categoryRoom')
+            .doc(docIdCategorys[i])
+            .update(map);
+
+        if (i == roomCategoryInts.length-1) {
+          Navigator.pop(context);
+        }
+      }
     });
   }
 
