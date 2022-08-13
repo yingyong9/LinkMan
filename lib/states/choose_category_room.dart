@@ -1,10 +1,14 @@
+// ignore_for_file: avoid_print
+
 import 'package:admanyout/models/category_room_model.dart';
+import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/states/add_room_meeting.dart';
 import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -17,12 +21,25 @@ class ChooseCategoryRoom extends StatefulWidget {
 
 class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
   var categoryRoomModels = <CategoryRoomModel>[];
+  var fastLinkModels = <FastLinkModel>[];
 
   @override
   void initState() {
     super.initState();
-
     addCategoryHome();
+    readAllFastLink();
+  }
+
+  Future<void> readAllFastLink() async {
+    await FirebaseFirestore.instance.collection('fastlink').limit(10)
+    .get().then((value) {
+      for (var element in value.docs) {
+        FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
+        fastLinkModels.add(fastLinkModel);
+      }
+      print('จำนวนของ fastlinkModel ========> ${fastLinkModels.length}');
+      setState(() {});
+    });
   }
 
   void addCategoryHome() {
@@ -32,7 +49,7 @@ class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
     }
 
     CategoryRoomModel categoryRoomModel =
-        CategoryRoomModel(item: 0, category: 'Home', room: 0);
+        CategoryRoomModel(item: 0, category: 'ทั้งหมด', room: 0);
     categoryRoomModels.add(categoryRoomModel);
     readAllCategory();
   }
@@ -55,51 +72,55 @@ class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyStyle.bgColor,
+      backgroundColor: MyStyle.dark,
       appBar: AppBar(
-        backgroundColor: MyStyle.bgColor,
-        foregroundColor: MyStyle.dark,
+        backgroundColor: MyStyle.dark,
+        foregroundColor:  MyStyle.bgColor,
         elevation: 0,
       ),
       body: categoryRoomModels.isEmpty
           ? const ShowProgress()
-          : GridView.builder(itemCount: categoryRoomModels.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3),
-              itemBuilder: (context, index) => InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ManageMeeting(),
-                      )).then((value) {
-                    addCategoryHome();
-                  });
-                },
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      
+          : LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
+              return ListView.builder(
+                itemCount: categoryRoomModels.length,
+                itemBuilder: (context, index) => Column(
+                  children: [
+                    Row(
                       children: [
-                        SizedBox(
-                          child: SizedBox(
-                            child: ShowText(
-                              label: categoryRoomModels[index].category,
-                              textStyle: MyConstant().h2BlackBBBStyle(),
-                            ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          width: boxConstraints.maxWidth * 0.35,
+                          child: ShowTextButton(
+                            textStyle: MyConstant().h2WhiteStyle(),
+                            label: categoryRoomModels[index].category,
+                            pressFunc: () {},
                           ),
                         ),
-                        ShowText(
-                          label: categoryRoomModels[index].room.toString(),
-                          textStyle: MyConstant().h3RedStyle(),
-                        )
                       ],
                     ),
-                  ),
+                    index > 5
+                        ? const SizedBox()
+                        : fastLinkModels.isEmpty
+                            ? const ShowProgress()
+                            : SizedBox(
+                                height: boxConstraints.maxWidth * 0.5,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  physics: const ClampingScrollPhysics(),
+                                  
+                                  itemCount: fastLinkModels.length,
+                                  itemBuilder: (context, index2) => Container(padding: const EdgeInsets.symmetric(horizontal: 2),
+                                    width: boxConstraints.maxWidth*0.5,
+                                    height: boxConstraints.maxWidth,
+                                    child: Image.network(fastLinkModels[index2].urlImage, fit: BoxFit.cover,),
+                                  ),
+                                ),
+                              ),
+                  ],
                 ),
-              ),
-            ),
+              );
+            }),
     );
   }
 }
