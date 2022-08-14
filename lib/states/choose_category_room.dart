@@ -2,12 +2,12 @@
 
 import 'package:admanyout/models/category_room_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
-import 'package:admanyout/states/add_room_meeting.dart';
+import 'package:admanyout/states/live_man_page.dart';
 import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
-import 'package:admanyout/widgets/show_text.dart';
+import 'package:admanyout/widgets/show_outline_button.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +31,11 @@ class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
   }
 
   Future<void> readAllFastLink() async {
-    await FirebaseFirestore.instance.collection('fastlink').limit(10)
-    .get().then((value) {
+    await FirebaseFirestore.instance
+        .collection('fastlink')
+        .limit(10)
+        .get()
+        .then((value) {
       for (var element in value.docs) {
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
         fastLinkModels.add(fastLinkModel);
@@ -74,8 +77,15 @@ class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
     return Scaffold(
       backgroundColor: MyStyle.dark,
       appBar: AppBar(
+        centerTitle: true,
+        title: ShowOutlineButton(
+          label: 'Live Man',
+          pressFunc: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const LiveManPage(),));
+          },
+        ),
         backgroundColor: MyStyle.dark,
-        foregroundColor:  MyStyle.bgColor,
+        foregroundColor: MyStyle.bgColor,
         elevation: 0,
       ),
       body: categoryRoomModels.isEmpty
@@ -93,7 +103,9 @@ class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
                           child: ShowTextButton(
                             textStyle: MyConstant().h2WhiteStyle(),
                             label: categoryRoomModels[index].category,
-                            pressFunc: () {},
+                            pressFunc: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ManageMeeting(),));
+                            },
                           ),
                         ),
                       ],
@@ -108,12 +120,16 @@ class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
                                   scrollDirection: Axis.horizontal,
                                   shrinkWrap: true,
                                   physics: const ClampingScrollPhysics(),
-                                  
                                   itemCount: fastLinkModels.length,
-                                  itemBuilder: (context, index2) => Container(padding: const EdgeInsets.symmetric(horizontal: 2),
-                                    width: boxConstraints.maxWidth*0.5,
+                                  itemBuilder: (context, index2) => Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2),
+                                    width: boxConstraints.maxWidth * 0.5,
                                     height: boxConstraints.maxWidth,
-                                    child: Image.network(fastLinkModels[index2].urlImage, fit: BoxFit.cover,),
+                                    child: Image.network(
+                                      fastLinkModels[index2].urlImage,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               ),
