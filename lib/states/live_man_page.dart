@@ -137,6 +137,7 @@ class _LiveManPageState extends State<LiveManPage> {
                           ),
                         ],
                       ),
+                      
                       SwitchListTile(
                         title: passBools[index]
                             ? Row(
