@@ -81,7 +81,11 @@ class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
         title: ShowOutlineButton(
           label: 'Live Man',
           pressFunc: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const LiveManPage(),));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LiveManPage(),
+                ));
           },
         ),
         backgroundColor: MyStyle.dark,
@@ -104,7 +108,11 @@ class _ChooseCategoryRoomState extends State<ChooseCategoryRoom> {
                             textStyle: MyConstant().h2WhiteStyle(),
                             label: categoryRoomModels[index].category,
                             pressFunc: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ManageMeeting(),));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ManageMeeting(),
+                                  ));
                             },
                           ),
                         ),

@@ -1,5 +1,15 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:random_password_generator/random_password_generator.dart';
 
 import 'package:admanyout/models/category_room_model.dart';
 import 'package:admanyout/models/room_model.dart';
@@ -16,17 +26,13 @@ import 'package:admanyout/widgets/show_form_long.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:random_password_generator/random_password_generator.dart';
 
 class AddRoomMeeting extends StatefulWidget {
-  const AddRoomMeeting({Key? key}) : super(key: key);
+  final String liveManLand;
+  const AddRoomMeeting({
+    Key? key,
+    required this.liveManLand,
+  }) : super(key: key);
 
   @override
   State<AddRoomMeeting> createState() => _AddRoomMeetingState();
@@ -36,7 +42,13 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
   var user = FirebaseAuth.instance.currentUser;
   UserModel? userModel;
   File? file;
-  String? linkMeeting, urlImageRoom, nameRoom, nameOwner, tokenOwner, idRoom;
+  String? linkMeeting,
+      urlImageRoom,
+      nameRoom,
+      nameOwner,
+      tokenOwner,
+      idRoom,
+      liveManLand;
   String linkContact = '', password = '';
   bool usePassword = false;
 
@@ -51,6 +63,9 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
   @override
   void initState() {
     super.initState();
+
+    liveManLand = widget.liveManLand;
+
     processFindUserModel();
     readAllRoom();
     readCategoryRoom();
@@ -113,6 +128,15 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
           onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
           child: ListView(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ShowText(
+                    label: 'LiveManLand : $liveManLand',
+                    textStyle: MyStyle().h2Style(),
+                  ),
+                ],
+              ),
               newImage(boxConstraints),
               formNameRoom(boxConstraints),
               formLinkMeeting(boxConstraints),
@@ -386,7 +410,8 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
         uidOwner: user!.uid,
         urlImage: urlImageRoom!,
         usePassword: usePassword,
-        categorys: categorys);
+        categorys: categorys,
+        keyRoom: liveManLand!);
 
     print('roomModel ===>>> ${roomModel.toMap()}');
 
@@ -395,9 +420,7 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
         .doc()
         .set(roomModel.toMap())
         .then((value) async {
-
       for (var i = 0; i < roomCategoryInts.length; i++) {
-
         Map<String, dynamic> map = categoryRoomModels[i].toMap();
         map['room'] = roomCategoryInts[i];
 
@@ -406,7 +429,7 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
             .doc(docIdCategorys[i])
             .update(map);
 
-        if (i == roomCategoryInts.length-1) {
+        if (i == roomCategoryInts.length - 1) {
           Navigator.pop(context);
         }
       }

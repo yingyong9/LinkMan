@@ -14,6 +14,7 @@ class RoomModel {
   final String urlImage;
   final bool usePassword;
   final List<String> categorys;
+  final String keyRoom;
   RoomModel({
     required this.idRoom,
     required this.linkContact,
@@ -25,6 +26,7 @@ class RoomModel {
     required this.urlImage,
     required this.usePassword,
     required this.categorys,
+    required this.keyRoom,
   });
 
   Map<String, dynamic> toMap() {
@@ -39,6 +41,7 @@ class RoomModel {
       'urlImage': urlImage,
       'usePassword': usePassword,
       'categorys': categorys,
+      'keyRoom': keyRoom,
     };
   }
 
@@ -49,13 +52,17 @@ class RoomModel {
       linkRoom: (map['linkRoom'] ?? '') as String,
       nameRoom: (map['nameRoom'] ?? '') as String,
       password: (map['password'] ?? '') as String,
-      timeDateAdd: (map['timeDateAdd']),
+      timeDateAdd:(map['timeDateAdd']),
       uidOwner: (map['uidOwner'] ?? '') as String,
       urlImage: (map['urlImage'] ?? '') as String,
       usePassword: (map['usePassword'] ?? false) as bool,
       categorys: List<String>.from(map['categorys'] ?? []),
+      keyRoom: (map['keyRoom'] ?? '') as String,
     );
   }
 
-  factory RoomModel.fromJson(String source) => RoomModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory RoomModel.fromJson(String source) =>
+      RoomModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }
+
+// categorys: List<String>.from(map['categorys'] ?? []),

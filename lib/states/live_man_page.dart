@@ -1,4 +1,6 @@
 import 'package:admanyout/models/room_model.dart';
+import 'package:admanyout/utility/my_dialog.dart';
+import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
@@ -21,6 +23,7 @@ class _LiveManPageState extends State<LiveManPage> {
   var linkContactControllers = <TextEditingController>[];
   var nameRoomControllers = <TextEditingController>[];
   var passBools = <bool>[];
+  var genPasswords = <String>[];
 
   @override
   void initState() {
@@ -55,6 +58,8 @@ class _LiveManPageState extends State<LiveManPage> {
         nameRoomControllers.add(nameRoomController);
 
         passBools.add(false);
+
+        genPasswords.add('');
       }
       setState(() {});
     });
@@ -137,30 +142,77 @@ class _LiveManPageState extends State<LiveManPage> {
                           ),
                         ],
                       ),
-                      
-                      SwitchListTile(
-                        title: passBools[index]
-                            ? Row(
-                                children: [
-                                  SizedBox(
-                                    width: 120,
-                                    child: ShowButton(
-                                      label: 'กดรับรหัส',
-                                      pressFunc: () {},
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: boxConstraints.maxWidth * 0.5,
+                            child: SwitchListTile(
+                              title: passBools[index]
+                                  ? Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 100,
+                                          child: ShowButton(
+                                            label: 'กดรับรหัส',
+                                            pressFunc: () {
+                                              MyDialog(context: context)
+                                                  .normalActionDilalog(
+                                                      cancel: true,
+                                                      title: 'ยืนยันรับรหัส ?',
+                                                      message:
+                                                          'คุณต้องการ รับรหัส',
+                                                      label: 'ยืนยัน',
+                                                      pressFunc: () {
+                                                        genPasswords[index] =
+                                                            MyProcess()
+                                                                .createPassword();
+                                                        Navigator.pop(context);
+                                                        setState(() {});
+                                                      });
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : ShowText(
+                                      label: 'เปิดใช้รหัสผ่าน',
+                                      textStyle: MyStyle().h3Style(),
                                     ),
-                                  ),
-                                ],
-                              )
-                            : ShowText(
-                                label: 'เปิดใช้รหัสผ่าน',
-                                textStyle: MyStyle().h3Style(),
-                              ),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        value: passBools[index],
-                        onChanged: (value) {
-                          passBools[index] = value;
-                          setState(() {});
-                        },
+                              controlAffinity: ListTileControlAffinity.leading,
+                              value: passBools[index],
+                              onChanged: (value) {
+                                passBools[index] = value;
+                                if (!passBools[index]) {
+                                  genPasswords[index] = '';
+                                }
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: boxConstraints.maxWidth * 0.5 - 10,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                passBools[index]
+                                    ? Column(
+                                        children: [
+                                          ShowText(
+                                            label: genPasswords[index],
+                                            textStyle: MyStyle()
+                                                .h2Style(color: Colors.red),
+                                          ),
+                                          ShowText(
+                                            label: 'dd/MM/yyyy HH:mm',
+                                            textStyle: MyStyle().h3Style(),
+                                          ),
+                                        ],
+                                      )
+                                    : const SizedBox(),
+                              ],
+                            ),
+                          )
+                        ],
                       )
                     ],
                   ),

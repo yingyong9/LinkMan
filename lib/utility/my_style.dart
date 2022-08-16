@@ -18,12 +18,14 @@ class MyStyle {
         fontFamily: 'Sarabun',
       );
 
-  TextStyle h2Style() => TextStyle(
+  TextStyle h2Style({Color? color}) => TextStyle(
         fontSize: 16,
-        color: dark,
+        color: color ?? dark,
         fontWeight: FontWeight.w700,
         fontFamily: 'Sarabun',
       );
+
+     
 
   TextStyle h3Style() => TextStyle(
         fontSize: 14,
