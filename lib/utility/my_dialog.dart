@@ -6,6 +6,7 @@ import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:flutter/material.dart';
 
 class MyDialog {
@@ -36,7 +37,7 @@ class MyDialog {
     ];
 
     var tapFuncs = <Function()>[
-       () {
+      () {
         Navigator.pop(context);
       },
       () {
@@ -75,7 +76,8 @@ class MyDialog {
       },
     ];
 
-    showModalBottomSheet(backgroundColor: Colors.transparent,
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
       context: context,
       builder: (context) =>
           LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
@@ -99,7 +101,7 @@ class MyDialog {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width:48,
+                          width: 48,
                           height: 48,
                           child: Card(
                             color: const Color.fromARGB(255, 51, 49, 49),
@@ -136,11 +138,13 @@ class MyDialog {
             }));
   }
 
-  Future<void> normalActionDilalog(
-      {required String title,
-      required String message,
-      required String label,
-      required Function() pressFunc}) async {
+  Future<void> normalActionDilalog({
+    required String title,
+    required String message,
+    required String label,
+    required Function() pressFunc,
+    bool? cancel,
+  }) async {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -157,7 +161,16 @@ class MyDialog {
           subtitle: ShowText(label: message),
         ),
         actions: [
-          TextButton(onPressed: pressFunc, child: ShowText(label: label))
+          TextButton(onPressed: pressFunc, child: ShowText(label: label)),
+          cancel == null
+              ? const SizedBox()
+              : cancel
+                  ? ShowTextButton(
+                      label: 'Cancel',
+                      pressFunc: () {
+                        Navigator.pop(context);
+                      })
+                  : const SizedBox(),
         ],
       ),
     );

@@ -6,6 +6,7 @@ import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/main_home.dart';
 import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_style.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: map,
       initialRoute: initial,
+      theme: ThemeData(
+          primarySwatch: Colors.red,
+          appBarTheme: AppBarTheme(elevation: 0,
+            backgroundColor: MyStyle.bgColor,
+            foregroundColor: MyStyle.dark,
+          )),
     );
   }
 }

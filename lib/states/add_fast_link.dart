@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/models/category_room_model.dart';
 import 'package:admanyout/models/fast_group_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
 import 'package:admanyout/models/song_model.dart';
@@ -42,13 +43,13 @@ class _AddFastLinkState extends State<AddFastLink> {
   String? sixCode, addLink, detail, detail2, head;
   var user = FirebaseAuth.instance.currentUser;
   UserModel? userModelLogined;
-
   var fastGroupModels = <FastGroupModel>[];
-
   String? urlSongChoose;
   var urlSongModels = <SongModel>[];
-
   AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
+
+  var categoryRoomModels = <CategoryRoomModel>[];
+  CategoryRoomModel? chooseCategoryRoomModel;
 
   @override
   void initState() {
@@ -59,6 +60,21 @@ class _AddFastLinkState extends State<AddFastLink> {
     processFindUserLogined();
     processReadFastGroup();
     readSongFromData();
+    readAllCategoryRoom();
+  }
+
+  Future<void> readAllCategoryRoom() async {
+    await FirebaseFirestore.instance
+        .collection('categoryRoom')
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        CategoryRoomModel categoryRoomModel =
+            CategoryRoomModel.fromMap(element.data());
+        categoryRoomModels.add(categoryRoomModel);
+      }
+      setState(() {});
+    });
   }
 
   @override
@@ -130,7 +146,6 @@ class _AddFastLinkState extends State<AddFastLink> {
                 child: ListView(
                   children: [
                     addLink?.isEmpty ?? true
-                      
                         ? formDetail(
                             boxConstraints: boxConstraints,
                             label: 'ใส่ลิ้งค์ที่นี่ (add link)',
@@ -169,7 +184,39 @@ class _AddFastLinkState extends State<AddFastLink> {
                         changeFunc: (String string) {
                           detail2 = string.trim();
                         }),
-                    // urlSongModels.isEmpty ? const SizedBox() : newSong(),
+                    categoryRoomModels.isEmpty
+                        ? const ShowProgress()
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: boxConstraints.maxWidth * 0.6,
+                                child: DropdownButton<dynamic>(
+                                  hint: ShowText(
+                                    label: 'เลือกหมวด live',
+                                    textStyle: MyConstant().h3BlackStyle(),
+                                  ),
+                                  value: chooseCategoryRoomModel,
+                                  items: categoryRoomModels
+                                      .map(
+                                        (e) => DropdownMenuItem(
+                                          child: ShowText(
+                                            label: e.category,
+                                            textStyle:
+                                                MyConstant().h3BlackStyle(),
+                                          ),
+                                          value: e,
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (value) {
+                                    chooseCategoryRoomModel = value;
+                                    setState(() {});
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                     newGroup(boxConstraints: boxConstraints),
                   ],
                 ),
@@ -324,6 +371,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           detail2: detail2 ?? '',
           head: head ?? '',
           urlSong: urlSongChoose ?? '',
+          itemCategoryRoom: chooseCategoryRoomModel?.item ?? 0,
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');
@@ -351,7 +399,8 @@ class _AddFastLinkState extends State<AddFastLink> {
     required Function(String) changeFunc,
     Color? textColor,
   }) {
-    return Container(margin: const EdgeInsets.only(top: 16),
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
       // height: 60,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

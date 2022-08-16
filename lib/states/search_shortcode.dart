@@ -6,6 +6,8 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:admanyout/states/choose_category_room.dart';
+import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
@@ -275,7 +277,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   Widget newAddLink({required BoxConstraints boxConstraints}) {
     return Positioned(
       bottom: 0,
-      child: Container(width: boxConstraints.maxWidth-20,
+      child: Container(
+        width: boxConstraints.maxWidth - 20,
         // color: Colors.green,
         margin: const EdgeInsets.only(left: 10),
         child: Row(
@@ -340,6 +343,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 path: 'images/addbox.png',
                 width: 36,
               ),
+            ),
+            ShowIconButton(
+              size: 36,
+              iconData: Icons.video_call,
+              pressFunc: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageMeeting(),));
+              },
             ),
             // const SizedBox(
             //   width: 8,

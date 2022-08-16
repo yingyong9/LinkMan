@@ -16,19 +16,22 @@ class ShowFormLong extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      maxLines: null,
-      keyboardType: TextInputType.multiline,
-      decoration: InputDecoration(
-        label: ShowText(
-          label: label,
-          textStyle: MyConstant().h3BlackStyle(),
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      child: TextFormField(
+        maxLines: null,
+        keyboardType: TextInputType.multiline,
+        decoration: InputDecoration(
+          label: ShowText(
+            label: label,
+            textStyle: MyConstant().h3BlackStyle(),
+          ),
+          enabledBorder: const OutlineInputBorder(),
+          focusedBorder: const OutlineInputBorder(),
         ),
-        enabledBorder: OutlineInputBorder(),
-        focusedBorder: OutlineInputBorder(),
+        controller: textEditingController,
+        onChanged: changeFunc,
       ),
-      controller: textEditingController,
-      onChanged: changeFunc,
     );
   }
 }
