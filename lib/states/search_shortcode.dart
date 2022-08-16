@@ -348,7 +348,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               size: 36,
               iconData: Icons.video_call,
               pressFunc: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ChooseCategoryRoom(),));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageMeeting(),));
               },
             ),
             // const SizedBox(
