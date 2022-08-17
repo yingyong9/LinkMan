@@ -51,9 +51,9 @@ def keystoreProperties = new Properties()
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.flutterthailand.admanyout"
         minSdkVersion 22
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 30
-        versionName '1.0.30'
+        versionName '1.0.31'
     }
 
        signingConfigs {

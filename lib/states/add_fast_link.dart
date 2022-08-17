@@ -1,10 +1,11 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
 import 'dart:io';
 import 'dart:math';
 
 import 'package:admanyout/models/category_room_model.dart';
 import 'package:admanyout/models/fast_group_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
+import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/song_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/search_shortcode.dart';
@@ -51,6 +52,12 @@ class _AddFastLinkState extends State<AddFastLink> {
   var categoryRoomModels = <CategoryRoomModel>[];
   CategoryRoomModel? chooseCategoryRoomModel;
 
+  var roomModels = <RoomModel>[];
+  RoomModel? chooseRoomModel;
+  bool loadRoom = true;
+
+  String? linkContact;
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +68,26 @@ class _AddFastLinkState extends State<AddFastLink> {
     processReadFastGroup();
     readSongFromData();
     readAllCategoryRoom();
+    findKeyRoom();
+  }
+
+  Future<void> findKeyRoom() async {
+    await FirebaseFirestore.instance
+        .collection('room')
+        .where('uidOwner', isEqualTo: user!.uid)
+        .get()
+        .then((value) {
+      if (value.docs.isEmpty) {
+        //Status No Room
+      } else {
+        for (var element in value.docs) {
+          RoomModel roomModel = RoomModel.fromMap(element.data());
+          roomModels.add(roomModel);
+        }
+      }
+      loadRoom = false;
+      setState(() {});
+    });
   }
 
   Future<void> readAllCategoryRoom() async {
@@ -145,6 +172,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                     FocusScope.of(context).requestFocus(FocusScopeNode()),
                 child: ListView(
                   children: [
+                    newImage(boxConstraints),
                     addLink?.isEmpty ?? true
                         ? formDetail(
                             boxConstraints: boxConstraints,
@@ -165,7 +193,6 @@ class _AddFastLinkState extends State<AddFastLink> {
                                   string: addLink!),
                             ],
                           ),
-                    newImage(boxConstraints),
                     formDetail(
                         boxConstraints: boxConstraints,
                         label: '@ หัวข้อ :',
@@ -184,44 +211,66 @@ class _AddFastLinkState extends State<AddFastLink> {
                         changeFunc: (String string) {
                           detail2 = string.trim();
                         }),
-                    categoryRoomModels.isEmpty
+                    loadRoom
                         ? const ShowProgress()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: boxConstraints.maxWidth * 0.6,
-                                child: DropdownButton<dynamic>(
-                                  hint: ShowText(
-                                    label: 'เลือกหมวด live',
-                                    textStyle: MyConstant().h3BlackStyle(),
-                                  ),
-                                  value: chooseCategoryRoomModel,
-                                  items: categoryRoomModels
-                                      .map(
-                                        (e) => DropdownMenuItem(
-                                          child: ShowText(
-                                            label: e.category,
-                                            textStyle:
-                                                MyConstant().h3BlackStyle(),
-                                          ),
-                                          value: e,
-                                        ),
-                                      )
-                                      .toList(),
-                                  onChanged: (value) {
-                                    chooseCategoryRoomModel = value;
-                                    setState(() {});
-                                  },
-                                ),
+                        : roomModels.isEmpty
+                            ? const SizedBox()
+                            : Column(
+                                children: [
+                                  dropDownLiveManLand(boxConstraints),
+                                  SizedBox(
+                                    width: boxConstraints.maxWidth * 0.6,
+                                    child: ShowFormLong(
+                                      label: 'Link ที่ใช้ติดต่อ',
+                                      changeFunc: (p0) {
+                                        linkContact = p0.trim();
+                                      },
+                                    ),
+                                  )
+                                ],
                               ),
-                            ],
-                          ),
                     newGroup(boxConstraints: boxConstraints),
                   ],
                 ),
               );
             }),
+    );
+  }
+
+  Row dropDownLiveManLand(BoxConstraints boxConstraints) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.only(left: 8),
+          margin: const EdgeInsets.only(top: 16),
+          decoration: BoxDecoration(border: Border.all()),
+          width: boxConstraints.maxWidth * 0.6,
+          child: DropdownButton<dynamic>(
+            isExpanded: true,
+            hint: ShowText(
+              label: 'เลือก LiveManLand',
+              textStyle: MyConstant().h3BlackStyle(),
+            ),
+            value: chooseRoomModel,
+            items: roomModels
+                .map(
+                  (e) => DropdownMenuItem(
+                    child: ShowText(
+                      label: e.keyRoom,
+                      textStyle: MyConstant().h3BlackStyle(),
+                    ),
+                    value: e,
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              chooseRoomModel = value;
+              setState(() {});
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -371,7 +420,8 @@ class _AddFastLinkState extends State<AddFastLink> {
           detail2: detail2 ?? '',
           head: head ?? '',
           urlSong: urlSongChoose ?? '',
-          itemCategoryRoom: chooseCategoryRoomModel?.item ?? 0,
+          keyRoom: chooseRoomModel?.keyRoom ?? '',
+          linkContact: linkContact ?? '',
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');

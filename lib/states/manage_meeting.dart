@@ -70,6 +70,7 @@ class _ManageMeetingState extends State<ManageMeeting> {
   }
 
   Future<void> readAllRoom() async {
+
     if (roomModels.isNotEmpty) {
       roomModels.clear();
       titles.clear();
@@ -79,7 +80,7 @@ class _ManageMeetingState extends State<ManageMeeting> {
 
     await FirebaseFirestore.instance
         .collection('room')
-        .where('uidOwner', isEqualTo: user!.uid)
+        // .where('uidOwner', isEqualTo: user!.uid)
         .get()
         .then((value) {
       for (var element in value.docs) {
