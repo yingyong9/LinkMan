@@ -52,7 +52,7 @@ def keystoreProperties = new Properties()
         applicationId "com.flutterthailand.admanyout"
         minSdkVersion 22
         targetSdkVersion 31
-        versionCode 30
+        versionCode 31
         versionName '1.0.31'
     }
 
