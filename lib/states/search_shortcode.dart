@@ -417,49 +417,51 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                               Positioned(
                                 bottom: 30,
                                 left: 10,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    iconSaveImage(index),
-                                    showDialogGenQRcode(index),
-                                    iconShare(index),
-                                    ShowText(label: '999'),
-                                    iconFavorite(index: index),
-                                    const SizedBox(
-                                      height: 8,
-                                    ),
-                                    Row(
-                                      children: [
-                                        whoPost(index),
-                                        SizedBox(
-                                          width: boxConstraints.maxWidth * 0.3,
-                                        ),
-                                        showTextSourceLink(index),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        ShowText(
-                                          label: userModels[index].name,
-                                          textStyle:
-                                              MyConstant().h2WhiteStyle(),
-                                        ),
-                                        Container(
-                                          margin:
-                                              const EdgeInsets.only(left: 10),
-                                          decoration: const BoxDecoration(
-                                              color: Color.fromARGB(
-                                                  255, 207, 18, 5)),
-                                          child:
-                                              const ShowText(label: 'ติดตาม'),
-                                        ),
-                                        const SizedBox(
-                                          width: 8,
-                                        ),
-                                        const ShowText(label: '999 คน')
-                                      ],
-                                    ),
-                                  ],
+                                child: SizedBox(width: boxConstraints.maxWidth-36,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      iconSaveImage(index),
+                                      showDialogGenQRcode(index),
+                                      iconShare(index),
+                                      const ShowText(label: '999'),
+                                      iconFavorite(index: index),
+                                      const SizedBox(
+                                        height: 8,
+                                      ),
+                                      // Row(
+                                      //   children: [
+                                      //     whoPost(index),
+                                      //     SizedBox(
+                                      //       width: boxConstraints.maxWidth * 0.3,
+                                      //     ),
+                                      //     showTextSourceLink(index),
+                                      //   ],
+                                      // ),
+                                      Row(
+                                        children: [
+                                          ShowText(
+                                            label: userModels[index].name,
+                                            textStyle:
+                                                MyConstant().h2WhiteStyle(),
+                                          ),
+                                          Container(
+                                            margin:
+                                                const EdgeInsets.only(left: 10),
+                                            decoration: const BoxDecoration(
+                                                color: Color.fromARGB(
+                                                    255, 207, 18, 5)),
+                                            child:
+                                                const ShowText(label: 'ติดตาม'),
+                                          ),
+                                          const SizedBox(
+                                            width: 8,
+                                          ),
+                                          const ShowText(label: '999 คน'), showTextSourceLink(index),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
