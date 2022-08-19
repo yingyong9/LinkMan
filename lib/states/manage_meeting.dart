@@ -1,10 +1,14 @@
 // ignore_for_file: avoid_print
 
 import 'package:admanyout/models/room_model.dart';
+import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_room_meeting.dart';
+import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
+import 'package:admanyout/widgets/show_circle_image.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,6 +30,7 @@ class _ManageMeetingState extends State<ManageMeeting> {
   var liveManLands = <String>[]; // keyRoom ที่ถูกจับจองไปแล้ว
   var showRooms = <bool>[];
   var liveRoomModels = <RoomModel?>[];
+  var userModels = <UserModel?>[];
 
   ScrollController scrollController = ScrollController();
   int factor = 1;
@@ -48,18 +53,22 @@ class _ManageMeetingState extends State<ManageMeeting> {
     });
   }
 
-  void createArrayTitles() {
+  Future<void> createArrayTitles() async {
     for (var i = 0; i < 15 * factor; i++) {
       String string = 'A${i + 1}';
       titles.add(string);
       showRooms.add(true);
       liveRoomModels.add(null);
+      userModels.add(null);
 
       for (var element in roomModels) {
         if (string == element.keyRoom) {
           liveManLands.add(string);
           showRooms[i] = false;
           liveRoomModels[i] = element;
+          UserModel userModel =
+              await MyFirebase().findUserModel(uid: element.uidOwner);
+          userModels[i] = userModel;
         }
       }
     }
@@ -70,19 +79,18 @@ class _ManageMeetingState extends State<ManageMeeting> {
   }
 
   Future<void> readAllRoom() async {
-
     if (roomModels.isNotEmpty) {
       roomModels.clear();
       titles.clear();
       liveManLands.clear();
       liveRoomModels.clear();
+      userModels.clear();
     }
 
     await FirebaseFirestore.instance
         .collection('room')
-        // .where('uidOwner', isEqualTo: user!.uid)
         .get()
-        .then((value) {
+        .then((value) async {
       for (var element in value.docs) {
         RoomModel roomModel = RoomModel.fromMap(element.data());
         roomModels.add(roomModel);
@@ -106,7 +114,9 @@ class _ManageMeetingState extends State<ManageMeeting> {
               controller: scrollController,
               itemCount: titles.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3),
+                childAspectRatio: 120 / 200,
+                crossAxisCount: 3,
+              ),
               itemBuilder: (context, index) => InkWell(
                 onTap: () {
                   if (showRooms[index]) {
@@ -127,17 +137,80 @@ class _ManageMeetingState extends State<ManageMeeting> {
                 child: Container(
                   padding: const EdgeInsets.all(2),
                   margin: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(border: Border.all()),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: MyStyle.dark),
+                  ),
                   width: 120,
-                  height: 120,
+                  height: 200,
                   child: showRooms[index]
-                      ? ShowText(
-                          label: titles[index],
-                          textStyle: MyStyle().h2Style(),
+                      ? Stack(
+                          children: [
+                            ShowText(
+                              label: titles[index],
+                              textStyle: MyStyle().h2Style(),
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              width: 120,
+                              height: 200,
+                              child: ShowText(
+                                label: 'Click',
+                                textStyle: MyStyle().h2Style(),
+                              ),
+                            )
+                          ],
                         )
-                      : Image.network(
-                          liveRoomModels[index]!.urlImage,
-                          fit: BoxFit.cover,
+                      : Column(
+                          children: [
+                            Stack(
+                              children: [
+                                SizedBox(
+                                  width: 120,
+                                  height: 120,
+                                  child: Image.network(
+                                    liveRoomModels[index]!.urlImage,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.5)),
+                                  child: ShowText(
+                                    label: titles[index],
+                                    textStyle: MyStyle().h2Style(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            showRooms[index]
+                                ? const SizedBox()
+                                : Container(
+                                    margin: const EdgeInsets.only(top: 4),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            ShowCircleImage(
+                                              // path: MyConstant.urlLogo,
+                                              path: userModels[index]?.avatar ??
+                                                  MyConstant.urlLogo,
+                                              radius: 12,
+                                            ),
+                                            ShowText(
+                                                label:
+                                                    userModels[index]?.name ??
+                                                        ''),
+                                          ],
+                                        ),
+                                        ShowText(
+                                            label: liveRoomModels[index]
+                                                    ?.nameRoom ??
+                                                ''),
+                                      ],
+                                    ),
+                                  ),
+                          ],
                         ),
                 ),
               ),
