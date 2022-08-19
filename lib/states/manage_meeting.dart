@@ -117,7 +117,8 @@ class _ManageMeetingState extends State<ManageMeeting> {
                 childAspectRatio: 120 / 200,
                 crossAxisCount: 3,
               ),
-              itemBuilder: (context, index) => InkWell(
+              itemBuilder: (context, index) => GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () {
                   if (showRooms[index]) {
                     Navigator.push(
@@ -191,11 +192,16 @@ class _ManageMeetingState extends State<ManageMeeting> {
                                       children: [
                                         Row(
                                           children: [
-                                            ShowCircleImage(
-                                              // path: MyConstant.urlLogo,
-                                              path: userModels[index]?.avatar ??
-                                                  MyConstant.urlLogo,
-                                              radius: 12,
+                                            InkWell(
+                                              onTap: () {
+                                                print('You Tap Avatar');
+                                              },
+                                              child: ShowCircleImage(
+                                                path:
+                                                    userModels[index]?.avatar ??
+                                                        MyConstant.urlLogo,
+                                                radius: 12,
+                                              ),
                                             ),
                                             ShowText(
                                                 label:
