@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MyStyle {
-  static Color bgColor = Colors.white;
-  static Color dark = Colors.black;
+  static Color bgColor = Colors.black;
+  static Color dark = Colors.white;
 
   BoxDecoration curveBorderBox({double? curve, Color? color}) => BoxDecoration(
         border: Border.all(color: color ?? Colors.black),

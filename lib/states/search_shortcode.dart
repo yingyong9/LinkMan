@@ -9,6 +9,8 @@ import 'dart:typed_data';
 import 'package:admanyout/states/choose_category_room.dart';
 import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/states/read_qr_code.dart';
+import 'package:admanyout/widgets/show_button.dart';
+import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -284,42 +286,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            InkWell(
-              onTap: () {
+            ShowIconButton(
+              iconData: Icons.search_outlined,
+              size: 36,
+              pressFunc: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const ReadQRcode(),
                     ));
               },
-              child: const ShowImage(
-                path: 'images/qr1.png',
-                width: 36,
-              ),
             ),
-            // const SizedBox(
-            //   width: 8,
-            // ),
-            // ShowForm(
-            //   width: boxConstraints.maxWidth - 145,
-            //   topMargin: 2,
-            //   prefixWidget: ShowIconButton(
-            //     iconData: Icons.play_circle,
-            //     color: Colors.white,
-            //     pressFunc: () {
-            //       if (addNewLink?.isNotEmpty ?? false) {
-            //         MyProcess().processLaunchUrl(url: addNewLink!);
-            //       }
-            //     },
-            //   ),
-            //   controller: textEditingController,
-            //   label: 'Add Link',
-            //   iconData: Icons.add_box_outlined,
-            //   colorSuffixIcon: Colors.black,
-            //   changeFunc: (String string) {
-            //     addNewLink = string.trim();
-            //   },
-            // ),
             InkWell(
               onTap: () {
                 if (statusLoginBool!) {
@@ -340,15 +317,19 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }
               },
               child: const ShowImage(
-                path: 'images/addbox.png',
+                path: 'images/addboxwhite.png',
                 width: 36,
               ),
             ),
             ShowIconButton(
               size: 36,
-              iconData: Icons.video_call,
+              iconData: Icons.language_outlined,
               pressFunc: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageMeeting(),));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ManageMeeting(),
+                    ));
               },
             ),
             // const SizedBox(
@@ -389,9 +370,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     controller: scrollController,
                     itemCount: fastLinkModels.length,
                     itemBuilder: (context, index) {
-                      print('##17july lastIndex ที่ listview ---> $lastIndex');
                       String urlSong = fastLinkModels[lastIndex].urlSong;
-
                       if (urlSong.isNotEmpty) {
                         processPlaySongBg(urlSong: urlSong);
                       }
@@ -417,7 +396,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                               Positioned(
                                 bottom: 30,
                                 left: 10,
-                                child: SizedBox(width: boxConstraints.maxWidth-36,
+                                child: SizedBox(
+                                  width: boxConstraints.maxWidth - 36,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
@@ -457,13 +437,35 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                           const SizedBox(
                                             width: 8,
                                           ),
-                                          const ShowText(label: '999 คน'), showTextSourceLink(index),
+                                          const ShowText(label: '999 คน'),
+                                          showTextSourceLink(index),
                                         ],
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
+                              fastLinkModels[index].linkContact.isEmpty
+                                  ? const SizedBox()
+                                  : Positioned(
+                                      bottom: 64,
+                                      left: 16,
+                                      child: ShowElevateButton(
+                                        label: fastLinkModels[index]
+                                                .nameButtonLinkContact
+                                                .isEmpty
+                                            ? 'LinkContact'
+                                            : fastLinkModels[index]
+                                                .nameButtonLinkContact,
+                                        pressFunc: () {
+                                          MyProcess().processLaunchUrl(
+                                              url: fastLinkModels[index]
+                                                  .linkContact);
+                                        },
+                                        iconData:
+                                            Icons.shopping_basket_outlined,
+                                      ),
+                                    ),
                             ],
                           ),
                         ),

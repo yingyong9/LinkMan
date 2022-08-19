@@ -15,6 +15,7 @@ class FastLinkModel {
   final String urlSong;
   final String keyRoom;
   final String linkContact;
+  final String nameButtonLinkContact;
 
   FastLinkModel({
     required this.urlImage,
@@ -28,6 +29,7 @@ class FastLinkModel {
     required this.urlSong,
     required this.keyRoom,
     required this.linkContact,
+    required this.nameButtonLinkContact,
   });
 
   Map<String, dynamic> toMap() {
@@ -43,6 +45,7 @@ class FastLinkModel {
       'urlSong': urlSong,
       'keyRoom': keyRoom,
       'linkContact': linkContact,
+      'nameButtonLinkContact': nameButtonLinkContact,
     };
   }
 
@@ -59,6 +62,7 @@ class FastLinkModel {
       urlSong: (map['urlSong'] ?? '') as String,
       keyRoom: (map['keyRoom'] ?? '') as String,
       linkContact: (map['linkContact'] ?? '') as String,
+      nameButtonLinkContact: (map['nameButtonLinkContact'] ?? '') as String,
     );
   }
 

@@ -56,7 +56,7 @@ class _AddFastLinkState extends State<AddFastLink> {
   RoomModel? chooseRoomModel;
   bool loadRoom = true;
 
-  String? linkContact;
+  String? linkContact, nameButtonLinkContact;
 
   @override
   void initState() {
@@ -224,6 +224,15 @@ class _AddFastLinkState extends State<AddFastLink> {
                                       label: 'Link ที่ใช้ติดต่อ',
                                       changeFunc: (p0) {
                                         linkContact = p0.trim();
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: boxConstraints.maxWidth * 0.6,
+                                    child: ShowFormLong(
+                                      label: 'ชื่อลิ้งค์ติดต่อ',
+                                      changeFunc: (p0) {
+                                        nameButtonLinkContact = p0.trim();
                                       },
                                     ),
                                   )
@@ -422,6 +431,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           urlSong: urlSongChoose ?? '',
           keyRoom: chooseRoomModel?.keyRoom ?? '',
           linkContact: linkContact ?? '',
+          nameButtonLinkContact: nameButtonLinkContact ?? '',
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');
