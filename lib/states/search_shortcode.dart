@@ -409,15 +409,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                       const SizedBox(
                                         height: 8,
                                       ),
-                                      // Row(
-                                      //   children: [
-                                      //     whoPost(index),
-                                      //     SizedBox(
-                                      //       width: boxConstraints.maxWidth * 0.3,
-                                      //     ),
-                                      //     showTextSourceLink(index),
-                                      //   ],
-                                      // ),
+          
                                       Row(
                                         children: [
                                           ShowText(
