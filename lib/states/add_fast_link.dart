@@ -173,6 +173,20 @@ class _AddFastLinkState extends State<AddFastLink> {
                 child: ListView(
                   children: [
                     newImage(boxConstraints),
+                    formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'Link ที่ใช้ติดต่อ',
+                      changeFunc: (p0) {
+                        linkContact = p0.trim();
+                      },
+                    ),
+                    formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'ชื่อลิ้งค์ติดต่อ',
+                      changeFunc: (p0) {
+                        nameButtonLinkContact = p0.trim();
+                      },
+                    ),
                     addLink?.isEmpty ?? true
                         ? formDetail(
                             boxConstraints: boxConstraints,
@@ -215,29 +229,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                         ? const ShowProgress()
                         : roomModels.isEmpty
                             ? const SizedBox()
-                            : Column(
-                                children: [
-                                  dropDownLiveManLand(boxConstraints),
-                                  SizedBox(
-                                    width: boxConstraints.maxWidth * 0.6,
-                                    child: ShowFormLong(
-                                      label: 'Link ที่ใช้ติดต่อ',
-                                      changeFunc: (p0) {
-                                        linkContact = p0.trim();
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: boxConstraints.maxWidth * 0.6,
-                                    child: ShowFormLong(
-                                      label: 'ชื่อลิ้งค์ติดต่อ',
-                                      changeFunc: (p0) {
-                                        nameButtonLinkContact = p0.trim();
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
+                            : dropDownLiveManLand(boxConstraints),
                     newGroup(boxConstraints: boxConstraints),
                   ],
                 ),
@@ -476,7 +468,10 @@ class _AddFastLinkState extends State<AddFastLink> {
           Container(
             margin: const EdgeInsets.only(right: 8),
             width: boxConstraints.maxWidth * 0.65,
-            child: ShowFormLong(label: label, changeFunc: changeFunc),
+            child: ShowFormLong(marginTop: 0,
+              label: label,
+              changeFunc: changeFunc,
+            ),
           ),
         ],
       ),

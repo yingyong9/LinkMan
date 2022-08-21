@@ -3,6 +3,7 @@
 import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_room_meeting.dart';
+import 'package:admanyout/states/my_web_view.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_process.dart';
@@ -117,7 +118,8 @@ class _ManageMeetingState extends State<ManageMeeting> {
                 childAspectRatio: 120 / 200,
                 crossAxisCount: 3,
               ),
-              itemBuilder: (context, index) => InkWell(
+              itemBuilder: (context, index) => GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () {
                   if (showRooms[index]) {
                     Navigator.push(
@@ -130,8 +132,16 @@ class _ManageMeetingState extends State<ManageMeeting> {
                       readAllRoom();
                     });
                   } else {
+                    // User URL Lanucher
                     MyProcess()
                         .processLaunchUrl(url: liveRoomModels[index]!.linkRoom);
+
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => MyWebView(
+                    //           linkRoom: liveRoomModels[index]!.linkRoom),
+                    //     ));
                   }
                 },
                 child: Container(
@@ -191,11 +201,16 @@ class _ManageMeetingState extends State<ManageMeeting> {
                                       children: [
                                         Row(
                                           children: [
-                                            ShowCircleImage(
-                                              // path: MyConstant.urlLogo,
-                                              path: userModels[index]?.avatar ??
-                                                  MyConstant.urlLogo,
-                                              radius: 12,
+                                            InkWell(
+                                              onTap: () {
+                                                print('You Tap Avatar');
+                                              },
+                                              child: ShowCircleImage(
+                                                path:
+                                                    userModels[index]?.avatar ??
+                                                        MyConstant.urlLogo,
+                                                radius: 12,
+                                              ),
                                             ),
                                             ShowText(
                                                 label:
