@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
 class MyStyle {
-  static Color bgColor = Colors.black;
-  static Color dark = Colors.white;
+  static Color bgColor = Colors.white;
+  static Color dark = Colors.black;
+
+  BoxDecoration bgCircleBlack() => BoxDecoration(
+        color: Colors.black.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(30),
+      );
 
   BoxDecoration curveBorderBox({double? curve, Color? color}) => BoxDecoration(
-        border: Border.all(color: color ?? Colors.black),
+        border: Border.all(color: color ?? dark),
         borderRadius: BorderRadius.circular(
           curve ?? 10,
         ),
@@ -24,8 +29,6 @@ class MyStyle {
         fontWeight: FontWeight.w700,
         fontFamily: 'Sarabun',
       );
-
-     
 
   TextStyle h3Style() => TextStyle(
         fontSize: 14,

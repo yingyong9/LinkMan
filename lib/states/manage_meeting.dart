@@ -10,6 +10,7 @@ import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
+import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -115,8 +116,10 @@ class _ManageMeetingState extends State<ManageMeeting> {
               controller: scrollController,
               itemCount: titles.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: 120 / 200,
+                childAspectRatio: 120 / 180,
                 crossAxisCount: 3,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
               ),
               itemBuilder: (context, index) => GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -135,23 +138,12 @@ class _ManageMeetingState extends State<ManageMeeting> {
                     // User URL Lanucher
                     MyProcess()
                         .processLaunchUrl(url: liveRoomModels[index]!.linkRoom);
-
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => MyWebView(
-                    //           linkRoom: liveRoomModels[index]!.linkRoom),
-                    //     ));
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(2),
-                  margin: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: MyStyle.dark),
-                  ),
+                 decoration: MyStyle().curveBorderBox(color: Colors.grey.shade600, curve: 10),
                   width: 120,
-                  height: 200,
+                  height: 180,
                   child: showRooms[index]
                       ? Stack(
                           children: [
@@ -162,7 +154,7 @@ class _ManageMeetingState extends State<ManageMeeting> {
                             Container(
                               alignment: Alignment.center,
                               width: 120,
-                              height: 200,
+                              height: 180,
                               child: ShowText(
                                 label: 'Click',
                                 textStyle: MyStyle().h2Style(),
@@ -170,60 +162,87 @@ class _ManageMeetingState extends State<ManageMeeting> {
                             )
                           ],
                         )
-                      : Column(
+                      : Stack(
                           children: [
-                            Stack(
-                              children: [
-                                SizedBox(
-                                  width: 120,
-                                  height: 120,
-                                  child: Image.network(
-                                    liveRoomModels[index]!.urlImage,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.5)),
-                                  child: ShowText(
-                                    label: titles[index],
-                                    textStyle: MyStyle().h2Style(),
-                                  ),
-                                ),
-                              ],
+                            SizedBox(
+                              width: double.infinity,
+                              height: double.infinity,
+                              child: Image.network(
+                                liveRoomModels[index]!.urlImage,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: MyStyle().bgCircleBlack(),
+                              child: ShowText(
+                                label: titles[index],
+                                textStyle:
+                                    MyStyle().h2Style(color: Colors.white),
+                              ),
                             ),
                             showRooms[index]
                                 ? const SizedBox()
-                                : Container(
-                                    margin: const EdgeInsets.only(top: 4),
-                                    child: Column(
+                                : Positioned(
+                                    bottom: 8,
+                                    child: Row(
                                       children: [
-                                        Row(
-                                          children: [
-                                            InkWell(
-                                              onTap: () {
-                                                print('You Tap Avatar');
-                                              },
-                                              child: ShowCircleImage(
-                                                path:
-                                                    userModels[index]?.avatar ??
-                                                        MyConstant.urlLogo,
-                                                radius: 12,
-                                              ),
-                                            ),
-                                            ShowText(
-                                                label:
-                                                    userModels[index]?.name ??
-                                                        ''),
-                                          ],
+                                        InkWell(
+                                          onTap: () {
+                                            print('You Tap Avatar');
+                                          },
+                                          child: ShowCircleImage(
+                                            path: userModels[index]?.avatar ??
+                                                MyConstant.urlLogo,
+                                            radius: 18,
+                                          ),
                                         ),
-                                        ShowText(
-                                            label: liveRoomModels[index]
-                                                    ?.nameRoom ??
-                                                ''),
+                                        Container(
+                                          decoration: const BoxDecoration(
+                                              color: Colors.white),
+                                          child: ShowText(
+                                              textStyle: MyStyle().h2Style(),
+                                              label: userModels[index]?.name ??
+                                                  ''),
+                                        ),
                                       ],
                                     ),
+                                  ),
+                            showRooms[index]
+                                ? const SizedBox()
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Container(decoration: MyStyle().bgCircleBlack(),
+                                            child: ShowIconButton(
+                                              iconData:
+                                                  Icons.radio_button_checked,
+                                              pressFunc: () {},
+                                            ),
+                                          ),
+                                          Container(decoration: MyStyle().bgCircleBlack(),
+                                            child: ShowIconButton(
+                                              iconData: Icons.menu_book,
+                                              pressFunc: () {},
+                                            ),
+                                          ),
+                                          Container(decoration: MyStyle().bgCircleBlack(),
+                                            child: ShowIconButton(
+                                              iconData: Icons.attach_email,
+                                              pressFunc: () {},
+                                            ),
+                                          ),
+                                          Container(decoration: MyStyle().bgCircleBlack(),
+                                            child: ShowIconButton(
+                                              iconData: Icons.forum,
+                                              pressFunc: () {},
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                           ],
                         ),
