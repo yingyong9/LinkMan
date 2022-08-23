@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class MyStyle {
   static Color bgColor = Colors.white;
   static Color dark = Colors.black;
+  static Color green = const Color.fromARGB(255, 167, 231, 89);
+  static Color red = Color.fromARGB(255, 231, 56, 56);
+  
 
   BoxDecoration bgCircleBlack() => BoxDecoration(
         color: Colors.black.withOpacity(0.5),
@@ -33,6 +36,27 @@ class MyStyle {
   TextStyle h3Style() => TextStyle(
         fontSize: 14,
         color: dark,
+        fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
+      );
+
+      TextStyle h3GreenStyle() => TextStyle(
+        fontSize: 14,
+        color: green,
+        fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
+      );
+
+      TextStyle h3RedStyle() => TextStyle(
+        fontSize: 14,
+        color: red,
+        fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
+      );
+
+      TextStyle h3WhiteStyle() => const TextStyle(
+        fontSize: 14,
+        color: Colors.white,
         fontWeight: FontWeight.normal,
         fontFamily: 'Sarabun',
       );

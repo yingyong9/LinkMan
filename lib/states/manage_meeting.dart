@@ -3,13 +3,14 @@
 import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_room_meeting.dart';
-import 'package:admanyout/states/my_web_view.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
+import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text.dart';
@@ -29,7 +30,7 @@ class _ManageMeetingState extends State<ManageMeeting> {
   var titles = <String>[];
   var user = FirebaseAuth.instance.currentUser;
 
-  var liveManLands = <String>[]; // keyRoom ที่ถูกจับจองไปแล้ว
+  var liveManLands = <String?>[]; // keyRoom ที่ถูกจับจองไปแล้ว
   var showRooms = <bool>[];
   var liveRoomModels = <RoomModel?>[];
   var userModels = <UserModel?>[];
@@ -62,12 +63,14 @@ class _ManageMeetingState extends State<ManageMeeting> {
       showRooms.add(true);
       liveRoomModels.add(null);
       userModels.add(null);
+      liveManLands.add(null);
 
       for (var element in roomModels) {
         if (string == element.keyRoom) {
-          liveManLands.add(string);
+          liveManLands[i] = string;
           showRooms[i] = false;
           liveRoomModels[i] = element;
+
           UserModel userModel =
               await MyFirebase().findUserModel(uid: element.uidOwner);
           userModels[i] = userModel;
@@ -76,7 +79,7 @@ class _ManageMeetingState extends State<ManageMeeting> {
     }
     print('liveManLands ==> $liveManLands');
     print('showRooms ===> $showRooms');
-    print('liveRoomModels ===> $liveRoomModels');
+
     setState(() {});
   }
 
@@ -97,6 +100,7 @@ class _ManageMeetingState extends State<ManageMeeting> {
         RoomModel roomModel = RoomModel.fromMap(element.data());
         roomModels.add(roomModel);
       }
+
       createArrayTitles();
     });
   }
@@ -135,13 +139,23 @@ class _ManageMeetingState extends State<ManageMeeting> {
                       readAllRoom();
                     });
                   } else {
-                    // User URL Lanucher
-                    MyProcess()
-                        .processLaunchUrl(url: liveRoomModels[index]!.linkRoom);
+                    if (liveRoomModels[index]!.onOffRoom) {
+                      MyProcess().processLaunchUrl(
+                          url: liveRoomModels[index]!.linkRoom);
+                    } else {
+                      MyDialog(context: context).normalActionDilalog(
+                          title: 'LiveLand Close',
+                          message: 'Please Tap Message',
+                          label: 'OK',
+                          pressFunc: () {
+                            Navigator.pop(context);
+                          });
+                    }
                   }
                 },
                 child: Container(
-                 decoration: MyStyle().curveBorderBox(color: Colors.grey.shade600, curve: 10),
+                  decoration: MyStyle()
+                      .curveBorderBox(color: Colors.grey.shade600, curve: 10),
                   width: 120,
                   height: 180,
                   child: showRooms[index]
@@ -213,28 +227,28 @@ class _ManageMeetingState extends State<ManageMeeting> {
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Column(
+                                      Column(crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
-                                          Container(decoration: MyStyle().bgCircleBlack(),
-                                            child: ShowIconButton(
-                                              iconData:
-                                                  Icons.radio_button_checked,
-                                              pressFunc: () {},
-                                            ),
-                                          ),
-                                          Container(decoration: MyStyle().bgCircleBlack(),
+                                          newOnOffRoom(index),
+                                          Container(
+                                            // decoration:
+                                            //     MyStyle().bgCircleBlack(),
                                             child: ShowIconButton(
                                               iconData: Icons.menu_book,
                                               pressFunc: () {},
                                             ),
                                           ),
-                                          Container(decoration: MyStyle().bgCircleBlack(),
+                                          Container(
+                                            // decoration:
+                                            //     MyStyle().bgCircleBlack(),
                                             child: ShowIconButton(
                                               iconData: Icons.attach_email,
                                               pressFunc: () {},
                                             ),
                                           ),
-                                          Container(decoration: MyStyle().bgCircleBlack(),
+                                          Container(
+                                            // decoration:
+                                            //     MyStyle().bgCircleBlack(),
                                             child: ShowIconButton(
                                               iconData: Icons.forum,
                                               pressFunc: () {},
@@ -249,6 +263,35 @@ class _ManageMeetingState extends State<ManageMeeting> {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget newOnOffRoom(int index) {
+    return ShowElevateButton(
+      pressFunc: () async {
+        print('Your Click liveManLand or keyRoom ==> ${liveManLands[index]}');
+        var docIdRooms = await MyFirebase()
+            .findDocIdRoomWhereKeyRoom(keyRoom: liveManLands[index]!);
+        print('docIdRoos ==> $docIdRooms');
+
+        Map<String, dynamic> map = liveRoomModels[index]!.toMap();
+        map['onOffRoom'] = !liveRoomModels[index]!.onOffRoom;
+        print('map ที่ต้องการจะอัพ ===>>> $map');
+
+        await FirebaseFirestore.instance
+            .collection('room')
+            .doc(docIdRooms[0])
+            .update(map)
+            .then((value) {
+          readAllRoom();
+        });
+      },
+      iconData: Icons.radio_button_checked,
+      label: liveRoomModels[index]!.onOffRoom ? 'Open' : 'Close',
+      colorIcon: liveRoomModels[index]!.onOffRoom ? MyStyle.green : MyStyle.red,
+      labelTextStyle: liveRoomModels[index]!.onOffRoom
+          ? MyStyle().h3GreenStyle()
+          : MyStyle().h3RedStyle(),
     );
   }
 
