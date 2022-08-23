@@ -401,17 +401,19 @@ class _AddRoomMeetingState extends State<AddRoomMeeting> {
     }
 
     RoomModel roomModel = RoomModel(
-        idRoom: idRoom!,
-        linkContact: linkContact,
-        linkRoom: linkMeeting!,
-        nameRoom: nameRoom!,
-        password: password,
-        timeDateAdd: Timestamp.fromDate(dateTime),
-        uidOwner: user!.uid,
-        urlImage: urlImageRoom!,
-        usePassword: usePassword,
-        categorys: categorys,
-        keyRoom: liveManLand!);
+      idRoom: idRoom!,
+      linkContact: linkContact,
+      linkRoom: linkMeeting!,
+      nameRoom: nameRoom!,
+      password: password,
+      timeDateAdd: Timestamp.fromDate(dateTime),
+      uidOwner: user!.uid,
+      urlImage: urlImageRoom!,
+      usePassword: usePassword,
+      categorys: categorys,
+      keyRoom: liveManLand!,
+      onOffRoom: true,
+    );
 
     print('roomModel ===>>> ${roomModel.toMap()}');
 
