@@ -59,6 +59,7 @@ dependencies:
   qr_code_scanner: ^1.0.0
   random_password_generator: ^0.2.1
   webview_flutter: ^3.0.4
+  geolocator: ^9.0.1
   
   
 

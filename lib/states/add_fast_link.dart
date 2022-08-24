@@ -12,6 +12,7 @@ import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
+import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
@@ -23,6 +24,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddFastLink extends StatefulWidget {
@@ -174,15 +176,19 @@ class _AddFastLinkState extends State<AddFastLink> {
                   children: [
                     newImage(boxConstraints),
                     formDetail(
+                      iconData: Icons.pin_drop_outlined,
+                      iconPressFunc: () {
+                        processFindLocation();
+                      },
                       boxConstraints: boxConstraints,
-                      label: 'Link ที่ใช้ติดต่อ',
+                      label: 'Link1',
                       changeFunc: (p0) {
                         linkContact = p0.trim();
                       },
                     ),
                     formDetail(
                       boxConstraints: boxConstraints,
-                      label: 'ชื่อลิ้งค์ติดต่อ',
+                      label: 'ชื่อปุ่มของ Link1',
                       changeFunc: (p0) {
                         nameButtonLinkContact = p0.trim();
                       },
@@ -190,7 +196,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                     addLink?.isEmpty ?? true
                         ? formDetail(
                             boxConstraints: boxConstraints,
-                            label: 'ใส่ลิ้งค์ที่นี่ (add link)',
+                            label: 'Link2',
                             changeFunc: (p0) {
                               addLink = p0.trim();
                             },
@@ -449,6 +455,8 @@ class _AddFastLinkState extends State<AddFastLink> {
     required BoxConstraints boxConstraints,
     required String label,
     required Function(String) changeFunc,
+    IconData? iconData,
+    Function()? iconPressFunc,
     Color? textColor,
   }) {
     return Container(
@@ -467,12 +475,33 @@ class _AddFastLinkState extends State<AddFastLink> {
           ),
           Container(
             margin: const EdgeInsets.only(right: 8),
-            width: boxConstraints.maxWidth * 0.65,
-            child: ShowFormLong(marginTop: 0,
+            width: iconData == null ? boxConstraints.maxWidth * 0.65 : boxConstraints.maxWidth * 0.65-15 ,
+            child: ShowFormLong(
+              marginTop: 0,
               label: label,
               changeFunc: changeFunc,
             ),
           ),
+          iconData == null
+              ? const SizedBox()
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    IconButton(
+                        onPressed: iconPressFunc,
+                        icon: Icon(
+                          iconData,
+                          size: 48,
+                        )),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    ShowText(
+                      label: 'ต่ำแหน่งที่ตั้ง',
+                      textStyle: MyStyle().h3Style(),
+                    )
+                  ],
+                ),
         ],
       ),
     );
@@ -563,5 +592,55 @@ class _AddFastLinkState extends State<AddFastLink> {
       elevation: 0,
       backgroundColor: Colors.white,
     );
+  }
+
+  Future<void> processFindLocation() async {
+    LocationPermission locationPermission;
+
+    bool locationServiceEnable = await Geolocator.isLocationServiceEnabled();
+
+    if (locationServiceEnable) {
+      locationPermission = await Geolocator.checkPermission();
+
+      if (locationPermission == LocationPermission.deniedForever) {
+        MyDialog(context: context).normalActionDilalog(
+            title: 'ปิดกันการแชร์ต่ำแหน่ง อยู่',
+            message: 'กรุณาเปิด ด้วยคะ',
+            label: 'ไปเปิด การแชร์ต่ำแหน่ง',
+            pressFunc: () {
+              Geolocator.openAppSettings();
+              exit(0);
+            });
+      }
+
+      if (locationPermission == LocationPermission.denied) {
+        locationPermission = await Geolocator.requestPermission();
+        if ((locationPermission != LocationPermission.whileInUse) &&
+            (locationPermission != LocationPermission.always)) {
+          MyDialog(context: context).normalActionDilalog(
+              title: 'ปิดกันการแชร์ต่ำแหน่ง อยู่',
+              message: 'กรุณาเปิด ด้วยคะ',
+              label: 'ไปเปิด การแชร์ต่ำแหน่ง',
+              pressFunc: () {
+                Geolocator.openAppSettings();
+                exit(0);
+              });
+        }
+      } else {
+        var location = await Geolocator.getCurrentPosition();
+        double lat = location.latitude;
+        double lng = location.longitude;
+        print('lat ===> $lat, lng ===> $lng');
+      }
+    } else {
+      MyDialog(context: context).normalActionDilalog(
+          title: 'ปิด Location อยู่',
+          message: 'กรุณาเปิด Location Service ด้วยคะ',
+          label: 'ไปเปิด Location Service',
+          pressFunc: () {
+            Geolocator.openLocationSettings();
+            exit(0);
+          });
+    }
   }
 }
