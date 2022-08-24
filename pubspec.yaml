@@ -60,6 +60,7 @@ dependencies:
   random_password_generator: ^0.2.1
   webview_flutter: ^3.0.4
   geolocator: ^9.0.1
+  google_maps_flutter: ^2.1.12
   
   
 
