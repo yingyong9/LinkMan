@@ -6,9 +6,11 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:admanyout/main.dart';
 import 'package:admanyout/states/choose_category_room.dart';
 import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/states/read_qr_code.dart';
+import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
@@ -409,7 +411,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                       const SizedBox(
                                         height: 8,
                                       ),
-          
                                       Row(
                                         children: [
                                           ShowText(
@@ -458,6 +459,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                             Icons.shopping_basket_outlined,
                                       ),
                                     ),
+                              fastLinkModels[index].position ==
+                                      const GeoPoint(0, 0)
+                                  ? const SizedBox()
+                                  : navPosition(
+                                      geoPoint: fastLinkModels[index].position),
                             ],
                           ),
                         ),
@@ -467,6 +473,34 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }),
         ),
       ],
+    );
+  }
+
+  Positioned navPosition({required GeoPoint geoPoint}) {
+    double lat = geoPoint.latitude;
+    double lng = geoPoint.longitude;
+
+    String googleUrl =
+        'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+
+    return Positioned(
+      right: 0,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ShowIconButton(
+            size: 36,
+            iconData: Icons.pin_drop_outlined,
+            pressFunc: () {
+              MyProcess().processLaunchUrl(url: googleUrl);
+            },
+          ),
+          ShowText(
+            label: 'นำทาง',
+            textStyle: MyStyle().h3WhiteStyle(),
+          )
+        ],
+      ),
     );
   }
 
