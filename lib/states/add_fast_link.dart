@@ -443,6 +443,14 @@ class _AddFastLinkState extends State<AddFastLink> {
         DateTime dateTime = DateTime.now();
         Timestamp timestamp = Timestamp.fromDate(dateTime);
 
+        GeoPoint position;
+
+        if (lat == null) {
+          position = const GeoPoint(0, 0);
+        } else {
+          position = GeoPoint(lat!, lng!);
+        }
+
         FastLinkModel fastLinkModel = FastLinkModel(
           urlImage: urlImage,
           detail: detail ?? '',
@@ -456,6 +464,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           keyRoom: chooseRoomModel?.keyRoom ?? '',
           linkContact: linkContact ?? '',
           nameButtonLinkContact: nameButtonLinkContact ?? '',
+          position: position,
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');
