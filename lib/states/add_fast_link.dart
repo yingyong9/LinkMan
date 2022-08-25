@@ -25,6 +25,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddFastLink extends StatefulWidget {
@@ -59,6 +60,9 @@ class _AddFastLinkState extends State<AddFastLink> {
   bool loadRoom = true;
 
   String? linkContact, nameButtonLinkContact;
+
+  double? lat, lng;
+  Map<MarkerId, Marker> markers = {};
 
   @override
   void initState() {
@@ -186,6 +190,28 @@ class _AddFastLinkState extends State<AddFastLink> {
                         linkContact = p0.trim();
                       },
                     ),
+                    lat == null
+                        ? const SizedBox()
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                decoration: MyConstant().curveBorderBox(),
+                                width: boxConstraints.maxWidth * 0.6,
+                                height: boxConstraints.maxWidth * 0.4,
+                                child: GoogleMap(
+                                  initialCameraPosition: CameraPosition(
+                                    target: LatLng(lat!, lng!),
+                                    zoom: 16,
+                                  ),
+                                  onMapCreated: (controller) {},
+                                  markers: Set<Marker>.of(markers.values),
+                                ),
+                              ),
+                            ],
+                          ),
                     formDetail(
                       boxConstraints: boxConstraints,
                       label: 'ชื่อปุ่มของ Link1',
@@ -475,7 +501,9 @@ class _AddFastLinkState extends State<AddFastLink> {
           ),
           Container(
             margin: const EdgeInsets.only(right: 8),
-            width: iconData == null ? boxConstraints.maxWidth * 0.65 : boxConstraints.maxWidth * 0.65-15 ,
+            width: iconData == null
+                ? boxConstraints.maxWidth * 0.65
+                : boxConstraints.maxWidth * 0.65 - 15,
             child: ShowFormLong(
               marginTop: 0,
               label: label,
@@ -628,9 +656,19 @@ class _AddFastLinkState extends State<AddFastLink> {
         }
       } else {
         var location = await Geolocator.getCurrentPosition();
-        double lat = location.latitude;
-        double lng = location.longitude;
+        lat = location.latitude;
+        lng = location.longitude;
         print('lat ===> $lat, lng ===> $lng');
+
+        MarkerId markerId = const MarkerId('id');
+        Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(lat!, lng!),
+            infoWindow:
+                InfoWindow(title: 'คุณอยู่ที่นี่', snippet: '($lat, $lng)'));
+        markers[markerId] = marker;
+
+        setState(() {});
       }
     } else {
       MyDialog(context: context).normalActionDilalog(
