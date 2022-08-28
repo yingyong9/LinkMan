@@ -3,6 +3,7 @@
 import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_room_meeting.dart';
+import 'package:admanyout/states/edit_room.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
@@ -140,8 +141,15 @@ class _ManageMeetingState extends State<ManageMeeting> {
                     });
                   } else {
                     if (liveRoomModels[index]!.onOffRoom) {
-                      MyProcess().processLaunchUrl(
-                          url: liveRoomModels[index]!.linkRoom);
+                      if (user!.uid == liveRoomModels[index]!.uidOwner) {
+                        //Owner Click
+                        print('Owner Click');
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => EditRoom(roomModel: liveRoomModels[index]!),));
+                      } else {
+                        //order Clck
+                        MyProcess().processLaunchUrl(
+                            url: liveRoomModels[index]!.linkRoom);
+                      }
                     } else {
                       MyDialog(context: context).normalActionDilalog(
                           title: 'LiveLand Close',
@@ -227,7 +235,9 @@ class _ManageMeetingState extends State<ManageMeeting> {
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Column(crossAxisAlignment: CrossAxisAlignment.end,
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
                                         children: [
                                           newOnOffRoom(index),
                                           Container(
@@ -269,22 +279,26 @@ class _ManageMeetingState extends State<ManageMeeting> {
   Widget newOnOffRoom(int index) {
     return ShowElevateButton(
       pressFunc: () async {
-        print('Your Click liveManLand or keyRoom ==> ${liveManLands[index]}');
-        var docIdRooms = await MyFirebase()
-            .findDocIdRoomWhereKeyRoom(keyRoom: liveManLands[index]!);
-        print('docIdRoos ==> $docIdRooms');
+        if (user!.uid == liveRoomModels[index]!.uidOwner) {
+          print('Your Click liveManLand or keyRoom ==> ${liveManLands[index]}');
+          var docIdRooms = await MyFirebase()
+              .findDocIdRoomWhereKeyRoom(keyRoom: liveManLands[index]!);
+          print('docIdRoos ==> $docIdRooms');
 
-        Map<String, dynamic> map = liveRoomModels[index]!.toMap();
-        map['onOffRoom'] = !liveRoomModels[index]!.onOffRoom;
-        print('map ที่ต้องการจะอัพ ===>>> $map');
+          Map<String, dynamic> map = liveRoomModels[index]!.toMap();
+          map['onOffRoom'] = !liveRoomModels[index]!.onOffRoom;
+          print('map ที่ต้องการจะอัพ ===>>> $map');
 
-        await FirebaseFirestore.instance
-            .collection('room')
-            .doc(docIdRooms[0])
-            .update(map)
-            .then((value) {
-          readAllRoom();
-        });
+          await FirebaseFirestore.instance
+              .collection('room')
+              .doc(docIdRooms[0])
+              .update(map)
+              .then((value) {
+            readAllRoom();
+          });
+        } else {
+          print('คุณไม่ใช้ เจ้าของห้อง');
+        }
       },
       iconData: Icons.radio_button_checked,
       label: liveRoomModels[index]!.onOffRoom ? 'Open' : 'Close',
