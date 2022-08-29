@@ -7,12 +7,15 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:admanyout/main.dart';
+import 'package:admanyout/models/comment_model.dart';
 import 'package:admanyout/states/choose_category_room.dart';
 import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
+import 'package:admanyout/widgets/show_form.dart';
+import 'package:admanyout/widgets/show_icon_shopping.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -37,7 +40,6 @@ import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
-import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 
@@ -63,6 +65,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   ScrollController scrollController = ScrollController();
   var user = FirebaseAuth.instance.currentUser;
   bool processLoad = false;
+
+  var commentTexts = <String?>[];
 
   @override
   void initState() {
@@ -140,6 +144,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
         fastLinkModels.add(fastLinkModel);
         docIdFastLinks.add(element.id);
+        commentTexts.add(null);
 
         if (user != null) {
           await FirebaseFirestore.instance
@@ -193,6 +198,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
           fastLinkModels.add(fastLinkModel);
           docIdFastLinks.add(element.id);
+          commentTexts.add(null);
 
           if (user != null) {
             await FirebaseFirestore.instance
@@ -394,76 +400,68 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           child: Stack(
                             children: [
                               newImageListView(boxConstraints, index),
-                              newContent1(boxConstraints, index),
                               Positioned(
-                                bottom: 30,
-                                left: 10,
-                                child: SizedBox(
-                                  width: boxConstraints.maxWidth - 36,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                bottom: 0,
+                                left: 0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.5)),
+                                  width: boxConstraints.maxWidth,
+                                  height: 100,
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      iconSaveImage(index),
-                                      showDialogGenQRcode(index),
-                                      iconShare(index),
-                                      const ShowText(label: '999'),
-                                      iconFavorite(index: index),
-                                      const SizedBox(
-                                        height: 8,
+                                      const Padding(
+                                        padding: EdgeInsets.only(
+                                            right: 16, left: 16),
+                                        child: ShowIconShopping(),
                                       ),
-                                      Row(
-                                        children: [
-                                          ShowText(
-                                            label: userModels[index].name,
-                                            textStyle:
-                                                MyConstant().h2WhiteStyle(),
-                                          ),
-                                          Container(
-                                            margin:
-                                                const EdgeInsets.only(left: 10),
-                                            decoration: const BoxDecoration(
-                                                color: Color.fromARGB(
-                                                    255, 207, 18, 5)),
-                                            child:
-                                                const ShowText(label: 'ติดตาม'),
-                                          ),
-                                          const SizedBox(
-                                            width: 8,
-                                          ),
-                                          const ShowText(label: '999 คน'),
-                                          showTextSourceLink(index),
-                                        ],
-                                      ),
+                                      ShowForm(
+                                        fillColor: Colors.grey.withOpacity(0.8),
+                                        topMargin: 0,
+                                        label: 'พูดคุย และ สั่งสินค้า',
+                                        iconData: Icons.shopping_cart,
+                                        changeFunc: (p0) async {
+                                          commentTexts[index] = p0;
+                                        },
+                                        pressFunc: () async {
+                                          print(
+                                              'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
+                                          print(
+                                              'commentText ==> ${commentTexts[index]}');
+                                          DateTime dateTime = DateTime.now();
+                                          Timestamp timestamp =
+                                              Timestamp.fromDate(dateTime);
+
+                                          if (!(commentTexts[index]?.isEmpty ??
+                                              true)) {
+                                            CommentModel commentModel =
+                                                CommentModel(
+                                                    comment:
+                                                        commentTexts[index]!,
+                                                    timeComment: timestamp,
+                                                    uidComment: user!.uid);
+                                            await FirebaseFirestore.instance
+                                                .collection('fastlink')
+                                                .doc(docIdFastLinks[index])
+                                                .collection('comment')
+                                                .doc()
+                                                .set(commentModel.toMap())
+                                                .then((value) {
+                                              print('Add Comment success');
+                                            });
+                                          } // if
+                                        },
+                                      )
                                     ],
                                   ),
                                 ),
                               ),
-                              fastLinkModels[index].linkContact.isEmpty
-                                  ? const SizedBox()
-                                  : Positioned(
-                                      bottom: 64,
-                                      left: 16,
-                                      child: ShowElevateButton(
-                                        label: fastLinkModels[index]
-                                                .nameButtonLinkContact
-                                                .isEmpty
-                                            ? 'LinkContact'
-                                            : fastLinkModels[index]
-                                                .nameButtonLinkContact,
-                                        pressFunc: () {
-                                          MyProcess().processLaunchUrl(
-                                              url: fastLinkModels[index]
-                                                  .linkContact);
-                                        },
-                                        iconData:
-                                            Icons.shopping_basket_outlined,
-                                      ),
-                                    ),
-                              fastLinkModels[index].position ==
-                                      const GeoPoint(0, 0)
-                                  ? const SizedBox()
-                                  : navPosition(
-                                      geoPoint: fastLinkModels[index].position),
+                              // newContent1(boxConstraints, index),
+                              // newContent3(boxConstraints, index),
+                              // newContent4(index),
+                              // newContent5(index),
                             ],
                           ),
                         ),
@@ -473,6 +471,73 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }),
         ),
       ],
+    );
+  }
+
+  Widget newContent5(int index) {
+    return fastLinkModels[index].position == const GeoPoint(0, 0)
+        ? const SizedBox()
+        : navPosition(geoPoint: fastLinkModels[index].position);
+  }
+
+  Widget newContent4(int index) {
+    return fastLinkModels[index].linkContact.isEmpty
+        ? const SizedBox()
+        : Positioned(
+            bottom: 64,
+            left: 16,
+            child: ShowElevateButton(
+              label: fastLinkModels[index].nameButtonLinkContact.isEmpty
+                  ? 'LinkContact'
+                  : fastLinkModels[index].nameButtonLinkContact,
+              pressFunc: () {
+                MyProcess()
+                    .processLaunchUrl(url: fastLinkModels[index].linkContact);
+              },
+              iconData: Icons.shopping_basket_outlined,
+            ),
+          );
+  }
+
+  Positioned newContent3(BoxConstraints boxConstraints, int index) {
+    return Positioned(
+      bottom: 30,
+      left: 10,
+      child: SizedBox(
+        width: boxConstraints.maxWidth - 36,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            iconSaveImage(index),
+            showDialogGenQRcode(index),
+            iconShare(index),
+            const ShowText(label: '999'),
+            iconFavorite(index: index),
+            const SizedBox(
+              height: 8,
+            ),
+            Row(
+              children: [
+                ShowText(
+                  label: userModels[index].name,
+                  textStyle: MyConstant().h2WhiteStyle(),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(left: 10),
+                  decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 207, 18, 5)),
+                  child: const ShowText(label: 'ติดตาม'),
+                ),
+                const SizedBox(
+                  width: 8,
+                ),
+                const ShowText(label: '999 คน'),
+                showTextSourceLink(index),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
