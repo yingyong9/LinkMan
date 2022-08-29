@@ -1,7 +1,19 @@
+import 'dart:io';
+
+import 'package:image_picker/image_picker.dart';
 import 'package:random_password_generator/random_password_generator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyProcess {
+  Future<File> processTakePhoto({required ImageSource source}) async {
+    var result = await ImagePicker().pickImage(
+      source: source,
+      maxWidth: 800,
+      maxHeight: 800,
+    );
+    return File(result!.path);
+  }
+
   String createPassword() {
     final genPassword = RandomPasswordGenerator();
     String password = genPassword.randomPassword(
