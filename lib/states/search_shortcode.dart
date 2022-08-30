@@ -6,13 +6,10 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:admanyout/main.dart';
 import 'package:admanyout/models/comment_model.dart';
-import 'package:admanyout/states/choose_category_room.dart';
 import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/utility/my_style.dart';
-import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_icon_shopping.dart';
@@ -67,6 +64,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   bool processLoad = false;
 
   var commentTexts = <String?>[];
+  var listCommentModels = <List<CommentModel>>[];
+  var listUserModelComments = <List<UserModel>>[];
 
   @override
   void initState() {
@@ -100,7 +99,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
-        print('##6Aug Load More on Top');
+        // print('##6Aug Load More on Top');
         MyDialog(context: context).processDialog();
         processLoad = true;
         findDocumentLists();
@@ -109,7 +108,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        print('##6Aug Load More on Button Work');
+        // print('##6Aug Load More on Button Work');
         MyDialog(context: context).processDialog();
         processLoad = true;
         readMoreFastLinkData();
@@ -129,6 +128,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       showButtonLinks.clear();
       lastIndex = 0;
       docIdFastLinks.clear();
+      listCommentModels.clear();
+      commentTexts.clear();
+      listUserModelComments.clear();
     }
 
     print(
@@ -169,8 +171,37 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             .then((value) {
           userModels.add(value);
         });
+
+        //About Comment
+        await FirebaseFirestore.instance
+            .collection('fastlink')
+            .doc(element.id)
+            .collection('comment')
+            .orderBy('timeComment')
+            .get()
+            .then((valueComment) async {
+          print('valurComment ==> ${valueComment.docs}');
+          if (value.docs.isEmpty) {
+            listCommentModels.add([]);
+            listUserModelComments.add([]);
+          } else {
+            var commentModels = <CommentModel>[];
+            var userModels = <UserModel>[];
+            for (var element in valueComment.docs) {
+              CommentModel commentModel = CommentModel.fromMap(element.data());
+              commentModels.add(commentModel);
+
+              UserModel userModel = await MyFirebase()
+                  .findUserModel(uid: commentModel.uidComment);
+              userModels.add(userModel);
+            }
+            listCommentModels.add(commentModels);
+            listUserModelComments.add(userModels);
+          }
+          print('listCommentamodels ===> $listCommentModels');
+        });
       }
-      print('##17july showButtonLinks ===> $showButtonLinks');
+      // print('##17july showButtonLinks ===> $showButtonLinks');
 
       if (processLoad) {
         processLoad = false;
@@ -182,9 +213,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   Future<void> readMoreFastLinkData() async {
-    print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
-    print(
-        '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
+    // print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
+    // print(
+    //     '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
 
     if (lastIndex + 1 <= documentLists.length) {
       await FirebaseFirestore.instance
@@ -222,6 +253,36 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               .findUserModel(uid: fastLinkModel.uidPost)
               .then((value) {
             userModels.add(value);
+          });
+
+          //About Comment
+          await FirebaseFirestore.instance
+              .collection('fastlink')
+              .doc(element.id)
+              .collection('comment')
+              .orderBy('timeComment')
+              .get()
+              .then((valueComment) async {
+            if (valueComment.docs.isEmpty) {
+              listCommentModels.add([]);
+              listUserModelComments.add([]);
+            } else {
+              var commentModels = <CommentModel>[];
+              var userModels = <UserModel>[];
+              for (var element in valueComment.docs) {
+                CommentModel commentModel =
+                    CommentModel.fromMap(element.data());
+                commentModels.add(commentModel);
+
+                UserModel userModel = await MyFirebase()
+                    .findUserModel(uid: commentModel.uidComment);
+                userModels.add(userModel);
+              }
+              listCommentModels.add(commentModels);
+              listUserModelComments.add(userModels);
+            }
+
+            print('listCommentamodels at More Fast ===> $listCommentModels');
           });
         }
         lastIndex++;
@@ -404,56 +465,126 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                 bottom: 0,
                                 left: 0,
                                 child: Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 32),
                                   decoration: BoxDecoration(
-                                      color: Colors.grey.withOpacity(0.5)),
+                                      color: Colors.black.withOpacity(0.2)),
                                   width: boxConstraints.maxWidth,
-                                  height: 100,
-                                  child: Row(
+                                  // height: 100,
+                                  child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(
-                                            right: 16, left: 16),
-                                        child: ShowIconShopping(),
-                                      ),
-                                      ShowForm(
-                                        fillColor: Colors.grey.withOpacity(0.8),
-                                        topMargin: 0,
-                                        label: 'พูดคุย และ สั่งสินค้า',
-                                        iconData: Icons.shopping_cart,
-                                        changeFunc: (p0) async {
-                                          commentTexts[index] = p0;
-                                        },
-                                        pressFunc: () async {
-                                          print(
-                                              'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
-                                          print(
-                                              'commentText ==> ${commentTexts[index]}');
-                                          DateTime dateTime = DateTime.now();
-                                          Timestamp timestamp =
-                                              Timestamp.fromDate(dateTime);
+                                      listCommentModels[index].isEmpty
+                                          ? const SizedBox()
+                                          : ListView.builder(
+                                              shrinkWrap: true,
+                                              physics: const ScrollPhysics(),
+                                              itemCount:
+                                                  listCommentModels[index]
+                                                      .length,
+                                              itemBuilder: (context, index2) {
+                                                return Row(
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 8,
+                                                              right: 16),
+                                                      child: ShowCircleImage(
+                                                          radius: 16,
+                                                          path:
+                                                              listUserModelComments[
+                                                                          index]
+                                                                      [index2]
+                                                                  .avatar!),
+                                                    ),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        ShowText(
+                                                          label:
+                                                              listUserModelComments[
+                                                                          index]
+                                                                      [index2]
+                                                                  .name,
+                                                          textStyle: MyStyle()
+                                                              .h3WhiteBoldStyle(),
+                                                        ),
+                                                        ShowText(
+                                                            label:
+                                                                listCommentModels[
+                                                                            index]
+                                                                        [index2]
+                                                                    .comment),
+                                                        const SizedBox(
+                                                          height: 8,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.only(
+                                                right: 16, left: 16),
+                                            child: ShowIconShopping(),
+                                          ),
+                                          ShowForm(
+                                            fillColor:
+                                                Colors.grey.withOpacity(0.8),
+                                            topMargin: 0,
+                                            label: 'พูดคุย หรือ สั่งสินค้า',
+                                            iconData: Icons.shopping_cart,
+                                            changeFunc: (p0) async {
+                                              commentTexts[index] = p0;
+                                            },
+                                            pressFunc: () async {
+                                              print(
+                                                  'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
+                                              print(
+                                                  'commentText ==> ${commentTexts[index]}');
+                                              DateTime dateTime =
+                                                  DateTime.now();
+                                              Timestamp timestamp =
+                                                  Timestamp.fromDate(dateTime);
 
-                                          if (!(commentTexts[index]?.isEmpty ??
-                                              true)) {
-                                            CommentModel commentModel =
-                                                CommentModel(
-                                                    comment:
-                                                        commentTexts[index]!,
-                                                    timeComment: timestamp,
-                                                    uidComment: user!.uid);
-                                            await FirebaseFirestore.instance
-                                                .collection('fastlink')
-                                                .doc(docIdFastLinks[index])
-                                                .collection('comment')
-                                                .doc()
-                                                .set(commentModel.toMap())
-                                                .then((value) {
-                                              print('Add Comment success');
-                                            });
-                                          } // if
-                                        },
-                                      )
+                                              if (!(commentTexts[index]
+                                                      ?.isEmpty ??
+                                                  true)) {
+                                                CommentModel commentModel =
+                                                    CommentModel(
+                                                        comment: commentTexts[
+                                                            index]!,
+                                                        timeComment: timestamp,
+                                                        uidComment: user!.uid);
+                                                await FirebaseFirestore.instance
+                                                    .collection('fastlink')
+                                                    .doc(docIdFastLinks[index])
+                                                    .collection('comment')
+                                                    .doc()
+                                                    .set(commentModel.toMap())
+                                                    .then((value) {
+                                                  print('Add Comment success');
+                                                  
+                                                  MyDialog(context: context)
+                                                      .processDialog();
+                                                  processLoad = true;
+                                                  findDocumentLists();
+                                                  readFastLinkData();
+                                                });
+                                              } // if
+                                            },
+                                          )
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),

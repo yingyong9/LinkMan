@@ -47,6 +47,13 @@ class MyStyle {
         fontFamily: 'Sarabun',
       );
 
+       TextStyle h3GreyStyle() => const TextStyle(
+        fontSize: 14,
+        color: Colors.grey,
+        fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
+      );
+
       TextStyle h3RedStyle() => TextStyle(
         fontSize: 14,
         color: red,
@@ -58,6 +65,13 @@ class MyStyle {
         fontSize: 14,
         color: Colors.white,
         fontWeight: FontWeight.normal,
+        fontFamily: 'Sarabun',
+      );
+
+      TextStyle h3WhiteBoldStyle() => const TextStyle(
+        fontSize: 14,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
         fontFamily: 'Sarabun',
       );
 
