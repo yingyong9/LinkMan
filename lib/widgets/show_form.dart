@@ -18,6 +18,7 @@ class ShowForm extends StatelessWidget {
   final Widget? prefixWidget;
   final Color? colorSuffixIcon;
   final double? topMargin;
+  final Color? fillColor;
   const ShowForm({
     Key? key,
     this.width,
@@ -32,6 +33,7 @@ class ShowForm extends StatelessWidget {
     this.prefixWidget,
     this.colorSuffixIcon,
     this.topMargin,
+    this.fillColor,
   }) : super(key: key);
 
   @override
@@ -50,7 +52,7 @@ class ShowForm extends StatelessWidget {
         onChanged: changeFunc,
         decoration: InputDecoration(
           prefixIcon: prefixWidget,
-          filled: true,
+          filled: true,fillColor: fillColor,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
           suffixIcon: ShowIconButton(
