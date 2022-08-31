@@ -462,153 +462,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           child: Stack(
                             children: [
                               newImageListView(boxConstraints, index),
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 32),
-                                  decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.2)),
-                                  width: boxConstraints.maxWidth,
-                                  // height: 100,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      listCommentModels[index].isEmpty
-                                          ? const SizedBox()
-                                          : ListView.builder(
-                                              shrinkWrap: true,
-                                              physics: const ScrollPhysics(),
-                                              itemCount:
-                                                  listCommentModels[index]
-                                                      .length,
-                                              itemBuilder: (context, index2) {
-                                                return Container(
-                                                  margin: const EdgeInsets.only(
-                                                      bottom: 4),
-                                                  child: Row(
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 8,
-                                                                right: 16),
-                                                        child: ShowCircleImage(
-                                                            radius: 16,
-                                                            path: listUserModelComments[
-                                                                        index]
-                                                                    [index2]
-                                                                .avatar!),
-                                                      ),
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                horizontal: 32),
-                                                        decoration: MyStyle()
-                                                            .bgCircleGrey(),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            ShowText(
-                                                              label: listUserModelComments[
-                                                                          index]
-                                                                      [index2]
-                                                                  .name,
-                                                              textStyle: MyStyle()
-                                                                  .h3WhiteBoldStyle(),
-                                                            ),
-                                                            Container(
-                                                              constraints:
-                                                                  BoxConstraints(
-                                                                      maxWidth:
-                                                                          boxConstraints.maxWidth *
-                                                                              0.6),
-                                                              child: ShowText(
-                                                                  label:
-                                                                      '${listCommentModels[index][index2].comment}   ${MyProcess().timeStampToString(timestamp: listCommentModels[index][index2].timeComment)}'),
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 8,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          const Padding(
-                                            padding: EdgeInsets.only(
-                                                right: 16, left: 16),
-                                            child: ShowIconShopping(),
-                                          ),
-                                          ShowForm(
-                                            controller: textEditingController,
-                                            fillColor:
-                                                Colors.grey.withOpacity(0.8),
-                                            topMargin: 0,
-                                            label: 'พูดคุย หรือ สั่งสินค้า',
-                                            iconData: Icons.shopping_cart,
-                                            changeFunc: (p0) async {
-                                              commentTexts[index] = p0;
-                                            },
-                                            pressFunc: () async {
-                                              print(
-                                                  'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
-                                              print(
-                                                  'commentText ที่ index => $index ==> ${commentTexts[index]}');
-                                              DateTime dateTime =
-                                                  DateTime.now();
-                                              Timestamp timestamp =
-                                                  Timestamp.fromDate(dateTime);
-
-                                              if (!(commentTexts[index]
-                                                      ?.isEmpty ??
-                                                  true)) {
-                                                CommentModel commentModel =
-                                                    CommentModel(
-                                                        comment: commentTexts[
-                                                            index]!,
-                                                        timeComment: timestamp,
-                                                        uidComment: user!.uid);
-                                                await FirebaseFirestore.instance
-                                                    .collection('fastlink')
-                                                    .doc(docIdFastLinks[index])
-                                                    .collection('comment')
-                                                    .doc()
-                                                    .set(commentModel.toMap())
-                                                    .then((value) {
-                                                  print('Add Comment success');
-
-                                                  textEditingController.text =
-                                                      '';
-
-                                                  MyDialog(context: context)
-                                                      .processDialog();
-                                                  processLoad = true;
-                                                  findDocumentLists();
-                                                  readFastLinkData();
-                                                });
-                                              } // if
-                                            },
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                              listComment(boxConstraints, index, context),
+                              ShowText(label: 'avata post Owner'),
                               // newContent1(boxConstraints, index),
                               // newContent3(boxConstraints, index),
                               // newContent4(index),
@@ -622,6 +477,132 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }),
         ),
       ],
+    );
+  }
+
+  Widget listComment(
+      BoxConstraints boxConstraints, int index, BuildContext context) {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        decoration: BoxDecoration(color: Colors.black.withOpacity(0.2)),
+        width: boxConstraints.maxWidth,
+        // height: 100,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            listCommentModels[index].isEmpty
+                ? const SizedBox()
+                : Container(
+                    constraints: BoxConstraints(
+                        maxHeight: boxConstraints.maxHeight * 0.3),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const ScrollPhysics(),
+                      itemCount: listCommentModels[index].length,
+                      itemBuilder: (context, index2) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, right: 16),
+                                child: ShowCircleImage(
+                                    radius: 16,
+                                    path: listUserModelComments[index][index2]
+                                        .avatar!),
+                              ),
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 32),
+                                decoration: MyStyle().bgCircleGrey(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ShowText(
+                                      label: listUserModelComments[index]
+                                              [index2]
+                                          .name,
+                                      textStyle: MyStyle().h3GreenBoldStyle(),
+                                    ),
+                                    Container(
+                                      constraints: BoxConstraints(
+                                          maxWidth:
+                                              boxConstraints.maxWidth * 0.6),
+                                      child: ShowText(
+                                        label:
+                                            '${listCommentModels[index][index2].comment}   ${MyProcess().timeStampToString(timestamp: listCommentModels[index][index2].timeComment)}',
+                                        textStyle: MyStyle().h3WhiteBoldStyle(),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 8,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(right: 16, left: 16),
+                  child: ShowIconShopping(),
+                ),
+                ShowForm(
+                  controller: textEditingController,
+                  fillColor: Colors.grey.withOpacity(0.8),
+                  topMargin: 0,
+                  label: 'พูดคุย หรือ สั่งสินค้า',
+                  iconData: Icons.shopping_cart,
+                  changeFunc: (p0) async {
+                    commentTexts[index] = p0;
+                  },
+                  pressFunc: () async {
+                    print(
+                        'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
+                    print(
+                        'commentText ที่ index => $index ==> ${commentTexts[index]}');
+                    DateTime dateTime = DateTime.now();
+                    Timestamp timestamp = Timestamp.fromDate(dateTime);
+
+                    if (!(commentTexts[index]?.isEmpty ?? true)) {
+                      CommentModel commentModel = CommentModel(
+                          comment: commentTexts[index]!,
+                          timeComment: timestamp,
+                          uidComment: user!.uid);
+                      await FirebaseFirestore.instance
+                          .collection('fastlink')
+                          .doc(docIdFastLinks[index])
+                          .collection('comment')
+                          .doc()
+                          .set(commentModel.toMap())
+                          .then((value) {
+                        print('Add Comment success');
+
+                        textEditingController.text = '';
+
+                        MyDialog(context: context).processDialog();
+                        processLoad = true;
+                        findDocumentLists();
+                        readFastLinkData();
+                      });
+                    } // if
+                  },
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
