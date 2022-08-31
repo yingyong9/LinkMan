@@ -5,10 +5,14 @@ class MyStyle {
   static Color dark = Colors.black;
   static Color green = const Color.fromARGB(255, 167, 231, 89);
   static Color red = Color.fromARGB(255, 231, 56, 56);
-  
 
   BoxDecoration bgCircleBlack() => BoxDecoration(
         color: Colors.black.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(30),
+      );
+
+  BoxDecoration bgCircleGrey() => BoxDecoration(
+        color: Colors.grey.withOpacity(0.20),
         borderRadius: BorderRadius.circular(30),
       );
 
@@ -40,35 +44,35 @@ class MyStyle {
         fontFamily: 'Sarabun',
       );
 
-      TextStyle h3GreenStyle() => TextStyle(
+  TextStyle h3GreenStyle() => TextStyle(
         fontSize: 14,
         color: green,
         fontWeight: FontWeight.normal,
         fontFamily: 'Sarabun',
       );
 
-       TextStyle h3GreyStyle() => const TextStyle(
+  TextStyle h3GreyStyle() => const TextStyle(
         fontSize: 14,
         color: Colors.grey,
         fontWeight: FontWeight.normal,
         fontFamily: 'Sarabun',
       );
 
-      TextStyle h3RedStyle() => TextStyle(
+  TextStyle h3RedStyle() => TextStyle(
         fontSize: 14,
         color: red,
         fontWeight: FontWeight.normal,
         fontFamily: 'Sarabun',
       );
 
-      TextStyle h3WhiteStyle() => const TextStyle(
+  TextStyle h3WhiteStyle() => const TextStyle(
         fontSize: 14,
         color: Colors.white,
         fontWeight: FontWeight.normal,
         fontFamily: 'Sarabun',
       );
 
-      TextStyle h3WhiteBoldStyle() => const TextStyle(
+  TextStyle h3WhiteBoldStyle() => const TextStyle(
         fontSize: 14,
         color: Colors.white,
         fontWeight: FontWeight.bold,

@@ -485,47 +485,62 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                                   listCommentModels[index]
                                                       .length,
                                               itemBuilder: (context, index2) {
-                                                return Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8,
-                                                              right: 16),
-                                                      child: ShowCircleImage(
-                                                          radius: 16,
-                                                          path:
-                                                              listUserModelComments[
-                                                                          index]
-                                                                      [index2]
-                                                                  .avatar!),
-                                                    ),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        ShowText(
-                                                          label:
-                                                              listUserModelComments[
+                                                return Container(
+                                                  margin: const EdgeInsets.only(
+                                                      bottom: 4),
+                                                  child: Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 8,
+                                                                right: 16),
+                                                        child: ShowCircleImage(
+                                                            radius: 16,
+                                                            path: listUserModelComments[
+                                                                        index]
+                                                                    [index2]
+                                                                .avatar!),
+                                                      ),
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 32),
+                                                        decoration: MyStyle()
+                                                            .bgCircleGrey(),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            ShowText(
+                                                              label: listUserModelComments[
                                                                           index]
                                                                       [index2]
                                                                   .name,
-                                                          textStyle: MyStyle()
-                                                              .h3WhiteBoldStyle(),
+                                                              textStyle: MyStyle()
+                                                                  .h3WhiteBoldStyle(),
+                                                            ),
+                                                            Container(
+                                                              constraints:
+                                                                  BoxConstraints(
+                                                                      maxWidth:
+                                                                          boxConstraints.maxWidth *
+                                                                              0.6),
+                                                              child: ShowText(
+                                                                  label:
+                                                                      '${listCommentModels[index][index2].comment}   ${MyProcess().timeStampToString(timestamp: listCommentModels[index][index2].timeComment)}'),
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 8,
+                                                            ),
+                                                          ],
                                                         ),
-                                                        ShowText(
-                                                            label:
-                                                                listCommentModels[
-                                                                            index]
-                                                                        [index2]
-                                                                    .comment),
-                                                        const SizedBox(
-                                                          height: 8,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 );
                                               },
                                             ),
@@ -552,7 +567,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                               print(
                                                   'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
                                               print(
-                                                  'commentText ==> ${commentTexts[index]}');
+                                                  'commentText ที่ index => $index ==> ${commentTexts[index]}');
                                               DateTime dateTime =
                                                   DateTime.now();
                                               Timestamp timestamp =
