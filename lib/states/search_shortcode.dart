@@ -66,6 +66,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   var commentTexts = <String?>[];
   var listCommentModels = <List<CommentModel>>[];
   var listUserModelComments = <List<UserModel>>[];
+  TextEditingController commentController = TextEditingController();
 
   @override
   void initState() {
@@ -538,6 +539,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                             child: ShowIconShopping(),
                                           ),
                                           ShowForm(
+                                            controller: textEditingController,
                                             fillColor:
                                                 Colors.grey.withOpacity(0.8),
                                             topMargin: 0,
@@ -573,7 +575,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                                     .set(commentModel.toMap())
                                                     .then((value) {
                                                   print('Add Comment success');
-                                                  
+
+                                                  textEditingController.text =
+                                                      '';
+
                                                   MyDialog(context: context)
                                                       .processDialog();
                                                   processLoad = true;
