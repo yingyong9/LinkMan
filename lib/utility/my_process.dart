@@ -1,10 +1,19 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:random_password_generator/random_password_generator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyProcess {
+  String timeStampToString({required Timestamp timestamp}) {
+    DateTime dateTime = timestamp.toDate();
+    DateFormat dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+    String result = dateFormat.format(dateTime);
+    return result;
+  }
+
   Future<File> processTakePhoto({required ImageSource source}) async {
     var result = await ImagePicker().pickImage(
       source: source,
