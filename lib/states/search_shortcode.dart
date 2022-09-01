@@ -567,10 +567,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     commentTexts[index] = p0;
                   },
                   pressFunc: () async {
-                    print(
-                        'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
-                    print(
-                        'commentText ที่ index => $index ==> ${commentTexts[index]}');
+                    // print(
+                    //     'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
+                    // print(
+                    //     'commentText ที่ index => $index ==> ${commentTexts[index]}');
                     DateTime dateTime = DateTime.now();
                     Timestamp timestamp = Timestamp.fromDate(dateTime);
 
@@ -585,15 +585,24 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           .collection('comment')
                           .doc()
                           .set(commentModel.toMap())
-                          .then((value) {
+                          .then((value) async {
                         print('Add Comment success');
 
                         textEditingController.text = '';
 
-                        MyDialog(context: context).processDialog();
-                        processLoad = true;
-                        findDocumentLists();
-                        readFastLinkData();
+                        if (index == 0) {
+                          MyDialog(context: context).processDialog();
+                          processLoad = true;
+                          findDocumentLists();
+                          readFastLinkData();
+                        } else {
+                          print('index ที่เพิ่ม Commemt ==> $index');
+                          listCommentModels[index].add(commentModel);
+                          UserModel userModel =
+                              await MyFirebase().findUserModel(uid: user!.uid);
+                          listUserModelComments[index].add(userModel);
+                          setState(() {});
+                        }
                       });
                     } // if
                   },
