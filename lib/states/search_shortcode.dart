@@ -57,7 +57,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   var userModels = <UserModel>[];
   var documentLists = <DocumentSnapshot>[];
   var showButtonLinks = <bool>[];
-  int lastIndex = 0;
+  int lastIndex = 9;
   final globalQRkey = GlobalKey();
   ScrollController scrollController = ScrollController();
   var user = FirebaseAuth.instance.currentUser;
@@ -100,7 +100,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
-        // print('##6Aug Load More on Top');
+        print('##6Aug Load More on Top');
         MyDialog(context: context).processDialog();
         processLoad = true;
         findDocumentLists();
@@ -109,7 +109,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        // print('##6Aug Load More on Button Work');
+        print('##6Aug Load More on Button Work');
         MyDialog(context: context).processDialog();
         processLoad = true;
         readMoreFastLinkData();
@@ -127,7 +127,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       userModels.clear();
       documentLists.clear();
       showButtonLinks.clear();
-      lastIndex = 0;
+      lastIndex = 9;
       docIdFastLinks.clear();
       listCommentModels.clear();
       commentTexts.clear();
@@ -140,7 +140,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     await FirebaseFirestore.instance
         .collection('fastlink')
         .orderBy('timestamp', descending: true)
-        .limit(1)
+        .limit(10)
         .get()
         .then((value) async {
       for (var element in value.docs) {
@@ -214,16 +214,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   Future<void> readMoreFastLinkData() async {
-    // print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
-    // print(
-    //     '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
+    print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
+    print(
+        '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
 
     if (lastIndex + 1 <= documentLists.length) {
+
       await FirebaseFirestore.instance
           .collection('fastlink')
           .orderBy('timestamp', descending: true)
           .startAfterDocument(documentLists[lastIndex])
-          .limit(1)
+          .limit(10)
           .get()
           .then((value) async {
         for (var element in value.docs) {
@@ -590,19 +591,26 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
                         textEditingController.text = '';
 
-                        if (index == 0) {
-                          MyDialog(context: context).processDialog();
-                          processLoad = true;
-                          findDocumentLists();
-                          readFastLinkData();
-                        } else {
-                          print('index ที่เพิ่ม Commemt ==> $index');
-                          listCommentModels[index].add(commentModel);
+                         listCommentModels[index].add(commentModel);
                           UserModel userModel =
                               await MyFirebase().findUserModel(uid: user!.uid);
                           listUserModelComments[index].add(userModel);
                           setState(() {});
-                        }
+
+                        // if (index == 0) {
+
+                        //   MyDialog(context: context).processDialog();
+                        //   processLoad = true;
+                        //   findDocumentLists();
+                        //   readFastLinkData();
+                        // } else {
+                        //   print('index ที่เพิ่ม Commemt ==> $index');
+                        //   listCommentModels[index].add(commentModel);
+                        //   UserModel userModel =
+                        //       await MyFirebase().findUserModel(uid: user!.uid);
+                        //   listUserModelComments[index].add(userModel);
+                        //   setState(() {});
+                        // }
                       });
                     } // if
                   },
