@@ -185,7 +185,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                         processFindLocation();
                       },
                       boxConstraints: boxConstraints,
-                      label: 'Link1',
+                      label: 'Link คลิกหน้าจอ',
                       changeFunc: (p0) {
                         linkContact = p0.trim();
                       },
@@ -212,17 +212,17 @@ class _AddFastLinkState extends State<AddFastLink> {
                               ),
                             ],
                           ),
-                    formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'ชื่อปุ่มของ Link1',
-                      changeFunc: (p0) {
-                        nameButtonLinkContact = p0.trim();
-                      },
-                    ),
+                    // formDetail(
+                    //   boxConstraints: boxConstraints,
+                    //   label: 'ชื่อปุ่มของ Link1',
+                    //   changeFunc: (p0) {
+                    //     nameButtonLinkContact = p0.trim();
+                    //   },
+                    // ),
                     addLink?.isEmpty ?? true
                         ? formDetail(
                             boxConstraints: boxConstraints,
-                            label: 'Link2',
+                            label: 'Link ติดต่อ',
                             changeFunc: (p0) {
                               addLink = p0.trim();
                             },
@@ -239,12 +239,54 @@ class _AddFastLinkState extends State<AddFastLink> {
                                   string: addLink!),
                             ],
                           ),
-                    formDetail(
-                        boxConstraints: boxConstraints,
-                        label: '@ หัวข้อ :',
-                        changeFunc: (String string) {
-                          head = string.trim();
-                        }),
+                    // formDetail(
+                    //     boxConstraints: boxConstraints,
+                    //     label: 'ชื่อปุ่ม Link2 :',
+                    //     changeFunc: (String string) {
+                    //       head = string.trim();
+                    //     }),
+
+                         formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'Link3',
+                      changeFunc: (p0) {},
+                    ),
+                     formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'ชื่อปุ่ม Link3',
+                      changeFunc: (p0) {},
+                    ),
+                     formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'Link4',
+                      changeFunc: (p0) {},
+                    ),
+                     formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'ชื่อปุ่ม Link4',
+                      changeFunc: (p0) {},
+                    ),
+                     formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'Link5',
+                      changeFunc: (p0) {},
+                    ),
+                     formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'ชื่อปุ่ม Link5',
+                      changeFunc: (p0) {},
+                    ),
+                     formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'Link6',
+                      changeFunc: (p0) {},
+                    ),
+                     formDetail(
+                      boxConstraints: boxConstraints,
+                      label: 'ชื่อปุ่ม Link6',
+                      changeFunc: (p0) {},
+                    ),
+                        
                     formDetail(
                         boxConstraints: boxConstraints,
                         label: 'อยากบอกอะไร :',
@@ -262,6 +304,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                         : roomModels.isEmpty
                             ? const SizedBox()
                             : dropDownLiveManLand(boxConstraints),
+                   
                     newGroup(boxConstraints: boxConstraints),
                   ],
                 ),
@@ -493,6 +536,7 @@ class _AddFastLinkState extends State<AddFastLink> {
     IconData? iconData,
     Function()? iconPressFunc,
     Color? textColor,
+   
   }) {
     return Container(
       margin: const EdgeInsets.only(top: 16),

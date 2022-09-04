@@ -12,7 +12,7 @@ import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
-import 'package:admanyout/widgets/show_icon_shopping.dart';
+import 'package:admanyout/widgets/show_image_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -219,7 +219,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
 
     if (lastIndex + 1 <= documentLists.length) {
-
       await FirebaseFirestore.instance
           .collection('fastlink')
           .orderBy('timestamp', descending: true)
@@ -464,7 +463,28 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             children: [
                               newImageListView(boxConstraints, index),
                               listComment(boxConstraints, index, context),
-                              ShowText(label: 'avata post Owner'),
+                              fourButton(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: MyStyle().bgCircleBlack(),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ShowCircleImage(
+                                      path: userModels[index].avatar!,
+                                      radius: 18,
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    ShowText(
+                                      label: userModels[index].name,
+                                      textStyle: MyStyle().h3WhiteBoldStyle(),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               // newContent1(boxConstraints, index),
                               // newContent3(boxConstraints, index),
                               // newContent4(index),
@@ -478,6 +498,37 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }),
         ),
       ],
+    );
+  }
+
+  Positioned fourButton() {
+    return Positioned(
+      bottom: 80,
+      right: 20,
+      child: Column(
+        children: [
+          ShowIconButton(
+            color: Colors.red,
+            iconData: Icons.radio_button_checked,
+            pressFunc: () {},
+          ),
+          ShowIconButton(
+            color: Colors.red,
+            iconData: Icons.radio_button_checked,
+            pressFunc: () {},
+          ),
+          ShowIconButton(
+            color: Colors.red,
+            iconData: Icons.radio_button_checked,
+            pressFunc: () {},
+          ),
+          ShowIconButton(
+            color: Colors.red,
+            iconData: Icons.radio_button_checked,
+            pressFunc: () {},
+          ),
+        ],
+      ),
     );
   }
 
@@ -552,13 +603,18 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     ),
                   ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 16, left: 16),
-                  child: ShowIconShopping(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16, left: 16),
+                  child: ShowImageIconButton(
+                    path: 'images/shopping.png',
+                    pressFunc: () {},
+                  ),
                 ),
                 ShowForm(
+                  width: boxConstraints.maxWidth * 0.6,
                   controller: textEditingController,
                   fillColor: Colors.grey.withOpacity(0.8),
                   topMargin: 0,
@@ -591,11 +647,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
                         textEditingController.text = '';
 
-                         listCommentModels[index].add(commentModel);
-                          UserModel userModel =
-                              await MyFirebase().findUserModel(uid: user!.uid);
-                          listUserModelComments[index].add(userModel);
-                          setState(() {});
+                        listCommentModels[index].add(commentModel);
+                        UserModel userModel =
+                            await MyFirebase().findUserModel(uid: user!.uid);
+                        listUserModelComments[index].add(userModel);
+                        setState(() {});
 
                         // if (index == 0) {
 
@@ -614,7 +670,25 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                       });
                     } // if
                   },
-                )
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16, left: 16),
+                  child: ShowImageIconButton(
+                    path: 'images/message.png',
+                    pressFunc: () {
+                     
+
+                      if (fastLinkModels[index].linkContact.isNotEmpty) {
+
+                         String urlSave = fastLinkModels[index].urlImage;
+                      processSaveQRcodeOnStorage(urlImage: urlSave);
+
+                        MyProcess().processLaunchUrl(
+                            url: fastLinkModels[index].linkContact);
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ],
