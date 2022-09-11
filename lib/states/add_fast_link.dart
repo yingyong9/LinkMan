@@ -187,7 +187,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                       boxConstraints: boxConstraints,
                       label: 'Link คลิกหน้าจอ',
                       changeFunc: (p0) {
-                        linkContact = p0.trim();
+                        // addLink = p0.trim();
                       },
                     ),
                     lat == null
@@ -224,7 +224,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                             boxConstraints: boxConstraints,
                             label: 'Link ติดต่อ',
                             changeFunc: (p0) {
-                              addLink = p0.trim();
+                              linkContact = p0.trim();
                             },
                           )
                         : Row(

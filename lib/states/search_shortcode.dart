@@ -618,8 +618,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   controller: textEditingController,
                   fillColor: Colors.grey.withOpacity(0.8),
                   topMargin: 0,
-                  label: 'พูดคุย หรือ สั่งสินค้า',
-                  iconData: Icons.shopping_cart,
+                  label: 'แสดงความคิดเห็น',
+                  iconData: Icons.send,
                   changeFunc: (p0) async {
                     commentTexts[index] = p0;
                   },
@@ -646,6 +646,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                         print('Add Comment success');
 
                         textEditingController.text = '';
+                        commentTexts[index] = '';
 
                         listCommentModels[index].add(commentModel);
                         UserModel userModel =
@@ -676,12 +677,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   child: ShowImageIconButton(
                     path: 'images/message.png',
                     pressFunc: () {
-                     
-
                       if (fastLinkModels[index].linkContact.isNotEmpty) {
-
-                         String urlSave = fastLinkModels[index].urlImage;
-                      processSaveQRcodeOnStorage(urlImage: urlSave);
+                        
+                        String urlSave = fastLinkModels[index].urlImage;
+                        processSaveQRcodeOnStorage(urlImage: urlSave);
 
                         MyProcess().processLaunchUrl(
                             url: fastLinkModels[index].linkContact);
