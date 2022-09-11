@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:admanyout/models/category_room_model.dart';
 import 'package:admanyout/models/fast_group_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
+import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/song_model.dart';
 import 'package:admanyout/models/user_model.dart';
@@ -19,11 +20,13 @@ import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_form_long.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -63,6 +66,8 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   double? lat, lng;
   Map<MarkerId, Marker> markers = {};
+
+  TextEditingController linkContactController = TextEditingController();
 
   @override
   void initState() {
@@ -187,7 +192,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                       boxConstraints: boxConstraints,
                       label: 'Link คลิกหน้าจอ',
                       changeFunc: (p0) {
-                        // addLink = p0.trim();
+                        addLink = p0.trim();
                       },
                     ),
                     lat == null
@@ -212,81 +217,26 @@ class _AddFastLinkState extends State<AddFastLink> {
                               ),
                             ],
                           ),
-                    // formDetail(
-                    //   boxConstraints: boxConstraints,
-                    //   label: 'ชื่อปุ่มของ Link1',
-                    //   changeFunc: (p0) {
-                    //     nameButtonLinkContact = p0.trim();
-                    //   },
-                    // ),
-                    addLink?.isEmpty ?? true
-                        ? formDetail(
-                            boxConstraints: boxConstraints,
-                            label: 'Link ติดต่อ',
-                            changeFunc: (p0) {
-                              linkContact = p0.trim();
-                            },
-                          )
-                        : Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    userModelLogined!.avatar ??
-                                        MyConstant.urlLogo),
-                              ),
-                              newTitle(
-                                  boxConstraints: boxConstraints,
-                                  string: addLink!),
-                            ],
-                          ),
-                    // formDetail(
-                    //     boxConstraints: boxConstraints,
-                    //     label: 'ชื่อปุ่ม Link2 :',
-                    //     changeFunc: (String string) {
-                    //       head = string.trim();
-                    //     }),
-
-                         formDetail(
+                    formDetail(
+                      textEditingController: linkContactController,
                       boxConstraints: boxConstraints,
-                      label: 'Link3',
-                      changeFunc: (p0) {},
+                      label: 'Link ติดต่อ',
+                      changeFunc: (p0) {
+                        linkContact = p0.trim();
+                      },
+                      labelIcon: 'Stock Link',
+                      iconData: Icons.link,
+                      iconPressFunc: () {
+                        dialogListLinkContact();
+                      },
                     ),
-                     formDetail(
+                    formDetail(
                       boxConstraints: boxConstraints,
-                      label: 'ชื่อปุ่ม Link3',
-                      changeFunc: (p0) {},
+                      label: 'ชื่อ Post:',
+                      changeFunc: (p0) {
+                        head = p0.trim();
+                      },
                     ),
-                     formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'Link4',
-                      changeFunc: (p0) {},
-                    ),
-                     formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'ชื่อปุ่ม Link4',
-                      changeFunc: (p0) {},
-                    ),
-                     formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'Link5',
-                      changeFunc: (p0) {},
-                    ),
-                     formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'ชื่อปุ่ม Link5',
-                      changeFunc: (p0) {},
-                    ),
-                     formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'Link6',
-                      changeFunc: (p0) {},
-                    ),
-                     formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'ชื่อปุ่ม Link6',
-                      changeFunc: (p0) {},
-                    ),
-                        
                     formDetail(
                         boxConstraints: boxConstraints,
                         label: 'อยากบอกอะไร :',
@@ -304,7 +254,6 @@ class _AddFastLinkState extends State<AddFastLink> {
                         : roomModels.isEmpty
                             ? const SizedBox()
                             : dropDownLiveManLand(boxConstraints),
-                   
                     newGroup(boxConstraints: boxConstraints),
                   ],
                 ),
@@ -535,8 +484,9 @@ class _AddFastLinkState extends State<AddFastLink> {
     required Function(String) changeFunc,
     IconData? iconData,
     Function()? iconPressFunc,
+    String? labelIcon,
     Color? textColor,
-   
+    TextEditingController? textEditingController,
   }) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
@@ -558,6 +508,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                 ? boxConstraints.maxWidth * 0.65
                 : boxConstraints.maxWidth * 0.65 - 15,
             child: ShowFormLong(
+              textEditingController: textEditingController,
               marginTop: 0,
               label: label,
               changeFunc: changeFunc,
@@ -578,7 +529,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                       height: 8,
                     ),
                     ShowText(
-                      label: 'ต่ำแหน่งที่ตั้ง',
+                      label: labelIcon ?? 'ต่ำแหน่งที่ตั้ง',
                       textStyle: MyStyle().h3Style(),
                     )
                   ],
@@ -733,5 +684,93 @@ class _AddFastLinkState extends State<AddFastLink> {
             exit(0);
           });
     }
+  }
+
+  Future<void> dialogListLinkContact() async {
+    var linkModels = <LinkModel>[];
+
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(user!.uid)
+        .collection('link')
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        LinkModel linkModel = LinkModel.fromMap(element.data());
+        linkModels.add(linkModel);
+      }
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              linkModels.isEmpty
+                  ? const SizedBox()
+                  : Container(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: linkModels.length,
+                        itemBuilder: (context, index) => InkWell(
+                          onTap: () {
+                            print('index ==> $index');
+                            linkContactController.text =
+                                linkModels[index].urlLink;
+                            setState(() {});
+                            Navigator.pop(context);
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ShowText(
+                                label: linkModels[index].nameLink,
+                                textStyle: MyStyle().h2Style(),
+                              ),
+                              ShowText(
+                                label: linkModels[index].urlLink,
+                                textStyle: MyStyle().h3Style(),
+                              ),
+                              Divider(
+                                color: MyStyle.dark,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+              ShowText(
+                label: 'เพิ่ม Link',
+                textStyle: MyStyle().h2Style(),
+              ),
+              ShowFormLong(
+                label: 'Name Link',
+                changeFunc: (p0) {},
+              ),
+              ShowFormLong(
+                label: 'Url Link',
+                changeFunc: (p0) {},
+              )
+            ],
+          ),
+          actions: [
+            ShowTextButton(
+              textStyle: MyStyle().h3GreenStyle(),
+              label: 'เพิ่ม Link ใหม่',
+              pressFunc: () {},
+            ),
+            ShowTextButton(
+              textStyle: MyStyle().h3RedStyle(),
+              label: 'Cancel',
+              pressFunc: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ),
+      );
+    });
   }
 }
