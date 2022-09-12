@@ -454,7 +454,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           head: head ?? '',
           urlSong: urlSongChoose ?? '',
           keyRoom: chooseRoomModel?.keyRoom ?? '',
-          linkContact: linkContact ?? '',
+          linkContact: linkContactController.text,
           nameButtonLinkContact: nameButtonLinkContact ?? '',
           position: position,
         );
@@ -688,6 +688,7 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   Future<void> dialogListLinkContact() async {
     var linkModels = <LinkModel>[];
+    String? linkUrl, nameLink;
 
     await FirebaseFirestore.instance
         .collection('user')
@@ -703,63 +704,95 @@ class _AddFastLinkState extends State<AddFastLink> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              linkModels.isEmpty
-                  ? const SizedBox()
-                  : Container(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: linkModels.length,
-                        itemBuilder: (context, index) => InkWell(
-                          onTap: () {
-                            print('index ==> $index');
-                            linkContactController.text =
-                                linkModels[index].urlLink;
-                            setState(() {});
-                            Navigator.pop(context);
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ShowText(
-                                label: linkModels[index].nameLink,
-                                textStyle: MyStyle().h2Style(),
-                              ),
-                              ShowText(
-                                label: linkModels[index].urlLink,
-                                textStyle: MyStyle().h3Style(),
-                              ),
-                              Divider(
-                                color: MyStyle.dark,
-                              ),
-                            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                linkModels.isEmpty
+                    ? const SizedBox()
+                    : Container(width: 200,height: 200,
+                        // constraints: const BoxConstraints(
+                        //   minWidth: 100,
+                        //   minHeight: 100,
+                        //   maxWidth: 200,
+                        //   maxHeight: 200,
+                        // ),
+                        child: ListView.builder(
+                          physics: const ScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: linkModels.length,
+                          itemBuilder: (context, index) => InkWell(
+                            onTap: () {
+                              print('index ==> $index');
+                              linkContactController.text =
+                                  linkModels[index].urlLink;
+                              setState(() {});
+                              Navigator.pop(context);
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ShowText(
+                                  label: linkModels[index].nameLink,
+                                  textStyle: MyStyle().h2Style(),
+                                ),
+                                ShowText(
+                                  label: linkModels[index].urlLink,
+                                  textStyle: MyStyle().h3Style(),
+                                ),
+                                Divider(
+                                  color: MyStyle.dark,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-              ShowText(
-                label: 'เพิ่ม Link',
-                textStyle: MyStyle().h2Style(),
-              ),
-              ShowFormLong(
-                label: 'Name Link',
-                changeFunc: (p0) {},
-              ),
-              ShowFormLong(
-                label: 'Url Link',
-                changeFunc: (p0) {},
-              )
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: ShowText(
+                    label: 'เพิ่ม Link',
+                    textStyle: MyStyle().h2Style(),
+                  ),
+                ),
+                ShowFormLong(
+                  label: 'Link Url',
+                  changeFunc: (p0) {
+                    linkUrl = p0.trim();
+                  },
+                ),
+                ShowFormLong(
+                  label: 'Name Link',
+                  changeFunc: (p0) {
+                    nameLink = p0.trim();
+                  },
+                ),
+              ],
+            ),
           ),
           actions: [
             ShowTextButton(
               textStyle: MyStyle().h3GreenStyle(),
               label: 'เพิ่ม Link ใหม่',
-              pressFunc: () {},
+              pressFunc: () async {
+                print('###### linkUrl ==> $linkUrl, nameLink = $nameLink');
+                if ((linkUrl?.isNotEmpty ?? false) &&
+                    (nameLink?.isNotEmpty ?? false)) {
+                  LinkModel linkModel = LinkModel(
+                      nameLink: nameLink!, urlLink: linkUrl!, groupLink: '');
+
+                  await MyFirebase()
+                      .addNewLinkToUser(
+                          uidUser: user!.uid, linkModel: linkModel)
+                      .then((value) {
+                    linkContactController.text = linkUrl!;
+                    setState(() {});
+                  });
+                }
+                Navigator.pop(context);
+              },
             ),
             ShowTextButton(
               textStyle: MyStyle().h3RedStyle(),

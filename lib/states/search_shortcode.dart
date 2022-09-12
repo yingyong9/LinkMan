@@ -463,28 +463,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             children: [
                               newImageListView(boxConstraints, index),
                               listComment(boxConstraints, index, context),
-                              fourButton(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: MyStyle().bgCircleBlack(),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ShowCircleImage(
-                                      path: userModels[index].avatar!,
-                                      radius: 18,
-                                    ),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    ShowText(
-                                      label: userModels[index].name,
-                                      textStyle: MyStyle().h3WhiteBoldStyle(),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              // fourButton(),
+                              showOwnerPost(index),
                               // newContent1(boxConstraints, index),
                               // newContent3(boxConstraints, index),
                               // newContent4(index),
@@ -499,6 +479,30 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         ),
       ],
     );
+  }
+
+  Container showOwnerPost(int index) {
+    return Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: MyStyle().bgCircleBlack(),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ShowCircleImage(
+                                    path: userModels[index].avatar!,
+                                    radius: 18,
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  ShowText(
+                                    label: userModels[index].name,
+                                    textStyle: MyStyle().h3WhiteBoldStyle(),
+                                  ),
+                                ],
+                              ),
+                            );
   }
 
   Positioned fourButton() {
