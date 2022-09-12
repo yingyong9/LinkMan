@@ -12,7 +12,7 @@ import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
-import 'package:admanyout/widgets/show_icon_shopping.dart';
+import 'package:admanyout/widgets/show_image_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -57,7 +57,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   var userModels = <UserModel>[];
   var documentLists = <DocumentSnapshot>[];
   var showButtonLinks = <bool>[];
-  int lastIndex = 0;
+  int lastIndex = 9;
   final globalQRkey = GlobalKey();
   ScrollController scrollController = ScrollController();
   var user = FirebaseAuth.instance.currentUser;
@@ -100,7 +100,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
-        // print('##6Aug Load More on Top');
+        print('##6Aug Load More on Top');
         MyDialog(context: context).processDialog();
         processLoad = true;
         findDocumentLists();
@@ -109,7 +109,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        // print('##6Aug Load More on Button Work');
+        print('##6Aug Load More on Button Work');
         MyDialog(context: context).processDialog();
         processLoad = true;
         readMoreFastLinkData();
@@ -127,7 +127,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       userModels.clear();
       documentLists.clear();
       showButtonLinks.clear();
-      lastIndex = 0;
+      lastIndex = 9;
       docIdFastLinks.clear();
       listCommentModels.clear();
       commentTexts.clear();
@@ -140,7 +140,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     await FirebaseFirestore.instance
         .collection('fastlink')
         .orderBy('timestamp', descending: true)
-        .limit(1)
+        .limit(10)
         .get()
         .then((value) async {
       for (var element in value.docs) {
@@ -214,16 +214,16 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   Future<void> readMoreFastLinkData() async {
-    // print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
-    // print(
-    //     '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
+    print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
+    print(
+        '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
 
     if (lastIndex + 1 <= documentLists.length) {
       await FirebaseFirestore.instance
           .collection('fastlink')
           .orderBy('timestamp', descending: true)
           .startAfterDocument(documentLists[lastIndex])
-          .limit(1)
+          .limit(10)
           .get()
           .then((value) async {
         for (var element in value.docs) {
@@ -463,7 +463,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             children: [
                               newImageListView(boxConstraints, index),
                               listComment(boxConstraints, index, context),
-                              ShowText(label: 'avata post Owner'),
+                              // fourButton(),
+                              showOwnerPost(index),
                               // newContent1(boxConstraints, index),
                               // newContent3(boxConstraints, index),
                               // newContent4(index),
@@ -477,6 +478,61 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 }),
         ),
       ],
+    );
+  }
+
+  Container showOwnerPost(int index) {
+    return Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: MyStyle().bgCircleBlack(),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ShowCircleImage(
+                                    path: userModels[index].avatar!,
+                                    radius: 18,
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  ShowText(
+                                    label: userModels[index].name,
+                                    textStyle: MyStyle().h3WhiteBoldStyle(),
+                                  ),
+                                ],
+                              ),
+                            );
+  }
+
+  Positioned fourButton() {
+    return Positioned(
+      bottom: 80,
+      right: 20,
+      child: Column(
+        children: [
+          ShowIconButton(
+            color: Colors.red,
+            iconData: Icons.radio_button_checked,
+            pressFunc: () {},
+          ),
+          ShowIconButton(
+            color: Colors.red,
+            iconData: Icons.radio_button_checked,
+            pressFunc: () {},
+          ),
+          ShowIconButton(
+            color: Colors.red,
+            iconData: Icons.radio_button_checked,
+            pressFunc: () {},
+          ),
+          ShowIconButton(
+            color: Colors.red,
+            iconData: Icons.radio_button_checked,
+            pressFunc: () {},
+          ),
+        ],
+      ),
     );
   }
 
@@ -551,18 +607,23 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     ),
                   ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 16, left: 16),
-                  child: ShowIconShopping(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16, left: 16),
+                  child: ShowImageIconButton(
+                    path: 'images/shopping.png',
+                    pressFunc: () {},
+                  ),
                 ),
                 ShowForm(
+                  width: boxConstraints.maxWidth * 0.6,
                   controller: textEditingController,
                   fillColor: Colors.grey.withOpacity(0.8),
                   topMargin: 0,
-                  label: 'พูดคุย หรือ สั่งสินค้า',
-                  iconData: Icons.shopping_cart,
+                  label: 'แสดงความคิดเห็น',
+                  iconData: Icons.send,
                   changeFunc: (p0) async {
                     commentTexts[index] = p0;
                   },
@@ -589,24 +650,48 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                         print('Add Comment success');
 
                         textEditingController.text = '';
+                        commentTexts[index] = '';
 
-                        if (index == 0) {
-                          MyDialog(context: context).processDialog();
-                          processLoad = true;
-                          findDocumentLists();
-                          readFastLinkData();
-                        } else {
-                          print('index ที่เพิ่ม Commemt ==> $index');
-                          listCommentModels[index].add(commentModel);
-                          UserModel userModel =
-                              await MyFirebase().findUserModel(uid: user!.uid);
-                          listUserModelComments[index].add(userModel);
-                          setState(() {});
-                        }
+                        listCommentModels[index].add(commentModel);
+                        UserModel userModel =
+                            await MyFirebase().findUserModel(uid: user!.uid);
+                        listUserModelComments[index].add(userModel);
+                        setState(() {});
+
+                        // if (index == 0) {
+
+                        //   MyDialog(context: context).processDialog();
+                        //   processLoad = true;
+                        //   findDocumentLists();
+                        //   readFastLinkData();
+                        // } else {
+                        //   print('index ที่เพิ่ม Commemt ==> $index');
+                        //   listCommentModels[index].add(commentModel);
+                        //   UserModel userModel =
+                        //       await MyFirebase().findUserModel(uid: user!.uid);
+                        //   listUserModelComments[index].add(userModel);
+                        //   setState(() {});
+                        // }
                       });
                     } // if
                   },
-                )
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16, left: 16),
+                  child: ShowImageIconButton(
+                    path: 'images/message.png',
+                    pressFunc: () {
+                      if (fastLinkModels[index].linkContact.isNotEmpty) {
+                        
+                        String urlSave = fastLinkModels[index].urlImage;
+                        processSaveQRcodeOnStorage(urlImage: urlSave);
+
+                        MyProcess().processLaunchUrl(
+                            url: fastLinkModels[index].linkContact);
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ],

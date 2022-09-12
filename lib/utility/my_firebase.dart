@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/search_shortcode.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,7 +8,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MyFirebase {
-  
+  Future<void> addNewLinkToUser(
+      {required String uidUser, required LinkModel linkModel}) async {
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(uidUser)
+        .collection('link')
+        .doc()
+        .set(linkModel.toMap())
+        .then((value) {
+      print('### addNewLinkToUser Success');
+    });
+  }
+
   Future<List<String>> findDocIdRoomWhereKeyRoom(
       {required String keyRoom}) async {
     var docIdRooms = <String>[];

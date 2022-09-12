@@ -141,15 +141,20 @@ class _ManageMeetingState extends State<ManageMeeting> {
                     });
                   } else {
                     if (liveRoomModels[index]!.onOffRoom) {
-                      if (user!.uid == liveRoomModels[index]!.uidOwner) {
-                        //Owner Click
-                        print('Owner Click');
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => EditRoom(roomModel: liveRoomModels[index]!),));
-                      } else {
-                        //order Clck
-                        MyProcess().processLaunchUrl(
+
+                       MyProcess().processLaunchUrl(
                             url: liveRoomModels[index]!.linkRoom);
-                      }
+
+
+                      // if (user!.uid == liveRoomModels[index]!.uidOwner) {
+                      //   //Owner Click
+                      //   print('Owner Click');
+                      //   Navigator.push(context, MaterialPageRoute(builder: (context) => EditRoom(roomModel: liveRoomModels[index]!),));
+                      // } else {
+                      //   //order Clck
+                      //   MyProcess().processLaunchUrl(
+                      //       url: liveRoomModels[index]!.linkRoom);
+                      // }
                     } else {
                       MyDialog(context: context).normalActionDilalog(
                           title: 'LiveLand Close',

@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 class MyProcess {
   String timeStampToString({required Timestamp timestamp}) {
     DateTime dateTime = timestamp.toDate();
-    DateFormat dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+    DateFormat dateFormat = DateFormat('dd MMM HH:mm');
     String result = dateFormat.format(dateTime);
     return result;
   }
