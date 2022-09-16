@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'package:admanyout/models/comment_model.dart';
 import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/states/read_qr_code.dart';
+import 'package:admanyout/states/youtube_player_video.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
@@ -483,26 +484,25 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   Container showOwnerPost(int index) {
     return Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: MyStyle().bgCircleBlack(),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ShowCircleImage(
-                                    path: userModels[index].avatar!,
-                                    radius: 18,
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  ShowText(
-                                    label: userModels[index].name,
-                                    textStyle: MyStyle().h3WhiteBoldStyle(),
-                                  ),
-                                ],
-                              ),
-                            );
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: MyStyle().bgCircleBlack(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ShowCircleImage(
+            path: userModels[index].avatar!,
+            radius: 18,
+          ),
+          const SizedBox(
+            width: 8,
+          ),
+          ShowText(
+            label: userModels[index].name,
+            textStyle: MyStyle().h3WhiteBoldStyle(),
+          ),
+        ],
+      ),
+    );
   }
 
   Positioned fourButton() {
@@ -614,7 +614,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   padding: const EdgeInsets.only(right: 16, left: 16),
                   child: ShowImageIconButton(
                     path: 'images/shopping.png',
-                    pressFunc: () {},
+                    pressFunc: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const YoutubePlayerVideo(),));
+                    },
                   ),
                 ),
                 ShowForm(
@@ -682,7 +684,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     path: 'images/message.png',
                     pressFunc: () {
                       if (fastLinkModels[index].linkContact.isNotEmpty) {
-                        
                         String urlSave = fastLinkModels[index].urlImage;
                         processSaveQRcodeOnStorage(urlImage: urlSave);
 
