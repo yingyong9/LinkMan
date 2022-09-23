@@ -465,7 +465,10 @@ class _AddFastLinkState extends State<AddFastLink> {
             .collection('fastlink')
             .doc()
             .set(fastLinkModel.toMap())
-            .then((value) {
+            .then((value) async {
+          //process Sent Noti
+          await MyFirebase().sentNoti();
+
           Navigator.pop(context);
           Navigator.pushAndRemoveUntil(
               context,
@@ -711,7 +714,8 @@ class _AddFastLinkState extends State<AddFastLink> {
               children: [
                 linkModels.isEmpty
                     ? const SizedBox()
-                    : Container(width: 200,height: 200,
+                    : Container(
+                        width: 200, height: 200,
                         // constraints: const BoxConstraints(
                         //   minWidth: 100,
                         //   minHeight: 100,

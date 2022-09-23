@@ -7,8 +7,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:admanyout/models/comment_model.dart';
-import 'package:admanyout/states/manage_meeting.dart';
 import 'package:admanyout/states/read_qr_code.dart';
+import 'package:admanyout/states/room_stream.dart';
 import 'package:admanyout/states/youtube_player_video.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
@@ -19,6 +19,7 @@ import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -319,7 +320,43 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         statusLoginBool = false;
       } else {
         statusLoginBool = true;
+        setupMessaging();
       }
+    });
+  }
+
+  Future<void> setupMessaging() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    String? token = await firebaseMessaging.getToken();
+    if (token != null) {
+      print('##19sep token ==> $token');
+      await MyFirebase().updateToken(uid: user!.uid, token: token);
+    }
+
+    FirebaseMessaging.onMessage.listen((event) {
+      String? title = event.notification!.title;
+      String? body = event.notification!.body;
+      MyDialog(context: context).normalActionDilalog(
+        title: title!,
+        message: body!,
+        label: 'OK',
+        pressFunc: () {
+          Navigator.pop(context);
+        },
+      );
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+       String? title = event.notification!.title;
+      String? body = event.notification!.body;
+      MyDialog(context: context).normalActionDilalog(
+        title: title!,
+        message: body!,
+        label: 'OK',
+        pressFunc: () {
+          Navigator.pop(context);
+        },
+      );
     });
   }
 
@@ -393,16 +430,27 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               ),
             ),
             ShowIconButton(
+              iconData: Icons.video_camera_back_outlined,
               size: 36,
-              iconData: Icons.language_outlined,
               pressFunc: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ManageMeeting(),
+                      builder: (context) => const RoomStream(),
                     ));
               },
             ),
+            // ShowIconButton(
+            //   size: 36,
+            //   iconData: Icons.language_outlined,
+            //   pressFunc: () {
+            //     Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //           builder: (context) => const ManageMeeting(),
+            //         ));
+            //   },
+            // ),
             // const SizedBox(
             //   width: 8,
             // ),
@@ -615,7 +663,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   child: ShowImageIconButton(
                     path: 'images/shopping.png',
                     pressFunc: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const YoutubePlayerVideo(),));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const YoutubePlayerVideo(),
+                          ));
                     },
                   ),
                 ),
