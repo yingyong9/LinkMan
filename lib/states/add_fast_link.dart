@@ -10,9 +10,11 @@ import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/song_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/search_shortcode.dart';
+import 'package:admanyout/states2/grand_home.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
+import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_button.dart';
@@ -237,23 +239,23 @@ class _AddFastLinkState extends State<AddFastLink> {
                         head = p0.trim();
                       },
                     ),
-                    formDetail(
-                        boxConstraints: boxConstraints,
-                        label: 'อยากบอกอะไร :',
-                        changeFunc: (String string) {
-                          detail = string.trim();
-                        }),
-                    formDetail(
-                        boxConstraints: boxConstraints,
-                        label: 'อยากบอกอะไร :',
-                        changeFunc: (String string) {
-                          detail2 = string.trim();
-                        }),
-                    loadRoom
-                        ? const ShowProgress()
-                        : roomModels.isEmpty
-                            ? const SizedBox()
-                            : dropDownLiveManLand(boxConstraints),
+                    // formDetail(
+                    //     boxConstraints: boxConstraints,
+                    //     label: 'อยากบอกอะไร :',
+                    //     changeFunc: (String string) {
+                    //       detail = string.trim();
+                    //     }),
+                    // formDetail(
+                    //     boxConstraints: boxConstraints,
+                    //     label: 'อยากบอกอะไร :',
+                    //     changeFunc: (String string) {
+                    //       detail2 = string.trim();
+                    //     }),
+                    // loadRoom
+                    //     ? const ShowProgress()
+                    //     : roomModels.isEmpty
+                    //         ? const SizedBox()
+                    //         : dropDownLiveManLand(boxConstraints),
                     newGroup(boxConstraints: boxConstraints),
                   ],
                 ),
@@ -410,17 +412,43 @@ class _AddFastLinkState extends State<AddFastLink> {
     return SizedBox(
       child: ShowButton(
         label: 'Post >',
-        pressFunc: () {
+        pressFunc: () async {
           if (detail?.isEmpty ?? true) {
             detail = '';
           }
-          processUploadAndInsertFastLink();
+
+          await processFindLocation().then((value) async {
+            DateTime dateTime = DateTime.now();
+
+            print('##23seb lat = $lat, lng = $lng, dateTime ==> $dateTime');
+
+            File file;
+            var result =
+                await MyProcess().processTakePhoto(source: ImageSource.camera);
+            if (result != null) {
+              file = File(result.path);
+
+              String nameFile = 'image${Random().nextInt(1000000)}.jpg';
+              FirebaseStorage storage = FirebaseStorage.instance;
+              Reference reference = storage.ref().child('photofast2/$nameFile');
+              UploadTask uploadTask = reference.putFile(file);
+              await uploadTask.whenComplete(() async {
+                await reference.getDownloadURL().then((value) {
+                  String urlImage2 = value;
+                  print('##23seb ==> $urlImage2');
+                   processUploadAndInsertFastLink(urlImage2: urlImage2);
+                });
+              });
+            }
+          });
+
+         
         },
       ),
     );
   }
 
-  Future<void> processUploadAndInsertFastLink() async {
+  Future<void> processUploadAndInsertFastLink({required String urlImage2}) async {
     MyDialog(context: context).processDialog();
 
     String nameImage = '${user!.uid}${Random().nextInt(1000000)}.jpg';
@@ -456,7 +484,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           keyRoom: chooseRoomModel?.keyRoom ?? '',
           linkContact: linkContactController.text,
           nameButtonLinkContact: nameButtonLinkContact ?? '',
-          position: position,
+          position: position, urlImage2: urlImage2,
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');
@@ -465,12 +493,15 @@ class _AddFastLinkState extends State<AddFastLink> {
             .collection('fastlink')
             .doc()
             .set(fastLinkModel.toMap())
-            .then((value) {
+            .then((value) async {
+          //process Sent Noti
+          await MyFirebase().sentNoti();
+
           Navigator.pop(context);
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => const SearchShortCode(),
+                builder: (context) => const GrandHome(),
               ),
               (route) => false);
         });
@@ -711,7 +742,8 @@ class _AddFastLinkState extends State<AddFastLink> {
               children: [
                 linkModels.isEmpty
                     ? const SizedBox()
-                    : Container(width: 200,height: 200,
+                    : Container(
+                        width: 200, height: 200,
                         // constraints: const BoxConstraints(
                         //   minWidth: 100,
                         //   minHeight: 100,

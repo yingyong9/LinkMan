@@ -62,6 +62,7 @@ dependencies:
   geolocator: ^9.0.1
   google_maps_flutter: ^2.1.10
   intl: ^0.17.0
+  youtube_player_flutter: ^8.1.0
   
   
 

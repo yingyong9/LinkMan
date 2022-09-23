@@ -173,6 +173,7 @@ class MyDialog {
                   : const SizedBox(),
         ],
       ),
+      barrierDismissible: false,
     );
   }
 
