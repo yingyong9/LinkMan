@@ -1,6 +1,6 @@
 import 'package:admanyout/states/create_new_account.dart';
-import 'package:admanyout/states/main_home.dart';
 import 'package:admanyout/states/search_shortcode.dart';
+import 'package:admanyout/states2/grand_home.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/widgets/show_button.dart';
@@ -153,7 +153,7 @@ class _AuthenState extends State<Authen> {
         .then((value) => Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const SearchShortCode(),
+              builder: (context) => const GrandHome(),
             ),
             (route) => false))
         .catchError((onError) => MyDialog(context: context).normalActionDilalog(

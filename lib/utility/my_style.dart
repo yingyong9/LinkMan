@@ -24,12 +24,14 @@ class MyStyle {
         ),
       );
 
-  TextStyle h1Style() => TextStyle(
+  TextStyle h1Style({Color? color}) => TextStyle(
         fontSize: 36,
-        color: dark,
+        color: color ?? dark,
         fontWeight: FontWeight.bold,
         fontFamily: 'Sarabun',
       );
+
+     
 
   TextStyle h2Style({Color? color}) => TextStyle(
         fontSize: 16,
@@ -37,6 +39,8 @@ class MyStyle {
         fontWeight: FontWeight.w700,
         fontFamily: 'Sarabun',
       );
+
+      
 
   TextStyle h3Style() => TextStyle(
         fontSize: 14,

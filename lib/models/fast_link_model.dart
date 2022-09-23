@@ -17,6 +17,7 @@ class FastLinkModel {
   final String linkContact;
   final String nameButtonLinkContact;
   final GeoPoint position;
+  final String urlImage2;
 
   FastLinkModel({
     required this.urlImage,
@@ -32,6 +33,7 @@ class FastLinkModel {
     required this.linkContact,
     required this.nameButtonLinkContact,
     required this.position,
+    required this.urlImage2,
   });
 
   Map<String, dynamic> toMap() {
@@ -49,6 +51,7 @@ class FastLinkModel {
       'linkContact': linkContact,
       'nameButtonLinkContact': nameButtonLinkContact,
       'position': position,
+      'urlImage2': urlImage2,
     };
   }
 
@@ -67,6 +70,7 @@ class FastLinkModel {
       linkContact: (map['linkContact'] ?? '') as String,
       nameButtonLinkContact: (map['nameButtonLinkContact'] ?? '') as String,
       position: (map['position'] ?? const GeoPoint(0, 0)),
+      urlImage2: (map['urlImage2'] ?? '') as String,
     );
   }
 

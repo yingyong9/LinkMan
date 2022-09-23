@@ -7,6 +7,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:admanyout/models/comment_model.dart';
+import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/states/room_stream.dart';
 import 'package:admanyout/states/youtube_player_video.dart';
@@ -57,6 +58,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   var fastLinkModels = <FastLinkModel>[];
   var docIdFastLinks = <String>[];
   var userModels = <UserModel>[];
+  var docIdUsers = <String>[];
   var documentLists = <DocumentSnapshot>[];
   var showButtonLinks = <bool>[];
   int lastIndex = 9;
@@ -92,7 +94,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   Future<void> processAutoMove() async {
     Duration duration = const Duration(seconds: 3);
-    await Timer(duration, () {
+    Timer(duration, () {
       readMoreFastLinkData();
       processAutoMove();
     });
@@ -134,6 +136,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       listCommentModels.clear();
       commentTexts.clear();
       listUserModelComments.clear();
+      docIdUsers.clear();
     }
 
     print(
@@ -339,22 +342,32 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       MyDialog(context: context).normalActionDilalog(
         title: title!,
         message: body!,
-        label: 'OK',
+        label: 'ถ่ายรูป ร่วมสนุกกับ เพื่อนๆของคุณ',
         pressFunc: () {
           Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotiFastPhoto(),
+              ));
         },
       );
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
-       String? title = event.notification!.title;
+      String? title = event.notification!.title;
       String? body = event.notification!.body;
       MyDialog(context: context).normalActionDilalog(
         title: title!,
         message: body!,
-        label: 'OK',
+        label: 'ถ่ายรูป ร่วมสนุกกับ เพื่อนๆของคุณ',
         pressFunc: () {
           Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotiFastPhoto(),
+              ));
         },
       );
     });
@@ -396,7 +409,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           children: [
             ShowIconButton(
               iconData: Icons.search_outlined,
-              size: 36,
+              size: 24,
               pressFunc: () {
                 Navigator.push(
                     context,
@@ -426,20 +439,20 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               },
               child: const ShowImage(
                 path: 'images/addboxwhite.png',
-                width: 36,
+                width: 24,
               ),
             ),
-            ShowIconButton(
-              iconData: Icons.video_camera_back_outlined,
-              size: 36,
-              pressFunc: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const RoomStream(),
-                    ));
-              },
-            ),
+            // ShowIconButton(
+            //   iconData: Icons.video_camera_back_outlined,
+            //   size: 36,
+            //   pressFunc: () {
+            //     Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //           builder: (context) => const RoomStream(),
+            //         ));
+            //   },
+            // ),
             // ShowIconButton(
             //   size: 36,
             //   iconData: Icons.language_outlined,
@@ -465,7 +478,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               child: const Icon(
                 Icons.settings,
                 color: Colors.white,
-                size: 36,
+                size: 24,
               ),
             ),
           ],
@@ -548,6 +561,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             label: userModels[index].name,
             textStyle: MyStyle().h3WhiteBoldStyle(),
           ),
+          ShowIconButton(
+            iconData: Icons.group,
+            pressFunc: () {},
+          )
         ],
       ),
     );
@@ -590,7 +607,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       bottom: 0,
       left: 0,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 32),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(color: Colors.black.withOpacity(0.2)),
         width: boxConstraints.maxWidth,
         // height: 100,
@@ -1049,9 +1066,33 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       height: boxConstraints.maxHeight,
       // width: boxConstraints.maxWidth * 0.7 - 16,
       width: boxConstraints.maxWidth,
-      child: Image.network(
-        fastLinkModels[index].urlImage,
-        fit: BoxFit.cover,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            fastLinkModels[index].urlImage,
+            fit: BoxFit.cover,
+          ),
+          fastLinkModels[index].urlImage2.isEmpty
+              ? const SizedBox()
+              : Stack(
+                  children: [
+                    Positioned(
+                      right: 8,top: 8,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(15),
+                          image: DecorationImage(
+                            image:
+                                NetworkImage(fastLinkModels[index].urlImage2),fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ],
       ),
     );
   }
