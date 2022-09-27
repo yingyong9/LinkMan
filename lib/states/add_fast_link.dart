@@ -9,7 +9,7 @@ import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/song_model.dart';
 import 'package:admanyout/models/user_model.dart';
-import 'package:admanyout/states/search_shortcode.dart';
+import 'package:admanyout/states/add_product.dart';
 import 'package:admanyout/states2/grand_home.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -28,7 +28,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -70,6 +69,11 @@ class _AddFastLinkState extends State<AddFastLink> {
   Map<MarkerId, Marker> markers = {};
 
   TextEditingController linkContactController = TextEditingController();
+
+  File? productFile;
+  String? urlProduct;
+
+  bool showDetailBool = false;
 
   @override
   void initState() {
@@ -173,7 +177,7 @@ class _AddFastLinkState extends State<AddFastLink> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: MyStyle.bgColor,
       appBar: newAppBar(),
       body: file == null
           ? const ShowProgress()
@@ -186,81 +190,71 @@ class _AddFastLinkState extends State<AddFastLink> {
                 child: ListView(
                   children: [
                     newImage(boxConstraints),
-                    formDetail(
-                      iconData: Icons.pin_drop_outlined,
-                      iconPressFunc: () {
-                        processFindLocation();
+                    ShowTextButton(
+                      label: showDetailBool ? 'Hint Detail' :  'Show Detail',
+                      pressFunc: () {
+                        setState(() {
+                          showDetailBool = !showDetailBool;
+                        });
                       },
-                      boxConstraints: boxConstraints,
-                      label: 'Link คลิกหน้าจอ',
-                      changeFunc: (p0) {
-                        addLink = p0.trim();
-                      },
+                      textStyle: MyStyle().h3RedStyle(),
                     ),
-                    lat == null
+                    showDetailBool ? contentForm(boxConstraints) : const SizedBox() ,
+                    productFile == null
                         ? const SizedBox()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                decoration: MyConstant().curveBorderBox(),
-                                width: boxConstraints.maxWidth * 0.6,
-                                height: boxConstraints.maxWidth * 0.4,
-                                child: GoogleMap(
-                                  initialCameraPosition: CameraPosition(
-                                    target: LatLng(lat!, lng!),
-                                    zoom: 16,
-                                  ),
-                                  onMapCreated: (controller) {},
-                                  markers: Set<Marker>.of(markers.values),
-                                ),
-                              ),
-                            ],
+                        : Container(
+                            margin: const EdgeInsets.symmetric(vertical: 16),
+                            width: 180,
+                            height: 150,
+                            child: Image.file(productFile!),
                           ),
-                    formDetail(
-                      textEditingController: linkContactController,
-                      boxConstraints: boxConstraints,
-                      label: 'Link ติดต่อ',
-                      changeFunc: (p0) {
-                        linkContact = p0.trim();
-                      },
-                      labelIcon: 'Stock Link',
-                      iconData: Icons.link,
-                      iconPressFunc: () {
-                        dialogListLinkContact();
-                      },
-                    ),
-                    formDetail(
-                      boxConstraints: boxConstraints,
-                      label: 'ชื่อ Post:',
-                      changeFunc: (p0) {
-                        head = p0.trim();
-                      },
-                    ),
-                    // formDetail(
-                    //     boxConstraints: boxConstraints,
-                    //     label: 'อยากบอกอะไร :',
-                    //     changeFunc: (String string) {
-                    //       detail = string.trim();
-                    //     }),
-                    // formDetail(
-                    //     boxConstraints: boxConstraints,
-                    //     label: 'อยากบอกอะไร :',
-                    //     changeFunc: (String string) {
-                    //       detail2 = string.trim();
-                    //     }),
-                    // loadRoom
-                    //     ? const ShowProgress()
-                    //     : roomModels.isEmpty
-                    //         ? const SizedBox()
-                    //         : dropDownLiveManLand(boxConstraints),
                     newGroup(boxConstraints: boxConstraints),
                   ],
                 ),
               );
             }),
+    );
+  }
+
+  Widget contentForm(BoxConstraints boxConstraints) {
+    return Column(
+      children: [
+        formDetail(
+          boxConstraints: boxConstraints,
+          label: 'Link คลิกหน้าจอ',
+          changeFunc: (p0) {
+            addLink = p0.trim();
+          },
+        ),
+        formDetail(
+          textEditingController: linkContactController,
+          boxConstraints: boxConstraints,
+          label: 'Link ติดต่อ',
+          changeFunc: (p0) {
+            linkContact = p0.trim();
+          },
+          iconData: Icons.more_vert,
+          iconPressFunc: () {
+            dialogListLinkContact();
+          },
+        ),
+        formDetail(
+          boxConstraints: boxConstraints,
+          label: 'ชื่อสินค้า',
+          changeFunc: (p0) {
+            head = p0.trim();
+          },
+          iconData: Icons.image,
+          iconPressFunc: () async {
+            var result =
+                await MyProcess().processTakePhoto(source: ImageSource.gallery);
+            if (result != null) {
+              productFile = File(result.path);
+              setState(() {});
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -389,16 +383,9 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   Widget newGroup({required BoxConstraints boxConstraints}) {
     return Container(
-      margin: const EdgeInsets.only(top: 16),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircleAvatar(
-            backgroundImage:
-                NetworkImage(userModelLogined!.avatar ?? MyConstant.urlLogo),
-          ),
-          const SizedBox(
-            width: 16,
-          ),
           SizedBox(
             width: boxConstraints.maxWidth * 0.65,
             child: buttonPost(),
@@ -411,10 +398,23 @@ class _AddFastLinkState extends State<AddFastLink> {
   SizedBox buttonPost() {
     return SizedBox(
       child: ShowButton(
-        label: 'Post >',
+        label: 'Post',
         pressFunc: () async {
           if (detail?.isEmpty ?? true) {
             detail = '';
+          }
+
+          if (productFile != null) {
+            String nameFileProduct = 'product${Random().nextInt(1000000)}.jpg';
+            FirebaseStorage storage = FirebaseStorage.instance;
+            Reference reference =
+                storage.ref().child('product/$nameFileProduct');
+            UploadTask task = reference.putFile(productFile!);
+            await task.whenComplete(() async {
+              await reference.getDownloadURL().then((value) {
+                urlProduct = value;
+              });
+            });
           }
 
           await processFindLocation().then((value) async {
@@ -436,19 +436,18 @@ class _AddFastLinkState extends State<AddFastLink> {
                 await reference.getDownloadURL().then((value) {
                   String urlImage2 = value;
                   print('##23seb ==> $urlImage2');
-                   processUploadAndInsertFastLink(urlImage2: urlImage2);
+                  processUploadAndInsertFastLink(urlImage2: urlImage2);
                 });
               });
             }
           });
-
-         
         },
       ),
     );
   }
 
-  Future<void> processUploadAndInsertFastLink({required String urlImage2}) async {
+  Future<void> processUploadAndInsertFastLink(
+      {required String urlImage2}) async {
     MyDialog(context: context).processDialog();
 
     String nameImage = '${user!.uid}${Random().nextInt(1000000)}.jpg';
@@ -484,7 +483,9 @@ class _AddFastLinkState extends State<AddFastLink> {
           keyRoom: chooseRoomModel?.keyRoom ?? '',
           linkContact: linkContactController.text,
           nameButtonLinkContact: nameButtonLinkContact ?? '',
-          position: position, urlImage2: urlImage2,
+          position: position,
+          urlImage2: urlImage2,
+          urlProduct: urlProduct ?? '',
         );
 
         print('fastLinkModel ==> ${fastLinkModel.toMap()}');
@@ -515,7 +516,6 @@ class _AddFastLinkState extends State<AddFastLink> {
     required Function(String) changeFunc,
     IconData? iconData,
     Function()? iconPressFunc,
-    String? labelIcon,
     Color? textColor,
     TextEditingController? textEditingController,
   }) {
@@ -524,47 +524,23 @@ class _AddFastLinkState extends State<AddFastLink> {
       // height: 60,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircleAvatar(
-            backgroundImage:
-                NetworkImage(userModelLogined!.avatar ?? MyConstant.urlLogo),
-          ),
           const SizedBox(
             width: 16,
           ),
           Container(
             margin: const EdgeInsets.only(right: 8),
-            width: iconData == null
-                ? boxConstraints.maxWidth * 0.65
-                : boxConstraints.maxWidth * 0.65 - 15,
+            width: boxConstraints.maxWidth * 0.65,
             child: ShowFormLong(
               textEditingController: textEditingController,
               marginTop: 0,
               label: label,
               changeFunc: changeFunc,
+              iconDataSubfix: iconData,
+              pressFunc: iconPressFunc,
             ),
           ),
-          iconData == null
-              ? const SizedBox()
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    IconButton(
-                        onPressed: iconPressFunc,
-                        icon: Icon(
-                          iconData,
-                          size: 48,
-                        )),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    ShowText(
-                      label: labelIcon ?? 'ต่ำแหน่งที่ตั้ง',
-                      textStyle: MyStyle().h3Style(),
-                    )
-                  ],
-                ),
         ],
       ),
     );
@@ -609,7 +585,7 @@ class _AddFastLinkState extends State<AddFastLink> {
 
   Row newImage(BoxConstraints boxConstraints) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Stack(
           children: [
@@ -646,7 +622,7 @@ class _AddFastLinkState extends State<AddFastLink> {
             Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SearchShortCode(),
+                  builder: (context) => const GrandHome(),
                 ),
                 (route) => false);
           }),

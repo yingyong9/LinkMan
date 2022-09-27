@@ -1,12 +1,11 @@
-import 'package:admanyout/states/authen.dart';
 import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/states2/friend.dart';
 import 'package:admanyout/states2/live_video.dart';
-import 'package:admanyout/states2/setting.dart';
+import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_style.dart';
-import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class GrandHome extends StatefulWidget {
@@ -30,8 +29,20 @@ class _GrandHomeState extends State<GrandHome> {
     super.initState();
 
     grandCheckUser();
-
     setupTabNavigator();
+    setupNoti();
+  }
+
+  Future<void> setupNoti() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    String? token = await firebaseMessaging.getToken();
+    print('##27sep token ===> $token');
+
+    FirebaseMessaging.onMessage.listen((event) {
+      print('##27sep title ==> ${event.notification!.title}');
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {});
   }
 
   Future<void> grandCheckUser() async {
