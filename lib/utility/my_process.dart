@@ -1,12 +1,35 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:random_password_generator/random_password_generator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyProcess {
+
+  Future<void> processSave(
+      {required String urlSave, required String nameFile}) async {
+    var response = await Dio()
+        .get(urlSave, options: Options(responseType: ResponseType.bytes));
+    final result = await ImageGallerySaver.saveImage(
+      Uint8List.fromList(response.data),
+      quality: 60,
+      name: nameFile,
+    );
+    if (result['isSuccess']) {
+      Fluttertoast.showToast(msg: 'Save Success');
+    } else {
+      Fluttertoast.showToast(msg: 'Cannot Save QrCode');
+    }
+  }
+
+
+
   String timeStampToString({required Timestamp timestamp}) {
     DateTime dateTime = timestamp.toDate();
     DateFormat dateFormat = DateFormat('dd MMM HH:mm');

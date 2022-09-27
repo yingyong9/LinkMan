@@ -8,7 +8,6 @@ import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/states2/grand_home.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_style.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -18,6 +18,7 @@ class FastLinkModel {
   final String nameButtonLinkContact;
   final GeoPoint position;
   final String urlImage2;
+  final String urlProduct;
 
   FastLinkModel({
     required this.urlImage,
@@ -34,6 +35,7 @@ class FastLinkModel {
     required this.nameButtonLinkContact,
     required this.position,
     required this.urlImage2,
+    required this.urlProduct,
   });
 
   Map<String, dynamic> toMap() {
@@ -52,6 +54,7 @@ class FastLinkModel {
       'nameButtonLinkContact': nameButtonLinkContact,
       'position': position,
       'urlImage2': urlImage2,
+      'urlProduct': urlProduct,
     };
   }
 
@@ -71,9 +74,12 @@ class FastLinkModel {
       nameButtonLinkContact: (map['nameButtonLinkContact'] ?? '') as String,
       position: (map['position'] ?? const GeoPoint(0, 0)),
       urlImage2: (map['urlImage2'] ?? '') as String,
+      urlProduct: (map['urlProduct'] ?? '') as String,
     );
   }
 
   factory FastLinkModel.fromJson(String source) =>
       FastLinkModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  String toJson() => json.encode(toMap());
 }

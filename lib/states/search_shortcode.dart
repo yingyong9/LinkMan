@@ -7,6 +7,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:admanyout/models/comment_model.dart';
+import 'package:admanyout/states/main_menu.dart';
 import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/states/room_stream.dart';
@@ -470,7 +471,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             InkWell(
               onTap: () {
                 if (statusLoginBool!) {
-                  MyDialog(context: context).buttonSheetDialog();
+                  // MyDialog(context: context).buttonSheetDialog();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MainMenu(),
+                      ));
                 } else {
                   alertLogin(context);
                 }
@@ -672,22 +678,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     ),
                   ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16, left: 16),
-                  child: ShowImageIconButton(
-                    path: 'images/shopping.png',
-                    pressFunc: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const YoutubePlayerVideo(),
-                          ));
-                    },
-                  ),
-                ),
+               
                 ShowForm(
                   width: boxConstraints.maxWidth * 0.6,
                   controller: textEditingController,
@@ -699,10 +693,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     commentTexts[index] = p0;
                   },
                   pressFunc: () async {
-                    // print(
-                    //     'Click Chart docIdFastLink ==> ${docIdFastLinks[index]}');
-                    // print(
-                    //     'commentText ที่ index => $index ==> ${commentTexts[index]}');
+                   
                     DateTime dateTime = DateTime.now();
                     Timestamp timestamp = Timestamp.fromDate(dateTime);
 
@@ -747,7 +738,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     } // if
                   },
                 ),
-                Padding(
+                 Padding(
                   padding: const EdgeInsets.only(right: 16, left: 16),
                   child: ShowImageIconButton(
                     path: 'images/message.png',
@@ -762,8 +753,52 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     },
                   ),
                 ),
+               
               ],
             ),
+            fastLinkModels[index].urlProduct.isEmpty
+                ? const SizedBox()
+                : InkWell(
+                    onTap: () async {
+                      String linkProduct = fastLinkModels[index].linkContact;
+                      print('linkProduct ===> $linkProduct');
+                      if (linkProduct.isNotEmpty) {
+                        await MyProcess().processLaunchUrl(url: linkProduct);
+                      }
+
+                      processSave(
+                          urlSave: fastLinkModels[index].urlProduct,
+                          nameFile: 'product${Random().nextInt(1000)}.jpg');
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(color: MyStyle.bgColor),
+                      width: boxConstraints.maxWidth * 0.6,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: boxConstraints.maxWidth * 0.2,
+                            height: boxConstraints.maxWidth * 0.2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.network(
+                                fastLinkModels[index].urlProduct,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                              width: (boxConstraints.maxWidth * 0.6) -
+                                  (boxConstraints.maxWidth * 0.2),
+                              child: ShowText(
+                                label: fastLinkModels[index].head,
+                                textStyle: MyStyle().h2Style(),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
           ],
         ),
       ),
@@ -1078,14 +1113,17 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               : Stack(
                   children: [
                     Positioned(
-                      right: 8,top: 8,
+                      right: 8,
+                      top: 8,
                       child: Container(
                         width: 120,
                         height: 120,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(15),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
                           image: DecorationImage(
                             image:
-                                NetworkImage(fastLinkModels[index].urlImage2),fit: BoxFit.cover,
+                                NetworkImage(fastLinkModels[index].urlImage2),
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
