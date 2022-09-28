@@ -857,9 +857,9 @@ PODS:
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
-  - SDWebImage (5.13.2):
-    - SDWebImage/Core (= 5.13.2)
-  - SDWebImage/Core (5.13.2)
+  - SDWebImage (5.13.4):
+    - SDWebImage/Core (= 5.13.4)
+  - SDWebImage/Core (5.13.4)
   - SDWebImageWebPCoder (0.9.1):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.13)
@@ -1035,7 +1035,7 @@ SPEC CHECKSUMS:
   photo_manager: 4f6810b7dfc4feb03b461ac1a70dacf91fba7604
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
-  SDWebImage: 72f86271a6f3139cc7e4a89220946489d4b9a866
+  SDWebImage: e5cc87bf736e60f49592f307bdf9e157189298a3
   SDWebImageWebPCoder: 18503de6621dd2c420d680e33d46bf8e1d5169b0
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad

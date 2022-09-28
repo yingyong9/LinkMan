@@ -10,12 +10,9 @@ import 'package:admanyout/models/comment_model.dart';
 import 'package:admanyout/states/main_menu.dart';
 import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/read_qr_code.dart';
-import 'package:admanyout/states/room_stream.dart';
-import 'package:admanyout/states/youtube_player_video.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
-import 'package:admanyout/widgets/show_image_icon_button.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -71,6 +68,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   var commentTexts = <String?>[];
   var listCommentModels = <List<CommentModel>>[];
   var listUserModelComments = <List<UserModel>>[];
+  var showFormComments = <bool>[];
+
   TextEditingController commentController = TextEditingController();
 
   @override
@@ -138,6 +137,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       commentTexts.clear();
       listUserModelComments.clear();
       docIdUsers.clear();
+      showFormComments.clear();
     }
 
     print(
@@ -154,6 +154,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         fastLinkModels.add(fastLinkModel);
         docIdFastLinks.add(element.id);
         commentTexts.add(null);
+        showFormComments.add(false);
 
         if (user != null) {
           await FirebaseFirestore.instance
@@ -237,6 +238,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           fastLinkModels.add(fastLinkModel);
           docIdFastLinks.add(element.id);
           commentTexts.add(null);
+          showFormComments.add(false);
 
           if (user != null) {
             await FirebaseFirestore.instance
@@ -292,7 +294,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             print('listCommentamodels at More Fast ===> $listCommentModels');
           });
         }
-        lastIndex++;
+        lastIndex = lastIndex + 10;
         print('##20july นี่คือ lastIndex ที่โหลดมาใหม่ ===>>> $lastIndex');
 
         if (processLoad) {
@@ -508,11 +510,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     controller: scrollController,
                     itemCount: fastLinkModels.length,
                     itemBuilder: (context, index) {
-                      String urlSong = fastLinkModels[lastIndex].urlSong;
-                      if (urlSong.isNotEmpty) {
-                        processPlaySongBg(urlSong: urlSong);
-                      }
-
                       return InkWell(
                         onTap: () async {
                           String linkUrl = fastLinkModels[index].linkUrl;
@@ -526,19 +523,38 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                 .processLaunchUrl(url: urlLauncher);
                           }
                         },
-                        child: Card(
-                          child: Stack(
-                            children: [
-                              newImageListView(boxConstraints, index),
-                              listComment(boxConstraints, index, context),
-                              // fourButton(),
-                              showOwnerPost(index),
-                              // newContent1(boxConstraints, index),
-                              // newContent3(boxConstraints, index),
-                              // newContent4(index),
-                              // newContent5(index),
-                            ],
-                          ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                showOwnerPost(index),
+                                ShowText(
+                                  label: MyProcess().timeStampToString(
+                                      timestamp:
+                                          fastLinkModels[index].timestamp),
+                                ),
+                                ShowIconButton(
+                                  iconData: Icons.more_vert,
+                                  pressFunc: () {},
+                                ),
+                              ],
+                            ),
+                            Card(
+                              child: Stack(
+                                children: [
+                                  newImageListView(boxConstraints, index),
+                                  listComment(boxConstraints, index, context),
+                                  // fourButton(),
+
+                                  // newContent1(boxConstraints, index),
+                                  // newContent3(boxConstraints, index),
+                                  // newContent4(index),
+                                  // newContent5(index),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -636,7 +652,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             children: [
                               Padding(
                                 padding:
-                                    const EdgeInsets.only(left: 8, right: 16),
+                                    const EdgeInsets.only(left: 8, right: 4),
                                 child: ShowCircleImage(
                                     radius: 16,
                                     path: listUserModelComments[index][index2]
@@ -644,7 +660,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                               ),
                               Container(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 32),
+                                    const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: MyStyle().bgCircleGrey(),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -677,11 +693,53 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                       },
                     ),
                   ),
+            fastLinkModels[index].urlProduct.isEmpty
+                ? const SizedBox()
+                : InkWell(
+                    onTap: () async {
+                      String linkProduct = fastLinkModels[index].linkContact;
+                      print('linkProduct ===> $linkProduct');
+                      if (linkProduct.isNotEmpty) {
+                        await MyProcess().processLaunchUrl(url: linkProduct);
+                      }
+
+                      processSave(
+                          urlSave: fastLinkModels[index].urlProduct,
+                          nameFile: 'product${Random().nextInt(1000)}.jpg');
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(color: MyStyle.bgColor),
+                      width: boxConstraints.maxWidth * 0.6,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: boxConstraints.maxWidth * 0.15,
+                            height: boxConstraints.maxWidth * 0.15,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.network(
+                                fastLinkModels[index].urlProduct,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                              width: (boxConstraints.maxWidth * 0.6) -
+                                  (boxConstraints.maxWidth * 0.2),
+                              child: ShowText(
+                                label: fastLinkModels[index].head,
+                                textStyle: MyStyle().h2Style(),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-               
                 ShowForm(
                   width: boxConstraints.maxWidth * 0.6,
                   controller: textEditingController,
@@ -693,7 +751,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     commentTexts[index] = p0;
                   },
                   pressFunc: () async {
-                   
                     DateTime dateTime = DateTime.now();
                     Timestamp timestamp = Timestamp.fromDate(dateTime);
 
@@ -738,67 +795,23 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     } // if
                   },
                 ),
-                 Padding(
-                  padding: const EdgeInsets.only(right: 16, left: 16),
-                  child: ShowImageIconButton(
-                    path: 'images/message.png',
-                    pressFunc: () {
-                      if (fastLinkModels[index].linkContact.isNotEmpty) {
-                        String urlSave = fastLinkModels[index].urlImage;
-                        processSaveQRcodeOnStorage(urlImage: urlSave);
+                //  Padding(
+                //   padding: const EdgeInsets.only(right: 16, left: 16),
+                //   child: ShowImageIconButton(
+                //     path: 'images/message.png',
+                //     pressFunc: () {
+                //       if (fastLinkModels[index].linkContact.isNotEmpty) {
+                //         String urlSave = fastLinkModels[index].urlImage;
+                //         processSaveQRcodeOnStorage(urlImage: urlSave);
 
-                        MyProcess().processLaunchUrl(
-                            url: fastLinkModels[index].linkContact);
-                      }
-                    },
-                  ),
-                ),
-               
+                //         MyProcess().processLaunchUrl(
+                //             url: fastLinkModels[index].linkContact);
+                //       }
+                //     },
+                //   ),
+                // ),
               ],
             ),
-            fastLinkModels[index].urlProduct.isEmpty
-                ? const SizedBox()
-                : InkWell(
-                    onTap: () async {
-                      String linkProduct = fastLinkModels[index].linkContact;
-                      print('linkProduct ===> $linkProduct');
-                      if (linkProduct.isNotEmpty) {
-                        await MyProcess().processLaunchUrl(url: linkProduct);
-                      }
-
-                      processSave(
-                          urlSave: fastLinkModels[index].urlProduct,
-                          nameFile: 'product${Random().nextInt(1000)}.jpg');
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: MyStyle.bgColor),
-                      width: boxConstraints.maxWidth * 0.6,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: boxConstraints.maxWidth * 0.2,
-                            height: boxConstraints.maxWidth * 0.2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Image.network(
-                                fastLinkModels[index].urlProduct,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                              width: (boxConstraints.maxWidth * 0.6) -
-                                  (boxConstraints.maxWidth * 0.2),
-                              child: ShowText(
-                                label: fastLinkModels[index].head,
-                                textStyle: MyStyle().h2Style(),
-                              ))
-                        ],
-                      ),
-                    ),
-                  ),
           ],
         ),
       ),
@@ -1098,7 +1111,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   SizedBox newImageListView(BoxConstraints boxConstraints, int index) {
     return SizedBox(
-      height: boxConstraints.maxHeight,
+      height: boxConstraints.maxHeight - 56,
       // width: boxConstraints.maxWidth * 0.7 - 16,
       width: boxConstraints.maxWidth,
       child: Stack(
@@ -1113,7 +1126,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               : Stack(
                   children: [
                     Positioned(
-                      right: 8,
+                      left: 8,
                       top: 8,
                       child: Container(
                         width: 120,
