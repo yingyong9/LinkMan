@@ -681,7 +681,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-               
                 ShowForm(
                   width: boxConstraints.maxWidth * 0.6,
                   controller: textEditingController,
@@ -693,7 +692,6 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     commentTexts[index] = p0;
                   },
                   pressFunc: () async {
-                   
                     DateTime dateTime = DateTime.now();
                     Timestamp timestamp = Timestamp.fromDate(dateTime);
 
@@ -738,22 +736,21 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     } // if
                   },
                 ),
-                 Padding(
-                  padding: const EdgeInsets.only(right: 16, left: 16),
-                  child: ShowImageIconButton(
-                    path: 'images/message.png',
-                    pressFunc: () {
-                      if (fastLinkModels[index].linkContact.isNotEmpty) {
-                        String urlSave = fastLinkModels[index].urlImage;
-                        processSaveQRcodeOnStorage(urlImage: urlSave);
+                //  Padding(
+                //   padding: const EdgeInsets.only(right: 16, left: 16),
+                //   child: ShowImageIconButton(
+                //     path: 'images/message.png',
+                //     pressFunc: () {
+                //       if (fastLinkModels[index].linkContact.isNotEmpty) {
+                //         String urlSave = fastLinkModels[index].urlImage;
+                //         processSaveQRcodeOnStorage(urlImage: urlSave);
 
-                        MyProcess().processLaunchUrl(
-                            url: fastLinkModels[index].linkContact);
-                      }
-                    },
-                  ),
-                ),
-               
+                //         MyProcess().processLaunchUrl(
+                //             url: fastLinkModels[index].linkContact);
+                //       }
+                //     },
+                //   ),
+                // ),
               ],
             ),
             fastLinkModels[index].urlProduct.isEmpty
