@@ -1,4 +1,5 @@
 import 'package:admanyout/states/add_product.dart';
+import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
@@ -92,7 +93,9 @@ class MainMenu extends StatelessWidget {
                   ),
                   ShowTextButton(
                     label: 'SignOut',
-                    pressFunc: () {},
+                    pressFunc: () async {
+                      MyFirebase().processSignOut(context: context);
+                    },
                     textStyle: MyStyle().h2Style(color: MyStyle.bgColor),
                   ),
                 ],

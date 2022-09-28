@@ -1,8 +1,9 @@
+// ignore_for_file: avoid_print
+
 import 'dart:math';
 
 import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/user_model.dart';
-import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/states2/grand_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
