@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/states2/friend.dart';
 import 'package:admanyout/states2/live_video.dart';
