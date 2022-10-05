@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class MyStyle {
   static Color bgColor = Colors.white;
   static Color dark = Colors.black;
-  static Color green = Color.fromARGB(255, 64, 98, 23);
-  static Color green2 =Color.fromARGB(255, 162, 226, 85);
-  static Color red = Color.fromARGB(255, 231, 56, 56);
+  static Color green = const Color.fromARGB(255, 64, 98, 23);
+  static Color green2 =const Color.fromARGB(255, 162, 226, 85);
+  static Color red = const Color.fromARGB(255, 231, 56, 56);
 
   BoxDecoration bgCircleBlack() => BoxDecoration(
         color: Colors.black.withOpacity(0.5),

@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/states2/friend.dart';
 import 'package:admanyout/states2/live_video.dart';
@@ -7,6 +8,7 @@ import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +28,8 @@ class _GrandHomeState extends State<GrandHome> {
     'Live',
   ];
 
+  var user = FirebaseAuth.instance.currentUser;
+
   @override
   void initState() {
     super.initState();
@@ -40,11 +44,45 @@ class _GrandHomeState extends State<GrandHome> {
     String? token = await firebaseMessaging.getToken();
     print('##27sep token ===> $token');
 
+    if (token != null) {
+      await MyFirebase().updateToken(uid: user!.uid, token: token);
+    }
+
     FirebaseMessaging.onMessage.listen((event) {
-      print('##27sep title ==> ${event.notification!.title}');
+      String? title = event.notification!.title;
+      String? body = event.notification!.body;
+      MyDialog(context: context).normalActionDilalog(
+        title: title!,
+        message: body!,
+        label: 'ถ่ายรูป ร่วมสนุกกับ เพื่อนๆของคุณ',
+        pressFunc: () {
+          Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotiFastPhoto(),
+              ));
+        },
+      );
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((event) {});
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      String? title = event.notification!.title;
+      String? body = event.notification!.body;
+      MyDialog(context: context).normalActionDilalog(
+        title: title!,
+        message: body!,
+        label: 'ถ่ายรูป ร่วมสนุกกับ เพื่อนๆของคุณ',
+        pressFunc: () {
+          Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotiFastPhoto(),
+              ));
+        },
+      );
+    });
   }
 
   Future<void> grandCheckUser() async {

@@ -326,55 +326,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         statusLoginBool = false;
       } else {
         statusLoginBool = true;
-        setupMessaging();
+        
       }
     });
   }
 
-  Future<void> setupMessaging() async {
-    FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-    String? token = await firebaseMessaging.getToken();
-    if (token != null) {
-      print('##19sep token ==> $token');
-      await MyFirebase().updateToken(uid: user!.uid, token: token);
-    }
-
-    FirebaseMessaging.onMessage.listen((event) {
-      String? title = event.notification!.title;
-      String? body = event.notification!.body;
-      MyDialog(context: context).normalActionDilalog(
-        title: title!,
-        message: body!,
-        label: 'ถ่ายรูป ร่วมสนุกกับ เพื่อนๆของคุณ',
-        pressFunc: () {
-          Navigator.pop(context);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotiFastPhoto(),
-              ));
-        },
-      );
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      String? title = event.notification!.title;
-      String? body = event.notification!.body;
-      MyDialog(context: context).normalActionDilalog(
-        title: title!,
-        message: body!,
-        label: 'ถ่ายรูป ร่วมสนุกกับ เพื่อนๆของคุณ',
-        pressFunc: () {
-          Navigator.pop(context);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotiFastPhoto(),
-              ));
-        },
-      );
-    });
-  }
+  
 
   @override
   Widget build(BuildContext context) {
