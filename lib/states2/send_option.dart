@@ -2,6 +2,11 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/models/fast_link_model.dart';
+import 'package:admanyout/states/search_shortcode.dart';
+import 'package:admanyout/states2/grand_home.dart';
+import 'package:admanyout/utility/my_process.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +15,7 @@ import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:admanyout/widgets/widget_listtile.dart';
+import 'package:geolocator/geolocator.dart';
 
 class SendOption extends StatefulWidget {
   final List<File?> files;
@@ -132,6 +138,9 @@ class _SendOptionState extends State<SendOption> {
 
     DateTime dateTime = DateTime.now();
 
+    Position? position =
+        await MyProcess().processFindPosition(context: context);
+
     for (var i = 0; i < 2; i++) {
       FirebaseStorage firebaseStorage = FirebaseStorage.instance;
       Reference reference =
@@ -142,6 +151,38 @@ class _SendOptionState extends State<SendOption> {
           urlImages.add(value);
           if (i == 1) {
             print('##5oct urlImages ==>> $urlImages');
+
+            FastLinkModel fastLinkModel = FastLinkModel(
+              urlImage: urlImages[0],
+              detail: '',
+              linkId: '',
+              uidPost: user.uid,
+              linkUrl: '',
+              timestamp: Timestamp.fromDate(dateTime),
+              detail2: '',
+              head: '',
+              keyRoom: '',
+              linkContact: '',
+              nameButtonLinkContact: '',
+              position: GeoPoint(position!.latitude, position.longitude),
+              urlImage2: urlImages[1],
+              urlProduct: '',
+              friendOnly: options[0],
+              discovery: options[1],
+            );
+
+            await FirebaseFirestore.instance
+                .collection('fastlink')
+                .doc()
+                .set(fastLinkModel.toMap())
+                .then((value) {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GrandHome(),
+                  ),
+                  (route) => false);
+            });
           }
         });
       });

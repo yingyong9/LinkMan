@@ -12,14 +12,14 @@ class FastLinkModel {
   final Timestamp timestamp;
   final String detail2;
   final String head;
-  final String urlSong;
   final String keyRoom;
   final String linkContact;
   final String nameButtonLinkContact;
   final GeoPoint position;
   final String urlImage2;
   final String urlProduct;
-
+  final bool friendOnly;
+  final bool discovery;
   FastLinkModel({
     required this.urlImage,
     required this.detail,
@@ -29,13 +29,14 @@ class FastLinkModel {
     required this.timestamp,
     required this.detail2,
     required this.head,
-    required this.urlSong,
     required this.keyRoom,
     required this.linkContact,
     required this.nameButtonLinkContact,
     required this.position,
     required this.urlImage2,
     required this.urlProduct,
+    required this.friendOnly,
+    required this.discovery,
   });
 
   Map<String, dynamic> toMap() {
@@ -48,13 +49,14 @@ class FastLinkModel {
       'timestamp': timestamp,
       'detail2': detail2,
       'head': head,
-      'urlSong': urlSong,
       'keyRoom': keyRoom,
       'linkContact': linkContact,
       'nameButtonLinkContact': nameButtonLinkContact,
       'position': position,
       'urlImage2': urlImage2,
       'urlProduct': urlProduct,
+      'friendOnly': friendOnly,
+      'discovery': discovery,
     };
   }
 
@@ -65,21 +67,21 @@ class FastLinkModel {
       linkId: (map['linkId'] ?? '') as String,
       uidPost: (map['uidPost'] ?? '') as String,
       linkUrl: (map['linkUrl'] ?? '') as String,
-      timestamp: (map['timestamp']),
+      timestamp: (map['timestamp'] ?? Timestamp.now()),
       detail2: (map['detail2'] ?? '') as String,
       head: (map['head'] ?? '') as String,
-      urlSong: (map['urlSong'] ?? '') as String,
       keyRoom: (map['keyRoom'] ?? '') as String,
       linkContact: (map['linkContact'] ?? '') as String,
       nameButtonLinkContact: (map['nameButtonLinkContact'] ?? '') as String,
-      position: (map['position'] ?? const GeoPoint(0, 0)),
+      position: (map['position'] ?? const GeoPoint(0,0)),
       urlImage2: (map['urlImage2'] ?? '') as String,
       urlProduct: (map['urlProduct'] ?? '') as String,
+      friendOnly: (map['friendOnly'] ?? false) as bool,
+      discovery: (map['discovery'] ?? false) as bool,
     );
   }
 
-  factory FastLinkModel.fromJson(String source) =>
-      FastLinkModel.fromMap(json.decode(source) as Map<String, dynamic>);
-
   String toJson() => json.encode(toMap());
+
+  factory FastLinkModel.fromJson(String source) => FastLinkModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

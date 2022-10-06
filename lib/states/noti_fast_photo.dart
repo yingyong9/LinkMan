@@ -1,16 +1,13 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
-import 'dart:math';
 
 import 'package:admanyout/states2/send_option.dart';
-import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
+import 'package:admanyout/widgets/show_image_icon_button.dart';
 import 'package:admanyout/widgets/widget_check_box_list.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -80,7 +77,7 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
                           height: boxConstraints.maxHeight - 96,
                           child: Stack(
                             children: [
-                              Image.file(files[0]!),
+                              Image.file(files[0]!, fit: BoxFit.cover,),
                               Container(
                                 // decoration: MyStyle().curveBorderBox(curve: 30),
                                 margin:
@@ -97,41 +94,18 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
                             ],
                           ),
                         ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 140,
-                              // height: 48,
-                              child: WidgetCheckBoxLis(
-                                status: friend,
-                                title: 'Friend',
-                                statusFunc: (p0) {
-                                  friend = p0!;
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                            SizedBox(
-                              width: 150,
-                              // height: 48,
-                              child: WidgetCheckBoxLis(
-                                status: discovery,
-                                title: 'Discovery',
-                                statusFunc: (p0) {
-                                  discovery = p0!;
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                            ShowIconButton(
-                              iconData: Icons.send,
-                              pressFunc: ()  {
-                               
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => SendOption(files: files,),));
-                                // processUploadInsertData();
-                              },
-                            ),
-                          ],
+                        ShowImageIconButton(
+                          path: 'images/sendblue.png',
+                          size: 72,
+                          pressFunc: () {
+                             Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SendOption(
+                                    files: files,
+                                  ),
+                                ));
+                          },
                         ),
                       ],
                     ),
@@ -139,6 +113,4 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
                 })),
     );
   }
-
- 
 }
