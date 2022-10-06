@@ -33,8 +33,8 @@ class MyStyle {
 
      
 
-  TextStyle h2Style({Color? color}) => TextStyle(
-        fontSize: 16,
+  TextStyle h2Style({Color? color, double? fontSize}) => TextStyle(
+        fontSize: fontSize ?? 16,
         color: color ?? dark,
         fontWeight: FontWeight.w700,
         fontFamily: 'Sarabun',

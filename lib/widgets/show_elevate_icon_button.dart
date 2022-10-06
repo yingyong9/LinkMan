@@ -24,17 +24,21 @@ class ShowElevateButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 30,
-      child: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(primary: MyConstant.primary),
-          onPressed: pressFunc,
-          icon: Icon(
-            iconData,
-            color: colorIcon ?? Colors.white,
-          ),
-          label: ShowText(
-            label: label,
-            textStyle: labelTextStyle ?? MyStyle().h3Style(),
-          )),
+      child: Directionality(textDirection: TextDirection.ltr,
+        child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: MyConstant.primary,
+            ),
+            onPressed: pressFunc,
+            icon: Icon(
+              iconData,
+              color: colorIcon ?? Colors.white,
+            ),
+            label: ShowText(
+              label: label,
+              textStyle: labelTextStyle ?? MyStyle().h3Style(),
+            )),
+      ),
     );
   }
 }

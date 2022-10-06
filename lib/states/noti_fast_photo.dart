@@ -1,12 +1,14 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'dart:math';
 
-import 'package:admanyout/models/linkman_noti_model.dart';
+import 'package:admanyout/states2/send_option.dart';
+import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/widget_check_box_list.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -123,8 +125,10 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
                             ),
                             ShowIconButton(
                               iconData: Icons.send,
-                              pressFunc: () {
-                                processUploadInsertData();
+                              pressFunc: ()  {
+                               
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => SendOption(files: files,),));
+                                // processUploadInsertData();
                               },
                             ),
                           ],
@@ -136,33 +140,5 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
     );
   }
 
-  Future<void> processUploadInsertData() async {
-    var user = FirebaseAuth.instance.currentUser;
-    String uidLogin = user!.uid;
-    int i = Random().nextInt(100000);
-    int j = i+1;
-    String nameFile = '$uidLogin$i.jpg';
-    String nameFile2 = '$uidLogin$j.jpg';
-    
-    FirebaseStorage firebaseStorage = FirebaseStorage.instance;
-    Reference reference = firebaseStorage.ref().child('photonoti/$nameFile');
-    UploadTask uploadTask = reference.putFile(files[0]!);
-    await uploadTask.whenComplete(() async {
-      await reference.getDownloadURL().then((value) async {
-        String urlImage = value;
-        DateTime dateTime = DateTime.now();
-
-        LinkManNotiModel linkManNotiModel = LinkManNotiModel(
-            timePost: Timestamp.fromDate(dateTime),
-            uidPost: uidLogin,
-            urlImage: urlImage);
-
-        await FirebaseFirestore.instance
-            .collection('linkManNoti')
-            .doc()
-            .set(linkManNotiModel.toMap())
-            .then((value) => Navigator.pop(context));
-      });
-    });
-  }
+ 
 }

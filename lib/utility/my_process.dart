@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:admanyout/utility/my_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +14,62 @@ import 'package:random_password_generator/random_password_generator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyProcess {
+  
+  Future<Position?> processFindPosition({required BuildContext context}) async {
+    bool locationServiceEnable = await Geolocator.isLocationServiceEnabled();
+    LocationPermission locationPermission;
+    Position? position;
+
+    if (locationServiceEnable) {
+      // open service
+      locationPermission = await Geolocator.checkPermission();
+
+      if (locationPermission == LocationPermission.deniedForever) {
+        processAlert(
+            context: context,
+            title: 'Permission Denied Forever',
+            message: 'Please Share Location');
+      } else {
+        if (locationPermission == LocationPermission.denied) {
+          locationPermission = await Geolocator.requestPermission();
+
+          if ((locationPermission != LocationPermission.whileInUse) &&
+              (locationPermission != LocationPermission.always)) {
+            processAlert(
+                context: context,
+                title: 'Permission Denied Forever',
+                message: 'Please Share Location');
+          } else {
+            //find Position
+            position = await Geolocator.getCurrentPosition();
+          }
+        } else {
+          //find Position
+          position = await Geolocator.getCurrentPosition();
+        }
+      }
+    } else {
+      processAlert(
+          context: context,
+          title: 'Service Location Off',
+          message: 'Please Open Location Service');
+    }
+    return position;
+  }
+
+  void processAlert(
+      {required BuildContext context,
+      required String title,
+      required String message}) {
+    MyDialog(context: context).normalActionDilalog(
+      title: title,
+      message: message,
+      label: 'OK',
+      pressFunc: () {
+        exit(0);
+      },
+    );
+  }
 
   Future<void> processSave(
       {required String urlSave, required String nameFile}) async {
@@ -27,8 +86,6 @@ class MyProcess {
       Fluttertoast.showToast(msg: 'Cannot Save QrCode');
     }
   }
-
-
 
   String timeStampToString({required Timestamp timestamp}) {
     DateTime dateTime = timestamp.toDate();
