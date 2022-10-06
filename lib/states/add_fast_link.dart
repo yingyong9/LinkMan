@@ -402,6 +402,7 @@ class _AddFastLinkState extends State<AddFastLink> {
       child: ShowButton(
         label: 'Post',
         pressFunc: () async {
+
           if (detail?.isEmpty ?? true) {
             detail = '';
           }
@@ -491,7 +492,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           friendOnly: false,
         );
 
-        print('fastLinkModel ==> ${fastLinkModel.toMap()}');
+        // print('fastLinkModel ==> ${fastLinkModel.toMap()}');
 
         await FirebaseFirestore.instance
             .collection('fastlink')

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:admanyout/models/fast_link_model.dart';
-import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/states2/grand_home.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
