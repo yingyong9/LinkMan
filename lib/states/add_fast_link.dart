@@ -191,7 +191,7 @@ class _AddFastLinkState extends State<AddFastLink> {
                   children: [
                     newImage(boxConstraints),
                     ShowTextButton(
-                      label: showDetailBool ? 'Hint Detail' :  'Show Detail',
+                      label: showDetailBool ? 'Hint Detail' : 'Show Detail',
                       pressFunc: () {
                         setState(() {
                           showDetailBool = !showDetailBool;
@@ -199,7 +199,9 @@ class _AddFastLinkState extends State<AddFastLink> {
                       },
                       textStyle: MyStyle().h3RedStyle(),
                     ),
-                    showDetailBool ? contentForm(boxConstraints) : const SizedBox() ,
+                    showDetailBool
+                        ? contentForm(boxConstraints)
+                        : const SizedBox(),
                     productFile == null
                         ? const SizedBox()
                         : Container(
@@ -400,6 +402,7 @@ class _AddFastLinkState extends State<AddFastLink> {
       child: ShowButton(
         label: 'Post',
         pressFunc: () async {
+
           if (detail?.isEmpty ?? true) {
             detail = '';
           }
@@ -479,16 +482,17 @@ class _AddFastLinkState extends State<AddFastLink> {
           timestamp: timestamp,
           detail2: detail2 ?? '',
           head: head ?? '',
-          urlSong: urlSongChoose ?? '',
           keyRoom: chooseRoomModel?.keyRoom ?? '',
           linkContact: linkContactController.text,
           nameButtonLinkContact: nameButtonLinkContact ?? '',
           position: position,
           urlImage2: urlImage2,
           urlProduct: urlProduct ?? '',
+          discovery: true,
+          friendOnly: false,
         );
 
-        print('fastLinkModel ==> ${fastLinkModel.toMap()}');
+        // print('fastLinkModel ==> ${fastLinkModel.toMap()}');
 
         await FirebaseFirestore.instance
             .collection('fastlink')

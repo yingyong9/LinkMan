@@ -1,12 +1,13 @@
-import 'dart:io';
-import 'dart:math';
+// ignore_for_file: avoid_print
 
-import 'package:admanyout/models/linkman_noti_model.dart';
+import 'dart:io';
+
+import 'package:admanyout/states2/send_option.dart';
 import 'package:admanyout/utility/my_style.dart';
+import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:admanyout/widgets/show_image_icon_button.dart';
+import 'package:admanyout/widgets/widget_check_box_list.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -18,21 +19,32 @@ class NotiFastPhoto extends StatefulWidget {
 }
 
 class _NotiFastPhotoState extends State<NotiFastPhoto> {
-  File? file;
+  var files = <File?>[];
+  bool discovery = false, friend = false;
 
   @override
   void initState() {
     super.initState();
-    processTakePhoto();
+    files.add(null);
+    files.add(null);
+    processTakePhoto(index: 0);
   }
 
-  Future<void> processTakePhoto() async {
+  Future<void> processTakePhoto({required int index}) async {
     var result = await ImagePicker()
         .pickImage(source: ImageSource.camera, maxWidth: 800, maxHeight: 800);
     if (result != null) {
-      file = File(result.path);
-
+      files[index] = File(result.path);
       setState(() {});
+
+      if (files[1] == null) {
+        await Future.delayed(
+          const Duration(seconds: 3),
+          () {
+            processTakePhoto(index: 1);
+          },
+        );
+      }
     }
   }
 
@@ -42,58 +54,63 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
       backgroundColor: MyStyle.dark,
       // appBar: AppBar(),
       body: SafeArea(
-          child: file == null
+          child: files[0] == null
               ? const SizedBox()
-              : SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ShowIconButton(
-                            iconData: Icons.cancel,
-                            pressFunc: () {
-                              processTakePhoto();
-                            },
+              : LayoutBuilder(
+                  builder: (context, BoxConstraints boxConstraints) {
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ShowIconButton(
+                              iconData: Icons.cancel,
+                              pressFunc: () {
+                                processTakePhoto(index: 0);
+                              },
+                            ),
+                          ],
+                        ),
+                        Container(
+                          width: boxConstraints.maxWidth,
+                          height: boxConstraints.maxHeight - 96,
+                          child: Stack(
+                            children: [
+                              Image.file(files[0]!, fit: BoxFit.cover,),
+                              Container(
+                                // decoration: MyStyle().curveBorderBox(curve: 30),
+                                margin:
+                                    const EdgeInsets.only(top: 16, left: 16),
+                                width: boxConstraints.maxWidth * 0.25,
+                                height: boxConstraints.maxWidth * 0.3,
+                                child: files[1] == null
+                                    ? const ShowProgress()
+                                    : Image.file(
+                                        files[1]!,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      Image.file(file!),
-                      ShowIconButton(
-                        iconData: Icons.send,
-                        pressFunc: () {
-                          processUploadInsertData();
-                        },
-                      ),
-                    ],
-                  ),
-                )),
+                        ),
+                        ShowImageIconButton(
+                          path: 'images/sendblue.png',
+                          size: 72,
+                          pressFunc: () {
+                             Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SendOption(
+                                    files: files,
+                                  ),
+                                ));
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                })),
     );
-  }
-
-  Future<void> processUploadInsertData() async {
-    var user = FirebaseAuth.instance.currentUser;
-    String uidLogin = user!.uid;
-    String nameFile = '$uidLogin${Random().nextInt(100000)}.jpg';
-    FirebaseStorage firebaseStorage = FirebaseStorage.instance;
-    Reference reference = firebaseStorage.ref().child('photonoti/$nameFile');
-    UploadTask uploadTask = reference.putFile(file!);
-    await uploadTask.whenComplete(() async {
-      await reference.getDownloadURL().then((value) async {
-        String urlImage = value;
-        DateTime dateTime = DateTime.now();
-
-        LinkManNotiModel linkManNotiModel = LinkManNotiModel(
-            timePost: Timestamp.fromDate(dateTime),
-            uidPost: uidLogin,
-            urlImage: urlImage);
-
-        await FirebaseFirestore.instance
-            .collection('linkManNoti')
-            .doc()
-            .set(linkManNotiModel.toMap())
-            .then((value) => Navigator.pop(context));
-      });
-    });
   }
 }
