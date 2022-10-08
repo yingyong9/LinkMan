@@ -21,7 +21,7 @@ class MyFirebase {
     return result;
   }
 
-  Future<void> sentNoti() async {
+  Future<void> sentNoti({required }) async {
     String title = 'ถ่ายรูป บอกให้โลกรู้';
     String body = 'คุณมีเวลา 2 นาที';
 

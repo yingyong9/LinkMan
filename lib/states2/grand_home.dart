@@ -1,5 +1,9 @@
 // ignore_for_file: avoid_print
 
+import 'dart:math';
+
+import 'package:admanyout/models/auto_noti_model.dart';
+import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/states2/friend.dart';
@@ -8,9 +12,12 @@ import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class GrandHome extends StatefulWidget {
   const GrandHome({Key? key}) : super(key: key);
@@ -29,6 +36,8 @@ class _GrandHomeState extends State<GrandHome> {
   ];
 
   var user = FirebaseAuth.instance.currentUser;
+  
+  bool firstOpen = false;
 
   @override
   void initState() {
@@ -37,6 +46,62 @@ class _GrandHomeState extends State<GrandHome> {
     grandCheckUser();
     setupTabNavigator();
     setupNoti();
+    autoSendNoti();
+  }
+
+  Future<void> autoSendNoti() async {
+   
+
+    DateTime dateTime = DateTime.now();
+    DateFormat dateFormat = DateFormat('ddMMMyyyy');
+    String docIdAutoNoti = dateFormat.format(dateTime);
+
+    await FirebaseFirestore.instance
+        .collection('user')
+        .get()
+        .then((value) async {
+      for (var element in value.docs) {
+        UserModel userModel = UserModel.fromMap(element.data());
+
+        String tokenSend = userModel.token ?? '';
+        // print('##8oct tokenSend ==> $tokenSend');
+
+        await FirebaseFirestore.instance
+            .collection('autoNoti')
+            .doc(docIdAutoNoti)
+            .get()
+            .then((value) async {
+          if (value.data() == null) {
+            firstOpen = true;
+            AutoNotiModel autoNotiModel = AutoNotiModel(
+                docIdSendNoti: user!.uid,
+                timeSend: Timestamp.fromDate(dateTime));
+            await FirebaseFirestore.instance
+                .collection('autoNoti')
+                .doc(docIdAutoNoti)
+                .set(autoNotiModel.toMap())
+                .then((value) => print('##8oct create doc Success'));
+          }
+        });
+
+        if ((tokenSend.isNotEmpty) && firstOpen) {
+          print('##8oct tokenSend ==> $tokenSend');
+          String title = 'ถ่ายรูป บอกให้โลกรู้';
+          String body = 'คุณมีเวลา 2 นาที';
+
+          String path =
+              'https://www.androidthai.in.th/flutter/linkman/linkManNoti.php?isAdd=true&token=$tokenSend&title=$title&body=$body';
+          await Dio().get(path).then((value) {
+            print('##8oct SentNoti Success');
+          });
+        }
+      }
+
+      print('##8oct ขนาดของ User ==> ${value.docs.length}');
+      print('##8oct docIdAutoNoti ==> $docIdAutoNoti');
+    }).catchError((onError) {
+      print('#7oct error ==>> $onError');
+    });
   }
 
   Future<void> setupNoti() async {
