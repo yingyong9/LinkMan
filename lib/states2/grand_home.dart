@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print
 
-import 'dart:math';
 
 import 'package:admanyout/models/auto_noti_model.dart';
 import 'package:admanyout/models/user_model.dart';
