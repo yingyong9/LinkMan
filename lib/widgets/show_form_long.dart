@@ -1,9 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:admanyout/utility/my_style.dart';
-import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_style.dart';
+import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 
 class ShowFormLong extends StatelessWidget {
@@ -13,6 +13,7 @@ class ShowFormLong extends StatelessWidget {
   final double? marginTop;
   final IconData? iconDataSubfix;
   final Function()? pressFunc;
+  final Color? color;
   const ShowFormLong({
     Key? key,
     required this.label,
@@ -21,6 +22,7 @@ class ShowFormLong extends StatelessWidget {
     this.marginTop,
     this.iconDataSubfix,
     this.pressFunc,
+    this.color,
   }) : super(key: key);
 
   @override
@@ -28,21 +30,28 @@ class ShowFormLong extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top: marginTop ?? 16),
       child: TextFormField(
+        style: color == null ? MyStyle().h3Style() : MyStyle().h3WhiteStyle(),
         maxLines: null,
         keyboardType: TextInputType.multiline,
         decoration: InputDecoration(
+          filled: true,
           suffixIcon: iconDataSubfix == null
               ? const SizedBox()
               : ShowIconButton(
                   iconData: iconDataSubfix!,
-                  pressFunc: pressFunc!,color: MyStyle.dark,
+                  pressFunc: pressFunc!,
+                  color: MyStyle.dark,
                 ),
           label: ShowText(
             label: label,
-            textStyle: MyConstant().h3BlackStyle(),
+            textStyle: color == null
+                ? MyConstant().h3BlackStyle()
+                : MyStyle().h3WhiteStyle(),
           ),
-          enabledBorder: const OutlineInputBorder(),
-          focusedBorder: const OutlineInputBorder(),
+          enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: color ?? MyStyle.dark)),
+          focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: color ?? MyStyle.dark)),
         ),
         controller: textEditingController,
         onChanged: changeFunc,

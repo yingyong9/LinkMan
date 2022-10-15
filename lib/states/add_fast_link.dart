@@ -500,7 +500,7 @@ class _AddFastLinkState extends State<AddFastLink> {
             .set(fastLinkModel.toMap())
             .then((value) async {
           //process Sent Noti
-          await MyFirebase().sentNoti();
+          // await MyFirebase().sentNoti();
 
           Navigator.pop(context);
           Navigator.pushAndRemoveUntil(
