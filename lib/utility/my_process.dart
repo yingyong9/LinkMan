@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:admanyout/models/place_model.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
@@ -16,7 +17,16 @@ import 'package:random_password_generator/random_password_generator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyProcess {
-  
+  Future<PlaceModel> findPlaceData(
+      {required double lat, required double lng}) async {
+    String path =
+        'https://api.longdo.com/map/services/address?lon=$lng&lat=$lat&noelevation=1&key=cda17b2e1b8010bdfc353a0f83d59348';
+
+    var result = await Dio().get(path);
+    PlaceModel placeModel = PlaceModel.fromMap(result.data);
+    return placeModel;
+  }
+
   Future<Position?> processFindPosition({required BuildContext context}) async {
     bool locationServiceEnable = await Geolocator.isLocationServiceEnabled();
     LocationPermission locationPermission;
