@@ -21,9 +21,11 @@ class MyFirebase {
     return result;
   }
 
-  Future<void> sentNoti({required }) async {
-    String title = 'ถ่ายรูป บอกให้โลกรู้';
-    String body = 'คุณมีเวลา 2 นาที';
+  Future<void> sentNoti({String? titleNoti, String? bodyNoti}) async {
+    String title = titleNoti ?? 'วันนี่ คุณอยากบอก อะไร เพื่อนคุณ %231';
+    String body = bodyNoti ?? 'คลิกเพื่อ สร้าง Post';
+
+    // print('##14oct title ==> $title, body ==> $body');
 
     var docIdUsers = <String>[];
 
@@ -32,30 +34,21 @@ class MyFirebase {
         .get()
         .then((value) async {
       for (var element in value.docs) {
-        docIdUsers.add(element.id);
-      }
-
-      int index = Random().nextInt(docIdUsers.length);
-      print('## index ==> $index ==> uid = ${docIdUsers[index]}');
-
-      await FirebaseFirestore.instance
-          .collection('user')
-          .doc(docIdUsers[index])
-          .get()
-          .then((value) async {
-        UserModel userModel = UserModel.fromMap(value.data()!);
-
+        UserModel userModel = UserModel.fromMap(element.data());
         if (userModel.token!.isNotEmpty) {
           String? token = userModel.token;
-          print('token ==> $token');
+
+          //สำหรับ การทดสอบ จะ fix token
+          token =
+              'fd6N0wxzRQuyS5qKVplNuu:APA91bHl87iNOgFMdhqZHB_VWU5wFSwN5OTXNsc56Hc4qjBpoQkFqqiRWE5o7ruB7dGSmQvnAfr7ZrLnW_Gv7X7pMT1yXOVJeMcxXrV5TFhEhaGil5Xk8oRjiGnAYfaIDRanxny3LCTI';
 
           String path =
               'https://www.androidthai.in.th/flutter/linkman/linkManNoti.php?isAdd=true&token=$token&title=$title&body=$body';
           await Dio().get(path).then((value) {
-            print('##19sep SentNoti Success');
+            // print('##14oct SentNoti Success');
           });
         }
-      });
+      }
     });
   }
 

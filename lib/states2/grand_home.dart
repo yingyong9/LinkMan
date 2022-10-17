@@ -1,8 +1,18 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: avoid_print
 
+import 'package:admanyout/body/sos_body.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 import 'package:admanyout/models/auto_noti_model.dart';
 import 'package:admanyout/models/user_model.dart';
+import 'package:admanyout/states/add_fast_link.dart';
 import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/search_shortcode.dart';
 import 'package:admanyout/states2/friend.dart';
@@ -10,16 +20,15 @@ import 'package:admanyout/states2/live_video.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_style.dart';
+import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class GrandHome extends StatefulWidget {
-  const GrandHome({Key? key}) : super(key: key);
+  final int? indexInitial;
+  const GrandHome({
+    Key? key,
+    this.indexInitial,
+  }) : super(key: key);
 
   @override
   State<GrandHome> createState() => _GrandHomeState();
@@ -29,18 +38,25 @@ class _GrandHomeState extends State<GrandHome> {
   var bodys = <Widget>[];
   var tabs = <Widget>[];
   var titles = <String>[
-    'Freind',
+    'SOS',
     'Discovery',
     'Live',
   ];
 
   var user = FirebaseAuth.instance.currentUser;
-  
+
   bool firstOpen = false;
+  int sosTimes = 3;
+
+  int? indexInitial;
 
   @override
   void initState() {
     super.initState();
+
+    if (widget.indexInitial != null) {
+      indexInitial = widget.indexInitial;
+    }
 
     grandCheckUser();
     setupTabNavigator();
@@ -49,8 +65,6 @@ class _GrandHomeState extends State<GrandHome> {
   }
 
   Future<void> autoSendNoti() async {
-   
-
     DateTime dateTime = DateTime.now();
     DateFormat dateFormat = DateFormat('ddMMMyyyy');
     String docIdAutoNoti = dateFormat.format(dateTime);
@@ -115,37 +129,101 @@ class _GrandHomeState extends State<GrandHome> {
     FirebaseMessaging.onMessage.listen((event) {
       String? title = event.notification!.title;
       String? body = event.notification!.body;
-      MyDialog(context: context).normalActionDilalog(
-        title: title!,
-        message: body!,
-        label: 'ถ่ายรูป ร่วมสนุกกับ เพื่อนๆของคุณ',
-        pressFunc: () {
-          Navigator.pop(context);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotiFastPhoto(),
-              ));
-        },
-      );
+
+      // print('##14oct title onMessage ==> $title');
+      var strings = title!.split('#');
+      print('##14oct key ==> ${strings[1]}');
+
+      switch (strings[1]) {
+        case '1':
+          MyDialog(context: context).normalActionDilalog(
+            title: title,
+            message: body!,
+            label: 'คลิกเลย',
+            pressFunc: () {
+              Navigator.pop(context);
+
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const AddFastLink(sixCode: '', addLink: ''),
+                  ),
+                  (route) => false);
+            },
+          );
+          break;
+        case '2':
+          print('##14oct action Key 2');
+          MyDialog(context: context).normalActionDilalog(
+            title: title,
+            message: body!,
+            label: 'SOS',
+            pressFunc: () {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GrandHome(
+                      indexInitial: 0,
+                    ),
+                  ),
+                  (route) => false);
+            },
+          );
+
+          break;
+        default:
+      }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      String? title = event.notification!.title;
+     String? title = event.notification!.title;
       String? body = event.notification!.body;
-      MyDialog(context: context).normalActionDilalog(
-        title: title!,
-        message: body!,
-        label: 'ถ่ายรูป ร่วมสนุกกับ เพื่อนๆของคุณ',
-        pressFunc: () {
-          Navigator.pop(context);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotiFastPhoto(),
-              ));
-        },
-      );
+
+      // print('##14oct title onMessage ==> $title');
+      var strings = title!.split('#');
+      print('##14oct key ==> ${strings[1]}');
+
+      switch (strings[1]) {
+        case '1':
+          MyDialog(context: context).normalActionDilalog(
+            title: title,
+            message: body!,
+            label: 'คลิกเลย',
+            pressFunc: () {
+              Navigator.pop(context);
+
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const AddFastLink(sixCode: '', addLink: ''),
+                  ),
+                  (route) => false);
+            },
+          );
+          break;
+        case '2':
+          print('##14oct action Key 2');
+          MyDialog(context: context).normalActionDilalog(
+            title: title,
+            message: body!,
+            label: 'SOS',
+            pressFunc: () {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GrandHome(
+                      indexInitial: 0,
+                    ),
+                  ),
+                  (route) => false);
+            },
+          );
+
+          break;
+        default:
+      }
     });
   }
 
@@ -154,7 +232,7 @@ class _GrandHomeState extends State<GrandHome> {
   }
 
   void setupTabNavigator() {
-    bodys.add(const Friend());
+    bodys.add(const SosBody());
     bodys.add(const SearchShortCode());
     bodys.add(const LiveVideo());
 
@@ -174,7 +252,7 @@ class _GrandHomeState extends State<GrandHome> {
     return Scaffold(
       body: SafeArea(
         child: DefaultTabController(
-          initialIndex: 1,
+          initialIndex: indexInitial ?? 1,
           length: 3,
           child: Scaffold(
             appBar: AppBar(
@@ -191,28 +269,43 @@ class _GrandHomeState extends State<GrandHome> {
                 textStyle: MyStyle().h1Style(color: MyStyle.bgColor),
               ),
               bottom: TabBar(tabs: tabs),
-              // actions: [
-              //   ShowIconButton(
-              //     color: MyStyle.bgColor,
-              //     iconData: Icons.more_vert,
-              //     pressFunc: () async {
-              //       bool result = await MyFirebase().checkLogin();
-              //       if (result) {
-              //         Navigator.push(
-              //             context,
-              //             MaterialPageRoute(
-              //               builder: (context) => const Setting(),
-              //             ));
-              //       } else {
-              //         Navigator.push(
-              //             context,
-              //             MaterialPageRoute(
-              //               builder: (context) => const Authen(),
-              //             ));
-              //       }
-              //     },
-              //   )
-              // ],
+              actions: [
+                ShowButton(
+                  label: 'SOS',
+                  pressFunc: () async {
+                    Fluttertoast.showToast(
+                      msg: 'ขอความช่วยเหลือ กดปุ่ม SOS $sosTimes ครั้ง',
+                      fontSize: 24,
+                      backgroundColor: Colors.red,
+                      toastLength: Toast.LENGTH_SHORT,
+                    );
+
+                    sosTimes--;
+                    print('##13oct sosTimes ==> $sosTimes');
+
+                    if (sosTimes == 0) {
+                      print('##13oct Start SOS');
+
+                      sosTimes = 3;
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotiFastPhoto(),
+                          ));
+                    } else {
+                      await Future.delayed(const Duration(seconds: 5), () {
+                        sosTimes = 3;
+                      });
+                    }
+                  },
+                  bgColor: const Color.fromARGB(255, 181, 32, 22),
+                )
+                // ShowIconButton(
+                //   iconData: Icons.sos,color: Colors.red,
+                //   pressFunc: () {},
+                // )
+              ],
             ),
             body: TabBarView(children: bodys),
           ),
