@@ -10,6 +10,7 @@ import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 final Map<String, WidgetBuilder> map = {
   MyConstant.routeAuthen: (context) => const Authen(),
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // SystemChrome.setEnabledSystemUIOverlays([]);
 
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       routes: map,
       initialRoute: initial,

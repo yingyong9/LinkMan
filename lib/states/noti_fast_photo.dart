@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:admanyout/models/sos_model.dart';
 import 'package:admanyout/states2/send_option.dart';
+import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
@@ -52,8 +53,12 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
         setState(() {});
 
         if (files[1] == null) {
+          Fluttertoast.showToast(
+              msg: 'Take Photo 2',
+              backgroundColor: Colors.red,
+              textColor: Colors.white);
           await Future.delayed(
-            const Duration(seconds: 3),
+            const Duration(seconds: 1),
             () {
               processTakePhoto(index: 1);
             },
@@ -144,6 +149,8 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
                                     Fluttertoast.showToast(
                                         msg: 'กรุณากรอกข้อความ');
                                   } else {
+                                    MyDialog(context: context).processDialog();
+
                                     var urlImages = <String>[];
 
                                     for (var element in files) {
@@ -191,15 +198,15 @@ class _NotiFastPhotoState extends State<NotiFastPhoto> {
                                           .then((value) async {
                                         print('##14oct insert sos success');
 
-
-
                                         await MyFirebase()
                                             .sentNoti(
                                               titleNoti: 'ขอความช่วยเหลือ %232',
                                               bodyNoti: textHelp,
                                             )
-                                            .then((value) =>
-                                                Navigator.pop(context));
+                                            .then((value) {
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            });
                                       });
                                     }
                                   }
