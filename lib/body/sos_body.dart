@@ -71,7 +71,9 @@ class _SosBodyState extends State<SosBody> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SosComment(docIdSos: docIdSos,),
+                    builder: (context) => SosComment(
+                      docIdSos: docIdSos,
+                    ),
                   ));
             },
           ),
@@ -169,6 +171,7 @@ class _SosBodyState extends State<SosBody> {
     await FirebaseFirestore.instance
         .collection('sos')
         .orderBy('timeSos', descending: true)
+        .limit(5)
         .get()
         .then((value) async {
       for (var element in value.docs) {

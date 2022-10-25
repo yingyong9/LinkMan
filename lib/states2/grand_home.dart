@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import 'package:admanyout/models/auto_noti_model.dart';
@@ -15,7 +16,6 @@ import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_fast_link.dart';
 import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/search_shortcode.dart';
-import 'package:admanyout/states2/friend.dart';
 import 'package:admanyout/states2/live_video.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
@@ -172,12 +172,22 @@ class _GrandHomeState extends State<GrandHome> {
           );
 
           break;
+        case '3':
+          MyDialog(context: context).normalActionDilalog(
+            title: title,
+            message: body!,
+            label: 'OK',
+            pressFunc: () {
+             Get.offAll(const GrandHome());
+            },
+          );
+          break;
         default:
       }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
-     String? title = event.notification!.title;
+      String? title = event.notification!.title;
       String? body = event.notification!.body;
 
       // print('##14oct title onMessage ==> $title');

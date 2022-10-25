@@ -33,20 +33,25 @@ class MyFirebase {
         .collection('user')
         .get()
         .then((value) async {
+     
       for (var element in value.docs) {
         UserModel userModel = UserModel.fromMap(element.data());
         if (userModel.token!.isNotEmpty) {
           String? token = userModel.token;
 
           //สำหรับ การทดสอบ จะ fix token
-          token =
-              'fd6N0wxzRQuyS5qKVplNuu:APA91bHl87iNOgFMdhqZHB_VWU5wFSwN5OTXNsc56Hc4qjBpoQkFqqiRWE5o7ruB7dGSmQvnAfr7ZrLnW_Gv7X7pMT1yXOVJeMcxXrV5TFhEhaGil5Xk8oRjiGnAYfaIDRanxny3LCTI';
+          // token =
+          //     'dHHflP_zTbqEJwElT1k0e8:APA91bG0FG0xRfNvvNEjQeJ6Bl499a-953KLvc1mlwBaEC68iKgMmzrBTUWMlq5jpscF2QHKi5m7laQ4A5CDSK5yKmA73MDVSUJDR8ruMNMOtxzHeWmoS51YP9IAXohhdhU9LdTlHg16';
 
           String path =
               'https://www.androidthai.in.th/flutter/linkman/linkManNoti.php?isAdd=true&token=$token&title=$title&body=$body';
-          await Dio().get(path).then((value) {
-            // print('##14oct SentNoti Success');
-          });
+
+        
+            await Dio().get(path).then((value) {
+              // print('##14oct SentNoti Success');
+             
+            });
+          
         }
       }
     });

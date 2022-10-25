@@ -47,6 +47,7 @@ class AddFastLink extends StatefulWidget {
 }
 
 class _AddFastLinkState extends State<AddFastLink> {
+
   File? file;
   String? sixCode, addLink, detail, detail2, head;
   var user = FirebaseAuth.instance.currentUser;
@@ -74,6 +75,8 @@ class _AddFastLinkState extends State<AddFastLink> {
   String? urlProduct;
 
   bool showDetailBool = false;
+  
+  String notiText = 'มีเรื่องราวดีๆ ให้คุณดู';
 
   @override
   void initState() {
@@ -210,6 +213,20 @@ class _AddFastLinkState extends State<AddFastLink> {
                             height: 150,
                             child: Image.file(productFile!),
                           ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: boxConstraints.maxWidth * 0.6,
+                          child: ShowFormLong(
+                            label: 'Noti ที่คุณอยากบอก',
+                            changeFunc: (p0) {
+                              notiText = p0.trim();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                     newGroup(boxConstraints: boxConstraints),
                   ],
                 ),
@@ -402,7 +419,6 @@ class _AddFastLinkState extends State<AddFastLink> {
       child: ShowButton(
         label: 'Post',
         pressFunc: () async {
-
           if (detail?.isEmpty ?? true) {
             detail = '';
           }
@@ -500,7 +516,8 @@ class _AddFastLinkState extends State<AddFastLink> {
             .set(fastLinkModel.toMap())
             .then((value) async {
           //process Sent Noti
-          // await MyFirebase().sentNoti();
+          await MyFirebase()
+              .sentNoti(titleNoti: '${userModelLogined!.name} %233', bodyNoti: notiText);
 
           Navigator.pop(context);
           Navigator.pushAndRemoveUntil(

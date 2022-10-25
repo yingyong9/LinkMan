@@ -48,10 +48,10 @@ class ShowFormLong extends StatelessWidget {
                 ? MyConstant().h3BlackStyle()
                 : MyStyle().h3WhiteStyle(),
           ),
-          enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: color ?? MyStyle.dark)),
-          focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: color ?? MyStyle.dark)),
+          // enabledBorder: OutlineInputBorder(
+          //     borderSide: BorderSide(color: color ?? MyStyle.dark)),
+          // focusedBorder: OutlineInputBorder(
+          //     borderSide: BorderSide(color: color ?? MyStyle.dark)),
         ),
         controller: textEditingController,
         onChanged: changeFunc,
