@@ -26,6 +26,7 @@ class _SosBodyState extends State<SosBody> {
   var sosModels = <SosModel>[];
   var userModelOwnerSoss = <UserModel>[];
   var placeModels = <PlaceModel>[];
+  var docIdSoss = <String>[];
 
   @override
   void initState() {
@@ -46,32 +47,41 @@ class _SosBodyState extends State<SosBody> {
                 width: boxConstraints.maxWidth,
                 height: boxConstraints.maxHeight,
                 child: Stack(
+                  fit: StackFit.expand,
                   children: [
                     imageBig(index),
                     imageSmallGroup(boxConstraints, index),
                     sosIconButton(context, index),
-                    Positioned(
-                      bottom: 0,
-                      child: Row(
-                        children: [
-                          ShowIconButton(
-                            iconData: Icons.comment,
-                            pressFunc: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => SosComment(),));
-                            },
-                          ),
-                          ShowOutlineButton(
-                            label: 'ยังไม่ได้รับการช่วยเหลือ',
-                            pressFunc: () {},
-                          )
-                        ],
-                      ),
-                    )
+                    contentBotton(context, docIdSos: docIdSoss[index]),
                   ],
                 ),
               ),
             );
           });
+  }
+
+  Positioned contentBotton(BuildContext context, {required String docIdSos}) {
+    return Positioned(
+      bottom: 0,
+      child: Row(
+        children: [
+          ShowIconButton(
+            iconData: Icons.comment,
+            pressFunc: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SosComment(docIdSos: docIdSos,),
+                  ));
+            },
+          ),
+          ShowOutlineButton(
+            label: 'ยังไม่ได้รับการช่วยเหลือ',
+            pressFunc: () {},
+          )
+        ],
+      ),
+    );
   }
 
   Center sosIconButton(BuildContext context, int index) {
@@ -101,10 +111,10 @@ class _SosBodyState extends State<SosBody> {
             label: placeModels[index].province,
             textStyle: MyStyle().h2Style(color: Colors.white),
           ),
-           ShowText(
-                  label: sosModels[index].textHelp,
-                  textStyle: MyStyle().h1Style(color: Colors.red),
-                ),
+          ShowText(
+            label: sosModels[index].textHelp,
+            textStyle: MyStyle().h1Style(color: Colors.red),
+          ),
         ],
       ),
     );
@@ -135,7 +145,6 @@ class _SosBodyState extends State<SosBody> {
                   label: userModelOwnerSoss[index].name,
                   textStyle: MyStyle().h2Style(color: Colors.white),
                 ),
-               
                 ShowText(
                   label: MyProcess()
                       .timeStampToString(timestamp: sosModels[index].timeSos),
@@ -163,6 +172,8 @@ class _SosBodyState extends State<SosBody> {
         .get()
         .then((value) async {
       for (var element in value.docs) {
+        docIdSoss.add(element.id);
+
         SosModel sosModel = SosModel.fromMap(element.data());
         sosModels.add(sosModel);
 
