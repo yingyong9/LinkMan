@@ -130,9 +130,9 @@ class _GrandHomeState extends State<GrandHome> {
       String? title = event.notification!.title;
       String? body = event.notification!.body;
 
-      // print('##14oct title onMessage ==> $title');
+      print('##27sep title onMessage ==> $title');
       var strings = title!.split('#');
-      print('##14oct key ==> ${strings[1]}');
+      print('##27sep key ==> ${strings[1]}');
 
       switch (strings[1]) {
         case '1':

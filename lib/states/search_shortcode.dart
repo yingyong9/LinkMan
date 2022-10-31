@@ -8,10 +8,10 @@ import 'dart:typed_data';
 
 import 'package:admanyout/models/comment_model.dart';
 import 'package:admanyout/states/main_menu.dart';
-import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/states2/chat_discovery.dart';
 import 'package:admanyout/utility/my_style.dart';
+import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_image.dart';
@@ -19,7 +19,6 @@ import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -736,12 +735,15 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     } // if
                   },
                 ),
-                ShowIconButton(
-                  iconData: Icons.chat_rounded,
-                  pressFunc: () {
-                    Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
-                  },
-                )
+                ShowButton(label: 'GroupLink', pressFunc: () {
+                  Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
+                },)
+                // ShowIconButton(
+                //   iconData: Icons.chat_rounded,
+                //   pressFunc: () {
+                //     Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
+                //   },
+                // ),
               ],
             ),
           ],
