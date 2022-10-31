@@ -10,6 +10,7 @@ import 'package:admanyout/models/comment_model.dart';
 import 'package:admanyout/states/main_menu.dart';
 import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/read_qr_code.dart';
+import 'package:admanyout/states2/chat_discovery.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
@@ -21,6 +22,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -326,12 +328,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         statusLoginBool = false;
       } else {
         statusLoginBool = true;
-        
       }
     });
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -694,7 +693,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     ),
                   ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ShowForm(
@@ -733,40 +732,16 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             await MyFirebase().findUserModel(uid: user!.uid);
                         listUserModelComments[index].add(userModel);
                         setState(() {});
-
-                        // if (index == 0) {
-
-                        //   MyDialog(context: context).processDialog();
-                        //   processLoad = true;
-                        //   findDocumentLists();
-                        //   readFastLinkData();
-                        // } else {
-                        //   print('index ที่เพิ่ม Commemt ==> $index');
-                        //   listCommentModels[index].add(commentModel);
-                        //   UserModel userModel =
-                        //       await MyFirebase().findUserModel(uid: user!.uid);
-                        //   listUserModelComments[index].add(userModel);
-                        //   setState(() {});
-                        // }
                       });
                     } // if
                   },
                 ),
-                //  Padding(
-                //   padding: const EdgeInsets.only(right: 16, left: 16),
-                //   child: ShowImageIconButton(
-                //     path: 'images/message.png',
-                //     pressFunc: () {
-                //       if (fastLinkModels[index].linkContact.isNotEmpty) {
-                //         String urlSave = fastLinkModels[index].urlImage;
-                //         processSaveQRcodeOnStorage(urlImage: urlSave);
-
-                //         MyProcess().processLaunchUrl(
-                //             url: fastLinkModels[index].linkContact);
-                //       }
-                //     },
-                //   ),
-                // ),
+                ShowIconButton(
+                  iconData: Icons.chat_rounded,
+                  pressFunc: () {
+                    Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
+                  },
+                )
               ],
             ),
           ],
