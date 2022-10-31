@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:admanyout/models/link_model.dart';
+import 'package:admanyout/models/messaging_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states2/grand_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,7 +12,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MyFirebase {
-  
+  Future<String?> findDocIdMessaging(
+      {required String uidLogin, required String uidParter}) async {
+    String? string;
+    var result = await FirebaseFirestore.instance.collection('messaging').get();
+    if (result.docs.isNotEmpty) {
+      for (var element in result.docs) {
+        MessageingModel messageingModel =
+            MessageingModel.fromMap(element.data());
+        var doubleMessages = messageingModel.doubleMessages;
+        if ((doubleMessages.contains(uidLogin)) &&
+            (doubleMessages.contains(uidParter))) {
+          string = element.id;
+        }
+      }
+    }
+    return string;
+  }
+
   Future<bool> checkLogin() async {
     bool result = true; // true SignIn Status
     var user = FirebaseAuth.instance.currentUser;
@@ -34,7 +52,6 @@ class MyFirebase {
         .collection('user')
         .get()
         .then((value) async {
-     
       for (var element in value.docs) {
         UserModel userModel = UserModel.fromMap(element.data());
         if (userModel.token!.isNotEmpty) {
@@ -47,12 +64,9 @@ class MyFirebase {
           String path =
               'https://www.androidthai.in.th/flutter/linkman/linkManNoti.php?isAdd=true&token=$token&title=$title&body=$body';
 
-        
-            await Dio().get(path).then((value) {
-              // print('##14oct SentNoti Success');
-             
-            });
-          
+          await Dio().get(path).then((value) {
+            // print('##14oct SentNoti Success');
+          });
         }
       }
     });

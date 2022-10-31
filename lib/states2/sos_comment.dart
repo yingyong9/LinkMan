@@ -1,10 +1,13 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/models/messaging_model.dart';
 import 'package:admanyout/models/sos_post_model.dart';
 import 'package:admanyout/models/user_model.dart';
+import 'package:admanyout/states2/chat_room.dart';
 import 'package:admanyout/utility/my_constant.dart';
+import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
@@ -20,7 +23,7 @@ import 'package:flutter/material.dart';
 
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form_long.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SosComment extends StatefulWidget {
@@ -106,7 +109,8 @@ class _SosCommentState extends State<SosComment> {
                             children: [
                               SizedBox(
                                 height: boxConstraints.maxHeight - 60,
-                                child: ListView.builder(reverse: true,
+                                child: ListView.builder(
+                                  reverse: true,
                                   itemCount: sosPostModels.length,
                                   itemBuilder: (context, index) => Row(
                                     mainAxisAlignment:
@@ -119,7 +123,66 @@ class _SosCommentState extends State<SosComment> {
                                           ? const SizedBox()
                                           : ShowCircleImage(
                                               path: userModels[index].avatar ??
-                                                  MyConstant.urlLogo),
+                                                  MyConstant.urlLogo,
+                                              pressFunc: () async {
+                                                String uidLogin = user!.uid;
+                                                String uidPartner =
+                                                    sosPostModels[index]
+                                                        .uidPost;
+
+                                                String? docIdMessaging =
+                                                    await MyFirebase()
+                                                        .findDocIdMessaging(
+                                                            uidLogin: uidLogin,
+                                                            uidParter:
+                                                                uidPartner);
+                                                print(
+                                                    '##28oct uidLigin = $uidLogin, uidPartner = $uidPartner, docIdMessaging = $docIdMessaging');
+
+                                                if (docIdMessaging == null) {
+                                                  //Create New DocMessage
+                                                  var doubleMessages =
+                                                      <String>[];
+                                                  doubleMessages.add(uidLogin);
+                                                  doubleMessages
+                                                      .add(uidPartner);
+                                                  MessageingModel
+                                                      messageingModel =
+                                                      MessageingModel(
+                                                          doubleMessages:
+                                                              doubleMessages);
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('messaging')
+                                                      .doc()
+                                                      .set(messageingModel
+                                                          .toMap())
+                                                      .then((value) async {
+                                                    print(
+                                                        '##28oct Create DocIdMessage Success');
+                                                    //goto Chat Room
+
+                                                    docIdMessaging =
+                                                        await MyFirebase()
+                                                            .findDocIdMessaging(
+                                                                uidLogin:
+                                                                    uidLogin,
+                                                                uidParter:
+                                                                    uidPartner);
+
+                                                    Get.to(ChatRoom(
+                                                        docIdMessaging:
+                                                            docIdMessaging!));
+                                                  });
+                                                } else {
+                                                  //Use Current DocMessage
+                                                  //goto Chat Room
+                                                  Get.to(ChatRoom(
+                                                      docIdMessaging:
+                                                          docIdMessaging));
+                                                }
+                                              },
+                                            ),
                                       Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
@@ -203,6 +266,8 @@ class _SosCommentState extends State<SosComment> {
               label: 'ส่ง',
               pressFunc: () async {
                 if (!(post?.isEmpty ?? true)) {
+                  MyDialog(context: context).processDialog();
+
                   DateTime dateTime = DateTime.now();
                   print(
                       'post ==> $post, uid ==> ${user!.uid}, dateTime ==> $dateTime, docIdSos ==> $docIdSos');
@@ -217,6 +282,8 @@ class _SosCommentState extends State<SosComment> {
                       .doc()
                       .set(sosPostModel.toMap())
                       .then((value) {
+                    Navigator.pop(context);
+                    post = null;
                     textEditingController.text = '';
                   });
                 }
@@ -229,6 +296,8 @@ class _SosCommentState extends State<SosComment> {
   }
 
   Future<void> processUploadImage({required File file}) async {
+    MyDialog(context: context).processDialog();
+
     String nameFile = '${user!.uid}${Random().nextInt(1000000)}.jpg';
     FirebaseStorage storage = FirebaseStorage.instance;
     Reference reference = storage.ref().child('postsos/$nameFile');
@@ -252,7 +321,7 @@ class _SosCommentState extends State<SosComment> {
             .doc()
             .set(sosPostModel.toMap())
             .then((value) {
-          print('upload image success');
+          Navigator.pop(context);
         });
       });
     });
