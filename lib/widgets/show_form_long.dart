@@ -14,6 +14,8 @@ class ShowFormLong extends StatelessWidget {
   final IconData? iconDataSubfix;
   final Function()? pressFunc;
   final Color? color;
+  final Color? fixColor;
+
   const ShowFormLong({
     Key? key,
     required this.label,
@@ -23,6 +25,7 @@ class ShowFormLong extends StatelessWidget {
     this.iconDataSubfix,
     this.pressFunc,
     this.color,
+    this.fixColor,
   }) : super(key: key);
 
   @override
@@ -31,10 +34,12 @@ class ShowFormLong extends StatelessWidget {
       margin: EdgeInsets.only(top: marginTop ?? 16),
       child: TextFormField(
         style: color == null ? MyStyle().h3Style() : MyStyle().h3WhiteStyle(),
-        maxLines: null,
+        minLines: 1,
+        maxLines: 4,
         keyboardType: TextInputType.multiline,
         decoration: InputDecoration(
           filled: true,
+          fillColor: fixColor,
           suffixIcon: iconDataSubfix == null
               ? const SizedBox()
               : ShowIconButton(
