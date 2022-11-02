@@ -119,73 +119,79 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                             ? MainAxisAlignment.end
                                             : MainAxisAlignment.start,
                                     children: [
-                                      sosPostModels[index].uidPost == user!.uid
-                                          ? const SizedBox()
-                                          : ShowCircleImage(
-                                              path: userModels[index].avatar ??
-                                                  MyConstant.urlLogo,
-                                              pressFunc: () async {
-                                                String uidLogin = user!.uid;
-                                                String uidPartner =
-                                                    sosPostModels[index]
-                                                        .uidPost;
-
-                                                String? docIdMessaging =
-                                                    await MyFirebase()
-                                                        .findDocIdMessaging(
-                                                            uidLogin: uidLogin,
-                                                            uidParter:
-                                                                uidPartner);
-                                                print(
-                                                    '##28oct uidLigin = $uidLogin, uidPartner = $uidPartner, docIdMessaging = $docIdMessaging');
-
-                                                if (docIdMessaging == null) {
-                                                  //Create New DocMessage
-                                                  var doubleMessages =
-                                                      <String>[];
-                                                  doubleMessages.add(uidLogin);
-                                                  doubleMessages
-                                                      .add(uidPartner);
-                                                  MessageingModel
-                                                      messageingModel =
-                                                      MessageingModel(
-                                                          doubleMessages:
-                                                              doubleMessages);
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection('messaging')
-                                                      .doc()
-                                                      .set(messageingModel
-                                                          .toMap())
-                                                      .then((value) async {
-                                                    print(
-                                                        '##28oct Create DocIdMessage Success');
-                                                    //goto Chat Room
-
-                                                    docIdMessaging =
-                                                        await MyFirebase()
-                                                            .findDocIdMessaging(
-                                                                uidLogin:
-                                                                    uidLogin,
-                                                                uidParter:
-                                                                    uidPartner);
-
-                                                    Get.to(ChatRoom(
-                                                        docIdMessaging:
-                                                            docIdMessaging!));
-                                                  });
-                                                } else {
-                                                  //Use Current DocMessage
-                                                  //goto Chat Room
-                                                  Get.to(ChatRoom(
-                                                      docIdMessaging:
-                                                          docIdMessaging));
-                                                }
-                                              },
-                                            ),
-                                      Column(
+                                      
+                                      Column(crossAxisAlignment: CrossAxisAlignment.start,
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
+                                          sosPostModels[index].uidPost == user!.uid
+                                          ? const SizedBox()
+                                          : Row(
+                                            children: [
+                                              ShowCircleImage(
+                                                  path: userModels[index].avatar ??
+                                                      MyConstant.urlLogo,
+                                                  pressFunc: () async {
+                                                    String uidLogin = user!.uid;
+                                                    String uidPartner =
+                                                        sosPostModels[index]
+                                                            .uidPost;
+
+                                                    String? docIdMessaging =
+                                                        await MyFirebase()
+                                                            .findDocIdMessaging(
+                                                                uidLogin: uidLogin,
+                                                                uidParter:
+                                                                    uidPartner);
+                                                    print(
+                                                        '##28oct uidLigin = $uidLogin, uidPartner = $uidPartner, docIdMessaging = $docIdMessaging');
+
+                                                    if (docIdMessaging == null) {
+                                                      //Create New DocMessage
+                                                      var doubleMessages =
+                                                          <String>[];
+                                                      doubleMessages.add(uidLogin);
+                                                      doubleMessages
+                                                          .add(uidPartner);
+                                                      MessageingModel
+                                                          messageingModel =
+                                                          MessageingModel(
+                                                              doubleMessages:
+                                                                  doubleMessages);
+                                                      await FirebaseFirestore
+                                                          .instance
+                                                          .collection('messaging')
+                                                          .doc()
+                                                          .set(messageingModel
+                                                              .toMap())
+                                                          .then((value) async {
+                                                        print(
+                                                            '##28oct Create DocIdMessage Success');
+                                                        //goto Chat Room
+
+                                                        docIdMessaging =
+                                                            await MyFirebase()
+                                                                .findDocIdMessaging(
+                                                                    uidLogin:
+                                                                        uidLogin,
+                                                                    uidParter:
+                                                                        uidPartner);
+
+                                                        Get.to(ChatRoom(
+                                                            docIdMessaging:
+                                                                docIdMessaging!));
+                                                      });
+                                                    } else {
+                                                      //Use Current DocMessage
+                                                      //goto Chat Room
+                                                      Get.to(ChatRoom(
+                                                          docIdMessaging:
+                                                              docIdMessaging));
+                                                    }
+                                                  },
+                                                ),const SizedBox(width: 8,),
+                                                ShowText(label: userModels[index].name, textStyle: MyStyle().h2Style(color: MyStyle.dark),)
+                                            ],
+                                          ),
                                           sosPostModels[index].post.isEmpty
                                               ? WidgetImageInternet(
                                                   path: sosPostModels[index]
