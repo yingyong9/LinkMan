@@ -6,6 +6,7 @@ import 'package:admanyout/models/messaging_model.dart';
 import 'package:admanyout/models/sos_post_model.dart';
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states2/chat_room.dart';
+import 'package:admanyout/states2/photo_view_big.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
@@ -108,7 +109,7 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                         ? Column(
                             children: [
                               SizedBox(
-                                height: boxConstraints.maxHeight - 60,
+                                height: boxConstraints.maxHeight - 80,
                                 child: ListView.builder(
                                   reverse: true,
                                   itemCount: sosPostModels.length,
@@ -119,88 +120,116 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                             ? MainAxisAlignment.end
                                             : MainAxisAlignment.start,
                                     children: [
-                                      
-                                      Column(crossAxisAlignment: CrossAxisAlignment.start,
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          sosPostModels[index].uidPost == user!.uid
-                                          ? const SizedBox()
-                                          : Row(
-                                            children: [
-                                              ShowCircleImage(
-                                                  path: userModels[index].avatar ??
-                                                      MyConstant.urlLogo,
-                                                  pressFunc: () async {
-                                                    String uidLogin = user!.uid;
-                                                    String uidPartner =
-                                                        sosPostModels[index]
-                                                            .uidPost;
+                                          sosPostModels[index].uidPost ==
+                                                  user!.uid
+                                              ? const SizedBox()
+                                              : Row(
+                                                  children: [
+                                                    ShowCircleImage(
+                                                      path: userModels[index]
+                                                              .avatar ??
+                                                          MyConstant.urlLogo,
+                                                      pressFunc: () async {
+                                                        String uidLogin =
+                                                            user!.uid;
+                                                        String uidPartner =
+                                                            sosPostModels[index]
+                                                                .uidPost;
 
-                                                    String? docIdMessaging =
-                                                        await MyFirebase()
-                                                            .findDocIdMessaging(
-                                                                uidLogin: uidLogin,
-                                                                uidParter:
-                                                                    uidPartner);
-                                                    print(
-                                                        '##28oct uidLigin = $uidLogin, uidPartner = $uidPartner, docIdMessaging = $docIdMessaging');
-
-                                                    if (docIdMessaging == null) {
-                                                      //Create New DocMessage
-                                                      var doubleMessages =
-                                                          <String>[];
-                                                      doubleMessages.add(uidLogin);
-                                                      doubleMessages
-                                                          .add(uidPartner);
-                                                      MessageingModel
-                                                          messageingModel =
-                                                          MessageingModel(
-                                                              doubleMessages:
-                                                                  doubleMessages);
-                                                      await FirebaseFirestore
-                                                          .instance
-                                                          .collection('messaging')
-                                                          .doc()
-                                                          .set(messageingModel
-                                                              .toMap())
-                                                          .then((value) async {
-                                                        print(
-                                                            '##28oct Create DocIdMessage Success');
-                                                        //goto Chat Room
-
-                                                        docIdMessaging =
+                                                        String? docIdMessaging =
                                                             await MyFirebase()
                                                                 .findDocIdMessaging(
                                                                     uidLogin:
                                                                         uidLogin,
                                                                     uidParter:
                                                                         uidPartner);
+                                                        print(
+                                                            '##28oct uidLigin = $uidLogin, uidPartner = $uidPartner, docIdMessaging = $docIdMessaging');
 
-                                                        Get.to(ChatRoom(
-                                                            docIdMessaging:
-                                                                docIdMessaging!));
-                                                      });
-                                                    } else {
-                                                      //Use Current DocMessage
-                                                      //goto Chat Room
-                                                      Get.to(ChatRoom(
-                                                          docIdMessaging:
-                                                              docIdMessaging));
-                                                    }
-                                                  },
-                                                ),const SizedBox(width: 8,),
-                                                ShowText(label: userModels[index].name, textStyle: MyStyle().h2Style(color: MyStyle.dark),)
-                                            ],
-                                          ),
+                                                        if (docIdMessaging ==
+                                                            null) {
+                                                          //Create New DocMessage
+                                                          var doubleMessages =
+                                                              <String>[];
+                                                          doubleMessages
+                                                              .add(uidLogin);
+                                                          doubleMessages
+                                                              .add(uidPartner);
+                                                          MessageingModel
+                                                              messageingModel =
+                                                              MessageingModel(
+                                                                  doubleMessages:
+                                                                      doubleMessages);
+                                                          await FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  'messaging')
+                                                              .doc()
+                                                              .set(
+                                                                  messageingModel
+                                                                      .toMap())
+                                                              .then(
+                                                                  (value) async {
+                                                            print(
+                                                                '##28oct Create DocIdMessage Success');
+                                                            //goto Chat Room
+
+                                                            docIdMessaging = await MyFirebase()
+                                                                .findDocIdMessaging(
+                                                                    uidLogin:
+                                                                        uidLogin,
+                                                                    uidParter:
+                                                                        uidPartner);
+
+                                                            Get.to(ChatRoom(
+                                                                docIdMessaging:
+                                                                    docIdMessaging!));
+                                                          });
+                                                        } else {
+                                                          //Use Current DocMessage
+                                                          //goto Chat Room
+                                                          Get.to(ChatRoom(
+                                                              docIdMessaging:
+                                                                  docIdMessaging));
+                                                        }
+                                                      },
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 8,
+                                                    ),
+                                                    ShowText(
+                                                      label: userModels[index]
+                                                          .name,
+                                                      textStyle: MyStyle()
+                                                          .h2Style(
+                                                              color:
+                                                                  MyStyle.dark),
+                                                    )
+                                                  ],
+                                                ),
                                           sosPostModels[index].post.isEmpty
-                                              ? WidgetImageInternet(
-                                                  path: sosPostModels[index]
-                                                          .urlImagePost ??
-                                                      MyConstant.urlLogo,
-                                                  width: 200,
-                                                  hight: 200,
+                                              ? InkWell(
+                                                  onTap: () => Get.to(PhotoViewBig(
+                                                      urlImage: sosPostModels[
+                                                                  index]
+                                                              .urlImagePost ??
+                                                          MyConstant.urlLogo)),
+                                                  child: WidgetImageInternet(
+                                                    path: sosPostModels[index]
+                                                            .urlImagePost ??
+                                                        MyConstant.urlLogo,
+                                                    width: 200,
+                                                    hight: 200,
+                                                  ),
                                                 )
-                                              : Container(padding: const EdgeInsets.all(16),
+                                              : Container(
+                                                  padding:
+                                                      const EdgeInsets.all(16),
                                                   decoration:
                                                       MyStyle().bgCircleGrey(),
                                                   width: 200,
