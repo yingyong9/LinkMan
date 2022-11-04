@@ -15,6 +15,7 @@ import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
+import 'package:admanyout/widgets/show_link_content.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:admanyout/widgets/widget_image_internet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -227,19 +228,8 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                     hight: 200,
                                                   ),
                                                 )
-                                              : Container(
-                                                  padding:
-                                                      const EdgeInsets.all(16),
-                                                  decoration:
-                                                      MyStyle().bgCircleGrey(),
-                                                  width: 200,
-                                                  child: ShowText(
-                                                    label: sosPostModels[index]
-                                                        .post,
-                                                    textStyle:
-                                                        MyStyle().h3Style(),
-                                                  ),
-                                                ),
+                                              : ShowLinkContent(string: sosPostModels[index]
+                                                        .post),
                                           ShowText(
                                             label: MyProcess()
                                                 .timeStampToString(
@@ -314,10 +304,15 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                   DateTime dateTime = DateTime.now();
                   print(
                       'post ==> $post, uid ==> ${user!.uid}, dateTime ==> $dateTime, docIdSos ==> $docIdFastLink');
+
+
+
+
                   SosPostModel sosPostModel = SosPostModel(
                       post: post!,
                       uidPost: user!.uid,
                       timePost: Timestamp.fromDate(dateTime));
+
                   await FirebaseFirestore.instance
                       .collection('fastlink')
                       .doc(docIdFastLink)
