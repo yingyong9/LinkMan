@@ -50,6 +50,7 @@ class SearchShortCode extends StatefulWidget {
 }
 
 class _SearchShortCodeState extends State<SearchShortCode> {
+  
   String? search, addNewLink;
   TextEditingController controller = TextEditingController();
   bool? statusLoginBool;
@@ -489,10 +490,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                       timestamp:
                                           fastLinkModels[index].timestamp),
                                 ),
-                                ShowIconButton(
-                                  iconData: Icons.more_vert,
-                                  pressFunc: () {},
-                                ),
+                                
+                                // ShowIconButton(
+                                //   iconData: Icons.more_vert,
+                                //   pressFunc: () {},
+                                // ),
                               ],
                             ),
                             Card(
@@ -738,12 +740,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 ShowButton(label: 'GroupLink', pressFunc: () {
                   Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
                 },)
-                // ShowIconButton(
-                //   iconData: Icons.chat_rounded,
-                //   pressFunc: () {
-                //     Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
-                //   },
-                // ),
+              
               ],
             ),
           ],
