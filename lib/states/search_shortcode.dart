@@ -50,7 +50,6 @@ class SearchShortCode extends StatefulWidget {
 }
 
 class _SearchShortCodeState extends State<SearchShortCode> {
-  
   String? search, addNewLink;
   TextEditingController controller = TextEditingController();
   bool? statusLoginBool;
@@ -335,26 +334,38 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
-        child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints boxConstraints) {
-          return SizedBox(
-            width: boxConstraints.maxWidth,
-            height: boxConstraints.maxHeight,
-            child: Stack(
-              children: [
-                formSearchShortCode(boxConstraints: boxConstraints),
-                newAddLink(boxConstraints: boxConstraints),
-              ],
-            ),
-          );
-        }),
+      body: GridView.builder(controller: scrollController,
+        itemCount: fastLinkModels.length,
+        gridDelegate:
+            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+        itemBuilder: (context, index) => Text('test'),
       ),
     );
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     backgroundColor: Colors.black,
+  //     body: GestureDetector(
+  //       behavior: HitTestBehavior.opaque,
+  //       onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
+  //       child: LayoutBuilder(
+  //           builder: (BuildContext context, BoxConstraints boxConstraints) {
+  //         return SizedBox(
+  //           width: boxConstraints.maxWidth,
+  //           height: boxConstraints.maxHeight,
+  //           child: Stack(
+  //             children: [
+  //               formSearchShortCode(boxConstraints: boxConstraints),
+  //               newAddLink(boxConstraints: boxConstraints),
+  //             ],
+  //           ),
+  //         );
+  //       }),
+  //     ),
+  //   );
+  // }
 
   Widget newAddLink({required BoxConstraints boxConstraints}) {
     return Positioned(
@@ -490,7 +501,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                                       timestamp:
                                           fastLinkModels[index].timestamp),
                                 ),
-                                
+
                                 // ShowIconButton(
                                 //   iconData: Icons.more_vert,
                                 //   pressFunc: () {},
@@ -737,10 +748,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     } // if
                   },
                 ),
-                ShowButton(label: 'GroupLink', pressFunc: () {
-                  Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
-                },)
-              
+                ShowButton(
+                  label: 'GroupLink',
+                  pressFunc: () {
+                    Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
+                  },
+                )
               ],
             ),
           ],
