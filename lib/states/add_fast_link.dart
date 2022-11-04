@@ -28,6 +28,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -47,7 +48,6 @@ class AddFastLink extends StatefulWidget {
 }
 
 class _AddFastLinkState extends State<AddFastLink> {
-
   File? file;
   String? sixCode, addLink, detail, detail2, head;
   var user = FirebaseAuth.instance.currentUser;
@@ -75,8 +75,10 @@ class _AddFastLinkState extends State<AddFastLink> {
   String? urlProduct;
 
   bool showDetailBool = false;
-  
+
   String notiText = 'มีเรื่องราวดีๆ ให้คุณดู';
+
+  String? nameGroup;
 
   @override
   void initState() {
@@ -213,6 +215,12 @@ class _AddFastLinkState extends State<AddFastLink> {
                             height: 150,
                             child: Image.file(productFile!),
                           ),
+                    ShowFormLong(
+                      label: 'Name Group',
+                      changeFunc: (p0) {
+                        nameGroup = p0.trim();
+                      },
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -417,49 +425,56 @@ class _AddFastLinkState extends State<AddFastLink> {
   SizedBox buttonPost() {
     return SizedBox(
       child: ShowButton(
-        label: 'Post',
+        labelStyle: MyStyle().h2Style(color: Colors.white),
+        label: 'กด สร้าง กลุ่ม',
         pressFunc: () async {
-          if (detail?.isEmpty ?? true) {
-            detail = '';
-          }
+          if (nameGroup?.isEmpty ?? true) {
+            Fluttertoast.showToast(msg: 'กรุณาใส่ชื่อ กลุ่ม');
+          } else {
+            if (detail?.isEmpty ?? true) {
+              detail = '';
+            }
 
-          if (productFile != null) {
-            String nameFileProduct = 'product${Random().nextInt(1000000)}.jpg';
-            FirebaseStorage storage = FirebaseStorage.instance;
-            Reference reference =
-                storage.ref().child('product/$nameFileProduct');
-            UploadTask task = reference.putFile(productFile!);
-            await task.whenComplete(() async {
-              await reference.getDownloadURL().then((value) {
-                urlProduct = value;
-              });
-            });
-          }
-
-          await processFindLocation().then((value) async {
-            DateTime dateTime = DateTime.now();
-
-            print('##23seb lat = $lat, lng = $lng, dateTime ==> $dateTime');
-
-            File file;
-            var result =
-                await MyProcess().processTakePhoto(source: ImageSource.camera);
-            if (result != null) {
-              file = File(result.path);
-
-              String nameFile = 'image${Random().nextInt(1000000)}.jpg';
+            if (productFile != null) {
+              String nameFileProduct =
+                  'product${Random().nextInt(1000000)}.jpg';
               FirebaseStorage storage = FirebaseStorage.instance;
-              Reference reference = storage.ref().child('photofast2/$nameFile');
-              UploadTask uploadTask = reference.putFile(file);
-              await uploadTask.whenComplete(() async {
+              Reference reference =
+                  storage.ref().child('product/$nameFileProduct');
+              UploadTask task = reference.putFile(productFile!);
+              await task.whenComplete(() async {
                 await reference.getDownloadURL().then((value) {
-                  String urlImage2 = value;
-                  print('##23seb ==> $urlImage2');
-                  processUploadAndInsertFastLink(urlImage2: urlImage2);
+                  urlProduct = value;
                 });
               });
             }
-          });
+
+            await processFindLocation().then((value) async {
+              DateTime dateTime = DateTime.now();
+
+              print('##23seb lat = $lat, lng = $lng, dateTime ==> $dateTime');
+
+              File file;
+              var result = await MyProcess()
+                  .processTakePhoto(source: ImageSource.camera);
+              if (result != null) {
+                file = File(result.path);
+
+                String nameFile = 'image${Random().nextInt(1000000)}.jpg';
+                FirebaseStorage storage = FirebaseStorage.instance;
+                Reference reference =
+                    storage.ref().child('photofast2/$nameFile');
+                UploadTask uploadTask = reference.putFile(file);
+                await uploadTask.whenComplete(() async {
+                  await reference.getDownloadURL().then((value) {
+                    String urlImage2 = value;
+                    print('##23seb ==> $urlImage2');
+                    processUploadAndInsertFastLink(urlImage2: urlImage2);
+                  });
+                });
+              }
+            });
+          }
         },
       ),
     );
@@ -506,6 +521,7 @@ class _AddFastLinkState extends State<AddFastLink> {
           urlProduct: urlProduct ?? '',
           discovery: true,
           friendOnly: false,
+          nameGroup: nameGroup ?? '',
         );
 
         // print('fastLinkModel ==> ${fastLinkModel.toMap()}');
@@ -516,8 +532,8 @@ class _AddFastLinkState extends State<AddFastLink> {
             .set(fastLinkModel.toMap())
             .then((value) async {
           //process Sent Noti
-          await MyFirebase()
-              .sentNoti(titleNoti: '${userModelLogined!.name} %233', bodyNoti: notiText);
+          await MyFirebase().sentNoti(
+              titleNoti: '${userModelLogined!.name} %233', bodyNoti: notiText);
 
           Navigator.pop(context);
           Navigator.pushAndRemoveUntil(
