@@ -167,7 +167,7 @@ class _SendOptionState extends State<SendOption> {
               urlImage2: urlImages[1],
               urlProduct: '',
               friendOnly: options[0],
-              discovery: options[1], nameGroup: '',
+              discovery: options[1], nameGroup: '', typeGroup: 'สาธารณะ',
             );
 
             await FirebaseFirestore.instance

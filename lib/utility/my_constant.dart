@@ -30,7 +30,7 @@ class MyConstant {
         urlProduct: 'urlProduct',
         friendOnly: true,
         discovery: true,
-        nameGroup: 'ห้องหลัก');
+        nameGroup: 'ห้องหลัก', typeGroup: 'สาธารณะ');
   }
 
   BoxDecoration curveBorderBox({double? curve, Color? color}) => BoxDecoration(
