@@ -68,7 +68,7 @@ class ShowLinkContent extends StatelessWidget {
             pressFunc: () {
               MyProcess().processLaunchUrl(url: urlLink!);
             },
-            textStyle: MyStyle().h3RedStyle(),
+            textStyle: MyStyle().h3Style(colorText: Colors.blue.shade600),
           ),
            ShowText(
             label: endText,

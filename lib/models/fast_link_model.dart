@@ -20,6 +20,8 @@ class FastLinkModel {
   final String urlProduct;
   final bool friendOnly;
   final bool discovery;
+  final String nameGroup;
+  final String typeGroup;
   FastLinkModel({
     required this.urlImage,
     required this.detail,
@@ -37,6 +39,8 @@ class FastLinkModel {
     required this.urlProduct,
     required this.friendOnly,
     required this.discovery,
+    required this.nameGroup,
+    required this.typeGroup,
   });
 
   Map<String, dynamic> toMap() {
@@ -57,6 +61,8 @@ class FastLinkModel {
       'urlProduct': urlProduct,
       'friendOnly': friendOnly,
       'discovery': discovery,
+      'nameGroup': nameGroup,
+      'typeGroup': typeGroup,
     };
   }
 
@@ -67,21 +73,24 @@ class FastLinkModel {
       linkId: (map['linkId'] ?? '') as String,
       uidPost: (map['uidPost'] ?? '') as String,
       linkUrl: (map['linkUrl'] ?? '') as String,
-      timestamp: (map['timestamp'] ?? Timestamp.now()),
+      timestamp: (map['timestamp'] ),
       detail2: (map['detail2'] ?? '') as String,
       head: (map['head'] ?? '') as String,
       keyRoom: (map['keyRoom'] ?? '') as String,
       linkContact: (map['linkContact'] ?? '') as String,
       nameButtonLinkContact: (map['nameButtonLinkContact'] ?? '') as String,
-      position: (map['position'] ?? const GeoPoint(0,0)),
+      position: (map['position'] ?? const GeoPoint(0, 0) ),
       urlImage2: (map['urlImage2'] ?? '') as String,
       urlProduct: (map['urlProduct'] ?? '') as String,
       friendOnly: (map['friendOnly'] ?? false) as bool,
       discovery: (map['discovery'] ?? false) as bool,
+      nameGroup: (map['nameGroup'] ?? '') as String,
+      typeGroup: (map['typeGroup'] ?? '') as String,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory FastLinkModel.fromJson(String source) => FastLinkModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory FastLinkModel.fromJson(String source) =>
+      FastLinkModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

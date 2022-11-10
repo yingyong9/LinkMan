@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/controllers/app_controller.dart';
 import 'package:admanyout/models/category_room_model.dart';
 import 'package:admanyout/models/fast_group_model.dart';
 import 'package:admanyout/models/fast_link_model.dart';
@@ -9,7 +10,6 @@ import 'package:admanyout/models/link_model.dart';
 import 'package:admanyout/models/room_model.dart';
 import 'package:admanyout/models/song_model.dart';
 import 'package:admanyout/models/user_model.dart';
-import 'package:admanyout/states/add_product.dart';
 import 'package:admanyout/states2/grand_home.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
@@ -28,7 +28,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -47,7 +49,6 @@ class AddFastLink extends StatefulWidget {
 }
 
 class _AddFastLinkState extends State<AddFastLink> {
-
   File? file;
   String? sixCode, addLink, detail, detail2, head;
   var user = FirebaseAuth.instance.currentUser;
@@ -75,8 +76,12 @@ class _AddFastLinkState extends State<AddFastLink> {
   String? urlProduct;
 
   bool showDetailBool = false;
-  
+
   String notiText = 'มีเรื่องราวดีๆ ให้คุณดู';
+
+  // String? nameGroup;
+
+  String? typeGroup;
 
   @override
   void initState() {
@@ -165,8 +170,8 @@ class _AddFastLinkState extends State<AddFastLink> {
   Future<void> processGetImage() async {
     var result = await ImagePicker().pickImage(
       source: ImageSource.gallery,
-      maxWidth: 800,
-      maxHeight: 800,
+      maxWidth: 480,
+      maxHeight: 480,
     );
     if (result != null) {
       setState(() {
@@ -186,51 +191,87 @@ class _AddFastLinkState extends State<AddFastLink> {
           ? const ShowProgress()
           : LayoutBuilder(
               builder: (BuildContext context, BoxConstraints boxConstraints) {
-              return GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () =>
-                    FocusScope.of(context).requestFocus(FocusScopeNode()),
-                child: ListView(
-                  children: [
-                    newImage(boxConstraints),
-                    ShowTextButton(
-                      label: showDetailBool ? 'Hint Detail' : 'Show Detail',
-                      pressFunc: () {
-                        setState(() {
-                          showDetailBool = !showDetailBool;
-                        });
-                      },
-                      textStyle: MyStyle().h3RedStyle(),
-                    ),
-                    showDetailBool
-                        ? contentForm(boxConstraints)
-                        : const SizedBox(),
-                    productFile == null
-                        ? const SizedBox()
-                        : Container(
-                            margin: const EdgeInsets.symmetric(vertical: 16),
-                            width: 180,
-                            height: 150,
-                            child: Image.file(productFile!),
+              return GetX(
+                  init: AppController(),
+                  builder: (AppController appController) {
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () =>
+                          FocusScope.of(context).requestFocus(FocusScopeNode()),
+                      child: ListView(
+                        children: [
+                          newImage(boxConstraints),
+                          // ShowTextButton(
+                          //   label: showDetailBool ? 'Hint Detail' : 'Show Detail',
+                          //   pressFunc: () {
+                          //     setState(() {
+                          //       showDetailBool = !showDetailBool;
+                          //     });
+                          //   },
+                          //   textStyle: MyStyle().h3RedStyle(),
+                          // ),
+                          // showDetailBool
+                          //     ? contentForm(boxConstraints)
+                          //     : const SizedBox(),
+                          // productFile == null
+                          //     ? const SizedBox()
+                          //     : Container(
+                          //         margin: const EdgeInsets.symmetric(vertical: 16),
+                          //         width: 180,
+                          //         height: 150,
+                          //         child: Image.file(productFile!),
+                          //       ),
+                          ShowFormLong(
+                            label: 'Name Group',
+                            changeFunc: (p0) {
+                              appController.nameGroup.value = p0.trim();
+                            },
                           ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: boxConstraints.maxWidth * 0.6,
-                          child: ShowFormLong(
+                          ShowFormLong(
                             label: 'Noti ที่คุณอยากบอก',
                             changeFunc: (p0) {
                               notiText = p0.trim();
                             },
                           ),
-                        ),
-                      ],
-                    ),
-                    newGroup(boxConstraints: boxConstraints),
-                  ],
-                ),
-              );
+
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: boxConstraints.maxWidth * 0.5,
+                                child: RadioListTile(
+                                  value: 'สาธารณะ',
+                                  groupValue: appController.typeGroup.value,
+                                  onChanged: (value) {
+                                    appController.typeGroup.value =
+                                        value.toString();
+                                  },
+                                  title: ShowText(
+                                    label: 'สาธารณะ',
+                                    textStyle: MyStyle().h2Style(),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: boxConstraints.maxWidth * 0.5,
+                                child: RadioListTile(
+                                  value: 'ส่วนตัว',
+                                  groupValue: appController.typeGroup.value,
+                                  onChanged: (value) {
+                                    appController.typeGroup.value =
+                                        value.toString();
+                                  },
+                                  title: ShowText(
+                                    label: 'ส่วนตัว',
+                                    textStyle: MyStyle().h2Style(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  });
             }),
     );
   }
@@ -400,76 +441,56 @@ class _AddFastLinkState extends State<AddFastLink> {
     }
   }
 
-  Widget newGroup({required BoxConstraints boxConstraints}) {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: boxConstraints.maxWidth * 0.65,
-            child: buttonPost(),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget buttonPost() {
+    return GetX(
+        init: AppController(),
+        builder: (AppController appController) {
+          return ShowButton(
+            bgColor: appController.nameGroup.value.isEmpty
+                ? Colors.grey.shade400
+                : MyConstant.primary,
+            labelStyle: MyStyle().h2Style(color: Colors.white),
+            label: 'สร้างกลุ่ม',
+            pressFunc: () async {
+              if (appController.nameGroup.value.isEmpty ?? true) {
+                Fluttertoast.showToast(msg: 'กรุณาใส่ชื่อ กลุ่ม');
+              } else {
+                print('buttonPost Work');
+                if (detail?.isEmpty ?? true) {
+                  detail = '';
+                }
 
-  SizedBox buttonPost() {
-    return SizedBox(
-      child: ShowButton(
-        label: 'Post',
-        pressFunc: () async {
-          if (detail?.isEmpty ?? true) {
-            detail = '';
-          }
+                if (productFile != null) {
+                  String nameFileProduct =
+                      'product${Random().nextInt(1000000)}.jpg';
+                  FirebaseStorage storage = FirebaseStorage.instance;
+                  Reference reference =
+                      storage.ref().child('product/$nameFileProduct');
+                  UploadTask task = reference.putFile(productFile!);
+                  await task.whenComplete(() async {
+                    await reference.getDownloadURL().then((value) {
+                      urlProduct = value;
+                      print('urlProduct = $urlProduct');
+                    });
+                  });
+                }
 
-          if (productFile != null) {
-            String nameFileProduct = 'product${Random().nextInt(1000000)}.jpg';
-            FirebaseStorage storage = FirebaseStorage.instance;
-            Reference reference =
-                storage.ref().child('product/$nameFileProduct');
-            UploadTask task = reference.putFile(productFile!);
-            await task.whenComplete(() async {
-              await reference.getDownloadURL().then((value) {
-                urlProduct = value;
-              });
-            });
-          }
-
-          await processFindLocation().then((value) async {
-            DateTime dateTime = DateTime.now();
-
-            print('##23seb lat = $lat, lng = $lng, dateTime ==> $dateTime');
-
-            File file;
-            var result =
-                await MyProcess().processTakePhoto(source: ImageSource.camera);
-            if (result != null) {
-              file = File(result.path);
-
-              String nameFile = 'image${Random().nextInt(1000000)}.jpg';
-              FirebaseStorage storage = FirebaseStorage.instance;
-              Reference reference = storage.ref().child('photofast2/$nameFile');
-              UploadTask uploadTask = reference.putFile(file);
-              await uploadTask.whenComplete(() async {
-                await reference.getDownloadURL().then((value) {
-                  String urlImage2 = value;
-                  print('##23seb ==> $urlImage2');
-                  processUploadAndInsertFastLink(urlImage2: urlImage2);
-                });
-              });
-            }
-          });
-        },
-      ),
-    );
+                processUploadAndInsertFastLink(
+                    nameGroup: appController.nameGroup.value,
+                    typeGroup: appController.typeGroup.value);
+              }
+            },
+          );
+        });
   }
 
   Future<void> processUploadAndInsertFastLink(
-      {required String urlImage2}) async {
+      {required String nameGroup, required String typeGroup}) async {
     MyDialog(context: context).processDialog();
 
     String nameImage = '${user!.uid}${Random().nextInt(1000000)}.jpg';
+
+    print('nameImage ==> $nameImage');
 
     FirebaseStorage storage = FirebaseStorage.instance;
     Reference reference = storage.ref().child('photofast/$nameImage');
@@ -502,10 +523,12 @@ class _AddFastLinkState extends State<AddFastLink> {
           linkContact: linkContactController.text,
           nameButtonLinkContact: nameButtonLinkContact ?? '',
           position: position,
-          urlImage2: urlImage2,
+          urlImage2: '',
           urlProduct: urlProduct ?? '',
           discovery: true,
           friendOnly: false,
+          nameGroup: nameGroup,
+          typeGroup: typeGroup,
         );
 
         // print('fastLinkModel ==> ${fastLinkModel.toMap()}');
@@ -516,8 +539,8 @@ class _AddFastLinkState extends State<AddFastLink> {
             .set(fastLinkModel.toMap())
             .then((value) async {
           //process Sent Noti
-          await MyFirebase()
-              .sentNoti(titleNoti: '${userModelLogined!.name} %233', bodyNoti: notiText);
+          await MyFirebase().sentNoti(
+              titleNoti: '${userModelLogined!.name} %233', bodyNoti: notiText);
 
           Navigator.pop(context);
           Navigator.pushAndRemoveUntil(
@@ -651,6 +674,9 @@ class _AddFastLinkState extends State<AddFastLink> {
       foregroundColor: Colors.black,
       elevation: 0,
       backgroundColor: Colors.white,
+      actions: [
+        buttonPost(),
+      ],
     );
   }
 
