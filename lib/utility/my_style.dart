@@ -42,9 +42,9 @@ class MyStyle {
 
       
 
-  TextStyle h3Style() => TextStyle(
+  TextStyle h3Style({Color? colorText}) => TextStyle(
         fontSize: 14,
-        color: dark,
+        color: colorText ?? dark,
         fontWeight: FontWeight.normal,
         fontFamily: 'Sarabun',
       );

@@ -81,7 +81,7 @@ class FastLinkModel {
       urlProduct: (map['urlProduct'] ?? '') as String,
       friendOnly: (map['friendOnly'] ?? false) as bool,
       discovery: (map['discovery'] ?? false) as bool,
-      nameGroup: (map['nameGroup'] ?? '') as String,
+      nameGroup: (map['nameGroup'] ?? 'no NameGroup') as String,
     );
   }
 

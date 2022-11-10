@@ -16,6 +16,7 @@ import 'package:admanyout/widgets/show_elevate_icon_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_image.dart';
 import 'package:admanyout/widgets/show_text_button.dart';
+import 'package:admanyout/widgets/widget_image_internet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -150,6 +151,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
         .limit(10)
         .get()
         .then((value) async {
+      // ส่วนของ ห้องหลัก
+      fastLinkModels.add(MyConstant().mainFastLinkModel());
+      docIdFastLinks.add('');
+
       for (var element in value.docs) {
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
         fastLinkModels.add(fastLinkModel);
@@ -210,7 +215,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           print('listCommentamodels ===> $listCommentModels');
         });
       }
-      // print('##17july showButtonLinks ===> $showButtonLinks');
+
+      print('##9nov fastLinkModels[0] ==> ${fastLinkModels[0].toMap()}');
 
       if (processLoad) {
         processLoad = false;
@@ -334,12 +340,75 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GridView.builder(controller: scrollController,
-        itemCount: fastLinkModels.length,
-        gridDelegate:
-            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        itemBuilder: (context, index) => Text('test'),
-      ),
+      backgroundColor: MyStyle.dark,
+      body: LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
+        return Stack(
+          children: [
+            GridView.builder(
+              controller: scrollController,
+              itemCount: fastLinkModels.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 4,
+                  mainAxisSpacing: 4,
+                  childAspectRatio: 2 / 3),
+              itemBuilder: (context, index) => LayoutBuilder(
+                  builder: (context, BoxConstraints boxConstraints) {
+                return Container(
+                  decoration: MyConstant().curveBorderBox(),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: boxConstraints.maxWidth,
+                        height: boxConstraints.maxHeight * 0.5,
+                        child: WidgetImageInternet(
+                          path: fastLinkModels[index].urlImage,
+                          boxFit: BoxFit.cover,
+                          pressFunc: () {
+                            if (docIdFastLinks[index].isNotEmpty) {
+                              Get.to(ChatDiscovery(
+                                  docIdFastLink: docIdFastLinks[index]));
+                            }
+                          },
+                        ),
+                      ),
+                      Container(
+                        decoration: const BoxDecoration(color: Colors.white),
+                        width: boxConstraints.maxWidth,
+                        height: boxConstraints.maxHeight * 0.5 - 2,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ShowText(
+                              label: fastLinkModels[index].nameGroup,
+                              textStyle: MyStyle().h2Style(color: Colors.black),
+                            ),
+                            ShowText(
+                              label: 'กลุ่มสาธารณะ',
+                              textStyle: MyStyle().h3Style(),
+                            ),
+                            ShowText(
+                              label: 'จำนวนสมาชิก = 100 คน',
+                              textStyle: MyStyle().h3Style(),
+                            ),
+                            ShowButton(
+                              label: 'เข้าร่วม',
+                              pressFunc: () {},
+                              bgColor: Colors.blue.shade200,
+                              width: boxConstraints.maxWidth * 0.8,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+            newAddLink(boxConstraints: boxConstraints),
+          ],
+        );
+      }),
     );
   }
 
@@ -371,9 +440,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     return Positioned(
       bottom: 0,
       child: Container(
-        width: boxConstraints.maxWidth - 20,
-        // color: Colors.green,
-        margin: const EdgeInsets.only(left: 10),
+        width: boxConstraints.maxWidth,
+        color: Colors.black,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
