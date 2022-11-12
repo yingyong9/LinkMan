@@ -224,8 +224,8 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                     path: sosPostModels[index]
                                                             .urlImagePost ??
                                                         MyConstant.urlLogo,
-                                                    width: 200,
-                                                    hight: 200,
+                                                    width: boxConstraints.maxWidth*0.75,
+                                                    hight: boxConstraints.maxWidth*0.75,
                                                   ),
                                                 )
                                               : ShowLinkContent(string: sosPostModels[index]
