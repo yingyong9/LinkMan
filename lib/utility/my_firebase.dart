@@ -40,6 +40,17 @@ class MyFirebase {
     return result;
   }
 
+  Future<void> sendNotiChat(
+      {required String tokenSend, String? title, String? body}) async {
+    String titleSend = title ?? 'มีข้อความเข้า';
+    String bodySend = body ?? 'มีข่าวสาร';
+    String url =
+        'https://www.androidthai.in.th/flutter/linkman/linkManNoti.php?isAdd=true&token=$tokenSend&title=$titleSend&body=$bodySend';
+    await Dio().get(url).then((value) {
+      print('##13nov sendNotiChat Success');
+    });
+  }
+
   Future<void> sentNoti({String? titleNoti, String? bodyNoti}) async {
     String title = titleNoti ?? 'วันนี่ คุณอยากบอก อะไร เพื่อนคุณ %231';
     String body = bodyNoti ?? 'คลิกเพื่อ สร้าง Post';

@@ -49,6 +49,7 @@ class _ChatRoomState extends State<ChatRoom> {
   void initState() {
     super.initState();
     docIdMessaging = widget.docIdMessaging;
+    print('##13nov docIdMessaging = $docIdMessaging');
     findUserModelPartner();
   }
 
@@ -92,9 +93,12 @@ class _ChatRoomState extends State<ChatRoom> {
                                   ),
                                   Column(
                                     children: [
-                                      ShowText(
-                                        label: sosPostModels[index].post,
-                                        textStyle: MyStyle().h3Style(),
+                                      Container(padding: const EdgeInsets.all(16),
+                                        decoration: MyStyle().bgCircleGrey(),
+                                        child: ShowText(
+                                          label: sosPostModels[index].post,
+                                          textStyle: MyStyle().h3Style(),
+                                        ),
                                       ),
                                       sosPostModels[index].urlImagePost!.isEmpty
                                           ? const SizedBox()
@@ -107,7 +111,8 @@ class _ChatRoomState extends State<ChatRoom> {
                                         label: MyProcess().timeStampToString(
                                             timestamp:
                                                 sosPostModels[index].timePost),
-                                        textStyle: MyStyle().h3RedStyle(),
+                                        textStyle: MyStyle().h3GreyStyle(
+                                            color: Colors.grey.shade500),
                                       )
                                     ],
                                   ),
@@ -182,11 +187,19 @@ class _ChatRoomState extends State<ChatRoom> {
                       .collection('detail')
                       .doc()
                       .set(sosPostModel.toMap())
-                      .then((value) {
+                      .then((value) async {
                     Navigator.pop(context);
-
                     formController.text = '';
                     message = null;
+
+                    // MyFirebase()
+                    //     .sendNotiChat(
+                    //         tokenSend: userModelPartner!.token!, body: '$message %23$docIdMessaging', title: 'มีข้อความเข้า %234')
+                    //     .then((value) {
+                    //   Navigator.pop(context);
+                    //   formController.text = '';
+                    //   message = null;
+                    // });
                   });
                 }
               },

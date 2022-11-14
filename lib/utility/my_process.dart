@@ -99,9 +99,9 @@ class MyProcess {
     }
   }
 
-  String timeStampToString({required Timestamp timestamp}) {
+  String timeStampToString({required Timestamp timestamp, String? format}) {
     DateTime dateTime = timestamp.toDate();
-    DateFormat dateFormat = DateFormat('dd MMM HH:mm');
+    DateFormat dateFormat = DateFormat(format ?? 'dd MMM HH:mm');
     String result = dateFormat.format(dateTime);
     return result;
   }

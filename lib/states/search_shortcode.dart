@@ -7,9 +7,11 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:admanyout/models/comment_model.dart';
+import 'package:admanyout/models/member_model.dart';
 import 'package:admanyout/states/main_menu.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/states2/chat_discovery.dart';
+import 'package:admanyout/states2/total_partner.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
@@ -66,13 +68,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   ScrollController scrollController = ScrollController();
   var user = FirebaseAuth.instance.currentUser;
   bool processLoad = false;
-
   var commentTexts = <String?>[];
   var listCommentModels = <List<CommentModel>>[];
   var listUserModelComments = <List<UserModel>>[];
   var showFormComments = <bool>[];
-
   TextEditingController commentController = TextEditingController();
+
+  var memberBools = <bool>[];
 
   @override
   void initState() {
@@ -106,7 +108,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
-        print('##6Aug Load More on Top');
+        // print('##6Aug Load More on Top');
         MyDialog(context: context).processDialog();
         processLoad = true;
         findDocumentLists();
@@ -115,7 +117,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
-        print('##6Aug Load More on Button Work');
+        // print('##6Aug Load More on Button Work');
         MyDialog(context: context).processDialog();
         processLoad = true;
         readMoreFastLinkData();
@@ -140,10 +142,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       listUserModelComments.clear();
       docIdUsers.clear();
       showFormComments.clear();
+      memberBools.clear();
     }
 
-    print(
-        '##17july lastindex ที่ readFastLinkData หรือเริ่มทำงาน ==> $lastIndex');
+    // print(
+    //     '##17july lastindex ที่ readFastLinkData หรือเริ่มทำงาน ==> $lastIndex');
 
     await FirebaseFirestore.instance
         .collection('fastlink')
@@ -154,6 +157,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       // ส่วนของ ห้องหลัก
       fastLinkModels.add(MyConstant().mainFastLinkModel());
       docIdFastLinks.add('');
+      memberBools.add(true);
 
       for (var element in value.docs) {
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
@@ -194,7 +198,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             .orderBy('timeComment')
             .get()
             .then((valueComment) async {
-          print('valurComment ==> ${valueComment.docs}');
+          // print('valurComment ==> ${valueComment.docs}');
           if (value.docs.isEmpty) {
             listCommentModels.add([]);
             listUserModelComments.add([]);
@@ -212,11 +216,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             listCommentModels.add(commentModels);
             listUserModelComments.add(userModels);
           }
-          print('listCommentamodels ===> $listCommentModels');
+          // print('listCommentamodels ===> $listCommentModels');
         });
       }
 
-      print('##9nov fastLinkModels[0] ==> ${fastLinkModels[0].toMap()}');
+      // print('##9nov fastLinkModels[0] ==> ${fastLinkModels[0].toMap()}');
 
       if (processLoad) {
         processLoad = false;
@@ -228,9 +232,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   }
 
   Future<void> readMoreFastLinkData() async {
-    print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
-    print(
-        '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
+    // print('##17july เริ่มทำงาน readMoreFastLinkData lastIndex ---> $lastIndex');
+    // print(
+    //     '##17july ขนาดของ documentLists ตรวจที่ readMoreFastLinkData ==>> ${documentLists.length}');
 
     if (lastIndex + 1 <= documentLists.length) {
       await FirebaseFirestore.instance
@@ -298,11 +302,11 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               listUserModelComments.add(userModels);
             }
 
-            print('listCommentamodels at More Fast ===> $listCommentModels');
+            // print('listCommentamodels at More Fast ===> $listCommentModels');
           });
         }
         lastIndex = lastIndex + 10;
-        print('##20july นี่คือ lastIndex ที่โหลดมาใหม่ ===>>> $lastIndex');
+        // print('##20july นี่คือ lastIndex ที่โหลดมาใหม่ ===>>> $lastIndex');
 
         if (processLoad) {
           processLoad = false;
@@ -323,7 +327,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       for (var element in value.docs) {
         documentLists.add(element);
       }
-      print('##9july ขนาดของ documentLists ==>> ${documentLists.length}');
+      print('##11nov ขนาดของ documentLists ==>> ${documentLists.length}');
     });
   }
 
@@ -365,9 +369,13 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           path: fastLinkModels[index].urlImage,
                           boxFit: BoxFit.cover,
                           pressFunc: () {
-                            if (docIdFastLinks[index].isNotEmpty) {
-                              Get.to(ChatDiscovery(
-                                  docIdFastLink: docIdFastLinks[index]));
+                            if (statusLoginBool ?? false) {
+                              if (docIdFastLinks[index].isNotEmpty) {
+                                Get.to(ChatDiscovery(
+                                    docIdFastLink: docIdFastLinks[index]));
+                              }
+                            } else {
+                              Get.to(const Authen());
                             }
                           },
                         ),
@@ -380,7 +388,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ShowText(
-                              label: fastLinkModels[index].nameGroup,
+                              label: MyProcess().cutWord(
+                                  string: fastLinkModels[index].nameGroup,
+                                  word: 20),
                               textStyle: MyStyle().h2Style(color: Colors.black),
                             ),
                             ShowText(
@@ -392,8 +402,39 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                               textStyle: MyStyle().h3Style(),
                             ),
                             ShowButton(
-                              label: 'เข้าร่วม',
-                              pressFunc: () {},
+                              label: statusLoginBool ?? false
+                                  ? user!.uid == fastLinkModels[index].uidPost
+                                      ? 'ผู้สร้าง'
+                                      : 'เข้าร่วม'
+                                  : 'เข้าร่วม',
+                              pressFunc: () async {
+                                if (statusLoginBool ?? false) {
+                                  //finish Login
+                                  print('Click เข้าร่วม index ==> $index');
+                                  print(
+                                      'docIdFastLink ==> ${docIdFastLinks[index]}');
+
+                                  if (index == 0) {
+                                    // Click ห้องหลัก
+                                  } else {
+                                    String uidClick = user!.uid;
+
+                                    MemberModel memberModel =
+                                        MemberModel(uidMember: uidClick);
+                                    await FirebaseFirestore.instance
+                                        .collection('fastlink')
+                                        .doc(docIdFastLinks[index])
+                                        .collection('member')
+                                        .doc()
+                                        .set(memberModel.toMap())
+                                        .then((value) {
+                                      print('Insert Member Success');
+                                    });
+                                  }
+                                } else {
+                                  Get.to(const Authen());
+                                }
+                              },
                               bgColor: Colors.blue.shade200,
                               width: boxConstraints.maxWidth * 0.8,
                             ),
@@ -454,6 +495,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     MaterialPageRoute(
                       builder: (context) => const ReadQRcode(),
                     ));
+              },
+            ),
+            ShowIconButton(
+              iconData: Icons.message,
+              pressFunc: () {
+                Get.to(const TotlalPartner());
               },
             ),
             InkWell(
@@ -553,7 +600,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             processFindShortCode();
                           } else {
                             String urlLauncher = fastLinkModels[index].linkUrl;
-                            print('urlLauncher ==> $urlLauncher');
+                            // print('urlLauncher ==> $urlLauncher');
                             await MyProcess()
                                 .processLaunchUrl(url: urlLauncher);
                           }
@@ -734,7 +781,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 : InkWell(
                     onTap: () async {
                       String linkProduct = fastLinkModels[index].linkContact;
-                      print('linkProduct ===> $linkProduct');
+                      // print('linkProduct ===> $linkProduct');
                       if (linkProduct.isNotEmpty) {
                         await MyProcess().processLaunchUrl(url: linkProduct);
                       }
@@ -802,7 +849,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                           .doc()
                           .set(commentModel.toMap())
                           .then((value) async {
-                        print('Add Comment success');
+                        // print('Add Comment success');
 
                         textEditingController.text = '';
                         commentTexts[index] = '';
@@ -931,8 +978,8 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       color: const Color.fromARGB(255, 197, 20, 7),
       iconData: Icons.favorite,
       pressFunc: () async {
-        print('##31july docIdFastLink ==> ${docIdFastLinks[index]}');
-        print('##31july uid login ==>> ${user!.uid}');
+        // print('##31july docIdFastLink ==> ${docIdFastLinks[index]}');
+        // print('##31july uid login ==>> ${user!.uid}');
 
         await FirebaseFirestore.instance
             .collection('fastlink')
@@ -941,7 +988,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             .where('uidfavorite', isEqualTo: user!.uid)
             .get()
             .then((value) async {
-          print('##31july value favorite ---> ${value.docs}');
+          // print('##31july value favorite ---> ${value.docs}');
 
           if (value.docs.isEmpty) {
             // allow favorite
@@ -956,14 +1003,14 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 .doc()
                 .set(map)
                 .then((value) {
-              print('##31july Success add Favorite');
+              // print('##31july Success add Favorite');
             });
           } else {
             // unallow favoite
 
             for (var element in value.docs) {
               String docFavorite = element.id;
-              print('##31july docFavorite ===>> $docFavorite');
+              // print('##31july docFavorite ===>> $docFavorite');
 
               await FirebaseFirestore.instance
                   .collection('fastlink')
@@ -972,7 +1019,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   .doc(docFavorite)
                   .delete()
                   .then((value) {
-                print('##31july Delete Favorite');
+                // print('##31july Delete Favorite');
               });
             }
           }
@@ -1333,7 +1380,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
   Future<void> processSaveQRcodeOnStorage(
       {String? qrGen, String? urlImage}) async {
-    print('##26july qrGen ที่ต้องการสร้าง ---> $qrGen');
+    // print('##26july qrGen ที่ต้องการสร้าง ---> $qrGen');
 
     if (qrGen != null) {
       String nameFile = qrGen.substring(1);

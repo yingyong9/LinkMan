@@ -224,8 +224,8 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                     path: sosPostModels[index]
                                                             .urlImagePost ??
                                                         MyConstant.urlLogo,
-                                                    width: 200,
-                                                    hight: 200,
+                                                    width: boxConstraints.maxWidth*0.9,
+                                                    hight: boxConstraints.maxWidth*0.9,
                                                   ),
                                                 )
                                               : ShowLinkContent(string: sosPostModels[index]
@@ -236,7 +236,7 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                     timestamp:
                                                         sosPostModels[index]
                                                             .timePost),
-                                            textStyle: MyStyle().h3RedStyle(),
+                                            textStyle: MyStyle().h3GreyStyle(color: Colors.grey.shade700),
                                           )
                                         ],
                                       ),

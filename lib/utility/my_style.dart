@@ -63,9 +63,9 @@ class MyStyle {
         fontFamily: 'Sarabun',
       );
 
-  TextStyle h3GreyStyle() =>  TextStyle(
+  TextStyle h3GreyStyle({Color? color}) =>  TextStyle(
         fontSize: 14,
-        color: Colors.grey.shade300,
+        color: color ?? Colors.grey.shade700,
         fontWeight: FontWeight.bold,
         fontFamily: 'Sarabun',
       );

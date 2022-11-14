@@ -227,12 +227,12 @@ class _AddFastLinkState extends State<AddFastLink> {
                               appController.nameGroup.value = p0.trim();
                             },
                           ),
-                          ShowFormLong(
-                            label: 'Noti ที่คุณอยากบอก',
-                            changeFunc: (p0) {
-                              notiText = p0.trim();
-                            },
-                          ),
+                          // ShowFormLong(
+                          //   label: 'Noti ที่คุณอยากบอก',
+                          //   changeFunc: (p0) {
+                          //     notiText = p0.trim();
+                          //   },
+                          // ),
 
                           Row(
                             children: [
@@ -490,10 +490,10 @@ class _AddFastLinkState extends State<AddFastLink> {
 
     String nameImage = '${user!.uid}${Random().nextInt(1000000)}.jpg';
 
-    print('nameImage ==> $nameImage');
+    // print('nameImage ==> $nameImage');
 
     FirebaseStorage storage = FirebaseStorage.instance;
-    Reference reference = storage.ref().child('photofast/$nameImage');
+    Reference reference = storage.ref().child('photogroup/$nameImage');
     UploadTask uploadTask = reference.putFile(file!);
     await uploadTask.whenComplete(() async {
       await reference.getDownloadURL().then((value) async {
@@ -539,8 +539,8 @@ class _AddFastLinkState extends State<AddFastLink> {
             .set(fastLinkModel.toMap())
             .then((value) async {
           //process Sent Noti
-          await MyFirebase().sentNoti(
-              titleNoti: '${userModelLogined!.name} %233', bodyNoti: notiText);
+          // await MyFirebase().sentNoti(
+          //     titleNoti: '${userModelLogined!.name} %233', bodyNoti: notiText);
 
           Navigator.pop(context);
           Navigator.pushAndRemoveUntil(
