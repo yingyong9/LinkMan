@@ -11,6 +11,7 @@ import 'package:admanyout/models/member_model.dart';
 import 'package:admanyout/states/main_menu.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/states2/chat_discovery.dart';
+import 'package:admanyout/states2/total_partner.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_elevate_icon_button.dart';
@@ -494,6 +495,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                     MaterialPageRoute(
                       builder: (context) => const ReadQRcode(),
                     ));
+              },
+            ),
+            ShowIconButton(
+              iconData: Icons.message,
+              pressFunc: () {
+                Get.to(const TotlalPartner());
               },
             ),
             InkWell(

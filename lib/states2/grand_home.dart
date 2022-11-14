@@ -2,6 +2,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:admanyout/body/sos_body.dart';
+import 'package:admanyout/states2/chat_room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -178,7 +179,20 @@ class _GrandHomeState extends State<GrandHome> {
             message: body!,
             label: 'OK',
             pressFunc: () {
-             Get.offAll(const GrandHome());
+              Get.offAll(const GrandHome());
+            },
+          );
+          break;
+
+        case '4':
+          MyDialog(context: context).normalActionDilalog(
+            title: title,
+            message: body!,
+            label: 'OK',
+            pressFunc: () {
+              Navigator.pop(context);
+              var strings = body.split('#');
+              Get.to(ChatRoom(docIdMessaging: strings[1]));
             },
           );
           break;
@@ -231,6 +245,33 @@ class _GrandHomeState extends State<GrandHome> {
             },
           );
 
+          break;
+        case '3':
+          MyDialog(context: context).normalActionDilalog(
+            title: title,
+            message: body!,
+            label: 'OK',
+            pressFunc: () {
+              Get.offAll(const GrandHome());
+            },
+          );
+          break;
+
+        case '4':
+          var strings = body!.split('#');
+          Get.to(ChatRoom(docIdMessaging: strings[1]));
+
+          // MyDialog(context: context).normalActionDilalog(
+          //   title: title,
+          //   message: body!,
+          //   label: 'OK',
+          //   pressFunc: () {
+          //     Navigator.pop(context);
+          //     var strings = body.split('#');
+          //     Get.to(ChatRoom(docIdMessaging: strings[1]));
+
+          //   },
+          // );
           break;
         default:
       }
