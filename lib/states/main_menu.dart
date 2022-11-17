@@ -21,12 +21,12 @@ class MainMenu extends StatelessWidget {
         children: [
           ListView(
             children: [
-              WidgetListtile(
-                contentColor: MyStyle.bgColor,
-                leadIcon: Icons.check_circle,
-                title: 'Version 1.0.40',
-                pressFunc: () {},
-              ),
+              // WidgetListtile(
+              //   contentColor: MyStyle.bgColor,
+              //   leadIcon: Icons.check_circle,
+              //   title: 'Version 1.0.40',
+              //   pressFunc: () {},
+              // ),
               Divider(
                 color: MyStyle.bgColor,
               ),
@@ -46,40 +46,40 @@ class MainMenu extends StatelessWidget {
               Divider(
                 color: MyStyle.bgColor,
               ),
-              WidgetListtile(
-                contentColor: MyStyle.bgColor,
-                leadIcon: Icons.group,
-                title: 'Contact Link',
-                pressFunc: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BaseManageMyLink(),
-                      )).then((value) {
-                    print('pop from BaseMenageLink');
-                  });
-                },
-                telingIcon: Icons.forward,
-              ),
-              Divider(
-                color: MyStyle.bgColor,
-              ),
-              WidgetListtile(
-                contentColor: MyStyle.bgColor,
-                leadIcon: Icons.precision_manufacturing,
-                title: 'Product',
-                pressFunc: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddProduct(),
-                      ));
-                },
-                telingIcon: Icons.forward,
-              ),
-              Divider(
-                color: MyStyle.bgColor,
-              ),
+              // WidgetListtile(
+              //   contentColor: MyStyle.bgColor,
+              //   leadIcon: Icons.group,
+              //   title: 'Contact Link',
+              //   pressFunc: () {
+              //     Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //           builder: (context) => const BaseManageMyLink(),
+              //         )).then((value) {
+              //       print('pop from BaseMenageLink');
+              //     });
+              //   },
+              //   telingIcon: Icons.forward,
+              // ),
+              // Divider(
+              //   color: MyStyle.bgColor,
+              // ),
+              // WidgetListtile(
+              //   contentColor: MyStyle.bgColor,
+              //   leadIcon: Icons.precision_manufacturing,
+              //   title: 'Product',
+              //   pressFunc: () {
+              //     Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //           builder: (context) => const AddProduct(),
+              //         ));
+              //   },
+              //   telingIcon: Icons.forward,
+              // ),
+              // Divider(
+              //   color: MyStyle.bgColor,
+              // ),
             ],
           ),
           Column(

@@ -3,6 +3,7 @@
 import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/utility/my_constant.dart';
 import 'package:admanyout/utility/my_dialog.dart';
+import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_form.dart';
 import 'package:admanyout/widgets/show_text.dart';
@@ -25,7 +26,7 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.black,foregroundColor: MyStyle.bgColor,
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -84,11 +85,11 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                   changeFunc: (String string) => rePassword = string.trim(),
                 ),
               ],
-            ),
+            ),const SizedBox(height: 16,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ShowButton(
+                ShowButton(bgColor: const Color.fromARGB(255, 157, 222, 159),
                   label: 'Create Account',
                   pressFunc: () {
                     if ((name?.isEmpty ?? true) ||

@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print
+// ignore_for_file: public_member_api_docs, sort_constructors_first, avoid_print, unnecessary_null_comparison
 import 'dart:io';
 import 'dart:math';
 
@@ -19,6 +19,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ChatRoom extends StatefulWidget {
@@ -56,7 +58,7 @@ class _ChatRoomState extends State<ChatRoom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyStyle.bgColor,
+      backgroundColor: MyStyle.dark,
       appBar: newAppBar(),
       body: LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
         return GestureDetector(
@@ -93,11 +95,13 @@ class _ChatRoomState extends State<ChatRoom> {
                                   ),
                                   Column(
                                     children: [
-                                      Container(padding: const EdgeInsets.all(16),
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
                                         decoration: MyStyle().bgCircleGrey(),
                                         child: ShowText(
                                           label: sosPostModels[index].post,
-                                          textStyle: MyStyle().h3Style(),
+                                          textStyle: MyStyle().h3Style(
+                                              colorText: MyStyle.bgColor),
                                         ),
                                       ),
                                       sosPostModels[index].urlImagePost!.isEmpty
@@ -107,6 +111,20 @@ class _ChatRoomState extends State<ChatRoom> {
                                               child: Image.network(
                                                   sosPostModels[index]
                                                       .urlImagePost!)),
+                                      sosPostModels[index].geoPoint ==
+                                              const GeoPoint(0, 0)
+                                          ? const SizedBox()
+                                          : Container(padding: const EdgeInsets.all(8),
+                                              decoration:
+                                                  MyStyle().bgCircleGrey(),
+                                              width: 250,
+                                              height: 250,
+                                              child: ShowText(
+                                                label: 'Have Geopoint',
+                                                textStyle: MyStyle().h2Style(
+                                                    color: MyStyle.bgColor),
+                                              ),
+                                            ),
                                       ShowText(
                                         label: MyProcess().timeStampToString(
                                             timestamp:
@@ -135,43 +153,29 @@ class _ChatRoomState extends State<ChatRoom> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             ShowIconButton(
-              iconData: Icons.camera,
-              pressFunc: () async {
-                var result = await MyProcess()
-                    .processTakePhoto(source: ImageSource.camera);
-                if (result != null) {
-                  file = File(result.path);
-                  processUpload();
-                }
+              iconData: Icons.add_box_outlined,
+              pressFunc: () {
+                processShowBottonMenu();
               },
-              color: MyStyle.red,
-            ),
-            ShowIconButton(
-              iconData: Icons.image,
-              pressFunc: () async {
-                var result = await MyProcess()
-                    .processTakePhoto(source: ImageSource.gallery);
-                if (result != null) {
-                  file = File(result.path);
-                  processUpload();
-                }
-              },
-              color: MyStyle.red,
             ),
             SizedBox(
               width: boxConstraints.maxWidth * 0.5,
               child: ShowFormLong(
+                marginTop: 2,
                 textEditingController: formController,
-                label: 'Message',
+                fixColor: Colors.grey.shade500,
+                // label: 'Message',
                 changeFunc: (p0) {
                   message = p0.trim();
                 },
               ),
             ),
             ShowButton(
+              bgColor: const Color.fromARGB(255, 133, 237, 137),
               label: 'ส่ง',
               pressFunc: () async {
                 if (message?.isNotEmpty ?? false) {
@@ -212,6 +216,8 @@ class _ChatRoomState extends State<ChatRoom> {
 
   AppBar newAppBar() {
     return AppBar(
+      backgroundColor: MyStyle.dark,
+      foregroundColor: MyStyle.bgColor,
       title: ShowText(
         label: userModelPartner?.name ?? '',
         textStyle: MyStyle().h2Style(),
@@ -295,5 +301,73 @@ class _ChatRoomState extends State<ChatRoom> {
         });
       });
     });
+  }
+
+  void processShowBottonMenu() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) => SizedBox(
+              // height: 200,
+              child: Row(
+                children: [
+                  ShowIconButton(
+                    color: Colors.red,
+                    iconData: Icons.location_on_outlined,
+                    pressFunc: () async {
+                      Position? position = await MyProcess()
+                          .processFindPosition(context: context);
+                      if (position != null) {
+                        double lat = position.latitude;
+                        double lng = position.longitude;
+                        print('lat = $lat, lng = $lng');
+
+                        SosPostModel model = SosPostModel(
+                          post: '',
+                          uidPost: user!.uid,
+                          timePost: Timestamp.now(),
+                          geoPoint: GeoPoint(lat, lng),
+                        );
+
+                        await FirebaseFirestore.instance
+                            .collection('messaging')
+                            .doc(docIdMessaging)
+                            .collection('detail')
+                            .doc()
+                            .set(model.toMap())
+                            .then((value) => print('Insert GeoPoint success'));
+                      }
+
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ShowIconButton(
+                    iconData: Icons.camera,
+                    pressFunc: () async {
+                      var result = await MyProcess()
+                          .processTakePhoto(source: ImageSource.camera);
+                      if (result != null) {
+                        file = File(result.path);
+                        processUpload();
+                        Navigator.pop(context);
+                      }
+                    },
+                    color: MyStyle.red,
+                  ),
+                  ShowIconButton(
+                    iconData: Icons.image,
+                    pressFunc: () async {
+                      var result = await MyProcess()
+                          .processTakePhoto(source: ImageSource.gallery);
+                      if (result != null) {
+                        file = File(result.path);
+                        processUpload();
+                        Navigator.pop(context);
+                      }
+                    },
+                    color: MyStyle.red,
+                  ),
+                ],
+              ),
+            ));
   }
 }

@@ -89,7 +89,7 @@ class _AuthenState extends State<Authen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ShowTextButton(label: 'Forgot Password', pressFunc: () {}),
+                      // ShowTextButton(label: 'Forgot Password', pressFunc: () {}),
                       ShowButton(
                         label: 'Login',
                         pressFunc: () {

@@ -24,8 +24,9 @@ class ShowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(width: width,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      width: width,
+      // margin: const EdgeInsets.symmetric(vertical: 8),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor:

@@ -1,3 +1,4 @@
+
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 
@@ -7,7 +8,7 @@ import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_text.dart';
 
 class ShowFormLong extends StatelessWidget {
-  final String label;
+  final String? label;
   final Function(String) changeFunc;
   final TextEditingController? textEditingController;
   final double? marginTop;
@@ -15,10 +16,11 @@ class ShowFormLong extends StatelessWidget {
   final Function()? pressFunc;
   final Color? color;
   final Color? fixColor;
+ 
 
   const ShowFormLong({
     Key? key,
-    required this.label,
+     this.label,
     required this.changeFunc,
     this.textEditingController,
     this.marginTop,
@@ -47,16 +49,16 @@ class ShowFormLong extends StatelessWidget {
                   pressFunc: pressFunc!,
                   color: MyStyle.dark,
                 ),
-          label: ShowText(
-            label: label,
+          label: label == null ? null :  ShowText(
+            label: label!,
             textStyle: color == null
                 ? MyConstant().h3BlackStyle()
                 : MyStyle().h3WhiteStyle(),
           ),
-          // enabledBorder: OutlineInputBorder(
-          //     borderSide: BorderSide(color: color ?? MyStyle.dark)),
-          // focusedBorder: OutlineInputBorder(
-          //     borderSide: BorderSide(color: color ?? MyStyle.dark)),
+          enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: color ?? MyStyle.dark)),
+          focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: color ?? MyStyle.dark)),
         ),
         controller: textEditingController,
         onChanged: changeFunc,

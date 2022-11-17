@@ -1,18 +1,20 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:admanyout/utility/my_process.dart';
-import 'package:admanyout/widgets/show_text_button.dart';
 import 'package:flutter/material.dart';
 
+import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_text.dart';
+import 'package:admanyout/widgets/show_text_button.dart';
 
 class ShowLinkContent extends StatelessWidget {
   const ShowLinkContent({
     Key? key,
     required this.string,
+    this.colorText,
   }) : super(key: key);
 
   final String string;
+  final Color? colorText;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class ShowLinkContent extends StatelessWidget {
           ? isLink(string: string)
           : ShowText(
               label: string,
-              textStyle: MyStyle().h3Style(),
+              textStyle: MyStyle().h3Style(colorText: colorText),
             ),
     );
   }
@@ -70,11 +72,10 @@ class ShowLinkContent extends StatelessWidget {
             },
             textStyle: MyStyle().h3Style(colorText: Colors.blue.shade600),
           ),
-           ShowText(
+          ShowText(
             label: endText,
             textStyle: MyStyle().h3Style(),
           ),
-
         ],
       ),
     );

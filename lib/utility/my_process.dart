@@ -17,6 +17,7 @@ import 'package:random_password_generator/random_password_generator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyProcess {
+  
   Future<PlaceModel> findPlaceData(
       {required double lat, required double lng}) async {
     String path =
