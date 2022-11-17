@@ -559,7 +559,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MainMenu(),
+                        builder: (context) => const MainMenu(),
                       ));
                 } else {
                   alertLogin(context);

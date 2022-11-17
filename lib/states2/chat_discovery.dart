@@ -92,8 +92,11 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(),
+      backgroundColor: MyStyle.dark,
+      appBar: AppBar(
+        backgroundColor: MyStyle.dark,
+        foregroundColor: MyStyle.bgColor,
+      ),
       body: LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -224,19 +227,25 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                     path: sosPostModels[index]
                                                             .urlImagePost ??
                                                         MyConstant.urlLogo,
-                                                    width: boxConstraints.maxWidth*0.9,
-                                                    hight: boxConstraints.maxWidth*0.9,
+                                                    width: boxConstraints
+                                                            .maxWidth *
+                                                        0.9,
+                                                    hight: boxConstraints
+                                                            .maxWidth *
+                                                        0.9,
                                                   ),
                                                 )
-                                              : ShowLinkContent(string: sosPostModels[index]
-                                                        .post),
+                                              : ShowLinkContent(
+                                                  string: sosPostModels[index]
+                                                      .post, colorText: MyStyle.bgColor,),
                                           ShowText(
                                             label: MyProcess()
                                                 .timeStampToString(
                                                     timestamp:
                                                         sosPostModels[index]
                                                             .timePost),
-                                            textStyle: MyStyle().h3GreyStyle(color: Colors.grey.shade700),
+                                            textStyle: MyStyle().h3GreyStyle(
+                                                color: Colors.grey.shade700),
                                           )
                                         ],
                                       ),
@@ -304,9 +313,6 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                   DateTime dateTime = DateTime.now();
                   print(
                       'post ==> $post, uid ==> ${user!.uid}, dateTime ==> $dateTime, docIdSos ==> $docIdFastLink');
-
-
-
 
                   SosPostModel sosPostModel = SosPostModel(
                       post: post!,

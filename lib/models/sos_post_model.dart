@@ -8,11 +8,13 @@ class SosPostModel {
   final String uidPost;
   final Timestamp timePost;
   final String? urlImagePost;
+  final GeoPoint? geoPoint;
   SosPostModel({
     required this.post,
     required this.uidPost,
     required this.timePost,
     this.urlImagePost,
+    this.geoPoint,
   });
 
   Map<String, dynamic> toMap() {
@@ -21,6 +23,7 @@ class SosPostModel {
       'uidPost': uidPost,
       'timePost': timePost,
       'urlImagePost': urlImagePost,
+      'geoPoint': geoPoint,
     };
   }
 
@@ -28,8 +31,9 @@ class SosPostModel {
     return SosPostModel(
       post: (map['post'] ?? '') as String,
       uidPost: (map['uidPost'] ?? '') as String,
-      timePost: (map['timePost']),
+      timePost:(map['timePost']),
       urlImagePost: map['urlImagePost'] ?? '',
+      geoPoint: map['geoPoint'] ?? const GeoPoint(0, 0),
     );
   }
 
