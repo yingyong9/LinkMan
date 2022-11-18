@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/states2/manage_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -103,16 +104,20 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
       appBar: AppBar(
         backgroundColor: MyStyle.dark,
         foregroundColor: MyStyle.bgColor,
-        title: homeBool?? false ? const SizedBox() :ShowText(
-          label: nameGroup ?? '',
-          textStyle: MyStyle().h2Style(color: MyStyle.bgColor),
-        ) ,
+        title: homeBool ?? false
+            ? const SizedBox()
+            : ShowText(
+                label: nameGroup ?? '',
+                textStyle: MyStyle().h2Style(color: MyStyle.bgColor),
+              ),
         actions: [
-         homeBool??false ? const SizedBox()  :   ShowButton(
-            bgColor: const Color.fromARGB(255, 174, 232, 176),
-            label: 'เข้าร่วม',
-            pressFunc: () {},
-          ) ,
+          homeBool ?? false
+              ? const SizedBox()
+              : ShowButton(
+                  bgColor: const Color.fromARGB(255, 174, 232, 176),
+                  label: 'เข้าร่วม',
+                  pressFunc: () {},
+                ),
         ],
       ),
       body: LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
@@ -360,34 +365,38 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
   }
 
   Future<void> processUploadImage({required File file}) async {
-    MyDialog(context: context).processDialog();
-
-    String nameFile = '${user!.uid}${Random().nextInt(1000000)}.jpg';
-    FirebaseStorage storage = FirebaseStorage.instance;
-    Reference reference = storage.ref().child('postdiscovery/$nameFile');
-    UploadTask task = reference.putFile(file);
-    await task.whenComplete(() async {
-      await reference.getDownloadURL().then((value) async {
-        String urlImagePost = value;
-        print('urlImagePost =====> $urlImagePost');
-
-        SosPostModel sosPostModel = SosPostModel(
-          post: '',
-          uidPost: user!.uid,
-          timePost: Timestamp.fromDate(DateTime.now()),
-          urlImagePost: urlImagePost,
-        );
-
-        await FirebaseFirestore.instance
-            .collection('fastlink')
-            .doc(docIdFastLink)
-            .collection('post')
-            .doc()
-            .set(sosPostModel.toMap())
-            .then((value) {
-          Navigator.pop(context);
-        });
-      });
+    Get.to(ManageImage(file: file))?.then((value) {
+      print('Back ManageImage ===>$value');
     });
+
+    // MyDialog(context: context).processDialog();
+
+    // String nameFile = '${user!.uid}${Random().nextInt(1000000)}.jpg';
+    // FirebaseStorage storage = FirebaseStorage.instance;
+    // Reference reference = storage.ref().child('postdiscovery/$nameFile');
+    // UploadTask task = reference.putFile(file);
+    // await task.whenComplete(() async {
+    //   await reference.getDownloadURL().then((value) async {
+    //     String urlImagePost = value;
+    //     print('urlImagePost =====> $urlImagePost');
+
+    //     SosPostModel sosPostModel = SosPostModel(
+    //       post: '',
+    //       uidPost: user!.uid,
+    //       timePost: Timestamp.fromDate(DateTime.now()),
+    //       urlImagePost: urlImagePost,
+    //     );
+
+    //     await FirebaseFirestore.instance
+    //         .collection('fastlink')
+    //         .doc(docIdFastLink)
+    //         .collection('post')
+    //         .doc()
+    //         .set(sosPostModel.toMap())
+    //         .then((value) {
+    //       Navigator.pop(context);
+    //     });
+    //   });
+    // });
   }
 }
