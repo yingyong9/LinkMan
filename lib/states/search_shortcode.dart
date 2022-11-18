@@ -7,7 +7,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:admanyout/models/comment_model.dart';
-import 'package:admanyout/models/member_model.dart';
 import 'package:admanyout/states/main_menu.dart';
 import 'package:admanyout/states/read_qr_code.dart';
 import 'package:admanyout/states2/chat_discovery.dart';
@@ -63,7 +62,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
   var docIdUsers = <String>[];
   var documentLists = <DocumentSnapshot>[];
   var showButtonLinks = <bool>[];
-  int lastIndex = 9;
+  int lastIndex = 29;
   final globalQRkey = GlobalKey();
   ScrollController scrollController = ScrollController();
   var user = FirebaseAuth.instance.currentUser;
@@ -96,13 +95,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     }
   }
 
-  Future<void> processAutoMove() async {
-    Duration duration = const Duration(seconds: 3);
-    Timer(duration, () {
-      readMoreFastLinkData();
-      processAutoMove();
-    });
-  }
+ 
 
   void setupScorllController() {
     scrollController.addListener(() {
@@ -135,7 +128,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
       userModels.clear();
       documentLists.clear();
       showButtonLinks.clear();
-      lastIndex = 9;
+      lastIndex = 29;
       docIdFastLinks.clear();
       listCommentModels.clear();
       commentTexts.clear();
@@ -151,7 +144,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
     await FirebaseFirestore.instance
         .collection('fastlink')
         .orderBy('timestamp', descending: true)
-        .limit(10)
+        .limit(30)
         .get()
         .then((value) async {
       // ส่วนของ ห้องหลัก
@@ -161,7 +154,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
 
       for (var element in value.docs) {
         FastLinkModel fastLinkModel = FastLinkModel.fromMap(element.data());
-        fastLinkModels.add(fastLinkModel);
+
+        if (element.id != MyConstant.docIdFastLinkHome) {
+          fastLinkModels.add(fastLinkModel);
         docIdFastLinks.add(element.id);
         commentTexts.add(null);
         showFormComments.add(false);
@@ -218,6 +213,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           }
           // print('listCommentamodels ===> $listCommentModels');
         });
+        }
+
+
       }
 
       // print('##9nov fastLinkModels[0] ==> ${fastLinkModels[0].toMap()}');
@@ -241,7 +239,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
           .collection('fastlink')
           .orderBy('timestamp', descending: true)
           .startAfterDocument(documentLists[lastIndex])
-          .limit(10)
+          .limit(30)
           .get()
           .then((value) async {
         for (var element in value.docs) {
@@ -305,7 +303,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
             // print('listCommentamodels at More Fast ===> $listCommentModels');
           });
         }
-        lastIndex = lastIndex + 10;
+        lastIndex = lastIndex + 30;
         // print('##20july นี่คือ lastIndex ที่โหลดมาใหม่ ===>>> $lastIndex');
 
         if (processLoad) {
@@ -359,12 +357,12 @@ class _SearchShortCodeState extends State<SearchShortCode> {
               itemBuilder: (context, index) => LayoutBuilder(
                   builder: (context, BoxConstraints boxConstraints) {
                 return Container(
-                  decoration: MyConstant().curveBorderBox(),
+                  decoration: BoxDecoration(border: Border.all(width: 2, color: MyStyle.bgColor)),
                   child: Column(
                     children: [
                       SizedBox(
                         width: boxConstraints.maxWidth,
-                        height: boxConstraints.maxHeight * 0.5,
+                        height: boxConstraints.maxHeight * 0.5-2,
                         child: WidgetImageInternet(
                           path: fastLinkModels[index].urlImage,
                           boxFit: BoxFit.cover,
@@ -372,7 +370,9 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                             if (statusLoginBool ?? false) {
                               if (docIdFastLinks[index].isNotEmpty) {
                                 Get.to(ChatDiscovery(
-                                    docIdFastLink: docIdFastLinks[index]));
+                                  docIdFastLink: docIdFastLinks[index],
+                                  nameGroup: fastLinkModels[index].nameGroup,
+                                ));
                               }
                             } else {
                               Get.to(const Authen());
@@ -381,7 +381,7 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                         ),
                       ),
                       Container(
-                        decoration: const BoxDecoration(color: Colors.white),
+                        decoration:  BoxDecoration(color: MyStyle.dark),
                         width: boxConstraints.maxWidth,
                         height: boxConstraints.maxHeight * 0.5 - 2,
                         child: Column(
@@ -391,53 +391,53 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                               label: MyProcess().cutWord(
                                   string: fastLinkModels[index].nameGroup,
                                   word: 20),
-                              textStyle: MyStyle().h2Style(color: Colors.black),
+                              textStyle: MyStyle().h2Style(color: MyStyle.bgColor),
                             ),
                             ShowText(
                               label: 'กลุ่มสาธารณะ',
-                              textStyle: MyStyle().h3Style(),
+                              textStyle: MyStyle().h3Style(colorText: MyStyle.bgColor),
                             ),
                             ShowText(
                               label: 'จำนวนสมาชิก = 100 คน',
-                              textStyle: MyStyle().h3Style(),
+                              textStyle: MyStyle().h3Style(colorText: MyStyle.bgColor),
                             ),
-                            ShowButton(
-                              label: statusLoginBool ?? false
-                                  ? user!.uid == fastLinkModels[index].uidPost
-                                      ? 'ผู้สร้าง'
-                                      : 'เข้าร่วม'
-                                  : 'เข้าร่วม',
-                              pressFunc: () async {
-                                if (statusLoginBool ?? false) {
-                                  //finish Login
-                                  print('Click เข้าร่วม index ==> $index');
-                                  print(
-                                      'docIdFastLink ==> ${docIdFastLinks[index]}');
+                            // ShowButton(
+                            //   label: statusLoginBool ?? false
+                            //       ? user!.uid == fastLinkModels[index].uidPost
+                            //           ? 'ผู้สร้าง'
+                            //           : 'เข้าร่วม'
+                            //       : 'เข้าร่วม',
+                            //   pressFunc: () async {
+                            //     if (statusLoginBool ?? false) {
+                            //       //finish Login
+                            //       // print('Click เข้าร่วม index ==> $index');
+                            //       // print(
+                            //       //     'docIdFastLink ==> ${docIdFastLinks[index]}');
 
-                                  if (index == 0) {
-                                    // Click ห้องหลัก
-                                  } else {
-                                    String uidClick = user!.uid;
+                            //       if (index == 0) {
+                            //         // Click ห้องหลัก
+                            //       } else {
+                            //         String uidClick = user!.uid;
 
-                                    MemberModel memberModel =
-                                        MemberModel(uidMember: uidClick);
-                                    await FirebaseFirestore.instance
-                                        .collection('fastlink')
-                                        .doc(docIdFastLinks[index])
-                                        .collection('member')
-                                        .doc()
-                                        .set(memberModel.toMap())
-                                        .then((value) {
-                                      print('Insert Member Success');
-                                    });
-                                  }
-                                } else {
-                                  Get.to(const Authen());
-                                }
-                              },
-                              bgColor: Colors.blue.shade200,
-                              width: boxConstraints.maxWidth * 0.8,
-                            ),
+                            //         MemberModel memberModel =
+                            //             MemberModel(uidMember: uidClick);
+                            //         await FirebaseFirestore.instance
+                            //             .collection('fastlink')
+                            //             .doc(docIdFastLinks[index])
+                            //             .collection('member')
+                            //             .doc()
+                            //             .set(memberModel.toMap())
+                            //             .then((value) {
+                            //           print('Insert Member Success');
+                            //         });
+                            //       }
+                            //     } else {
+                            //       Get.to(const Authen());
+                            //     }
+                            //   },
+                            //   bgColor: Colors.blue.shade200,
+                            //   width: boxConstraints.maxWidth * 0.8,
+                            // ),
                           ],
                         ),
                       ),
@@ -866,7 +866,10 @@ class _SearchShortCodeState extends State<SearchShortCode> {
                 ShowButton(
                   label: 'GroupLink',
                   pressFunc: () {
-                    Get.to(ChatDiscovery(docIdFastLink: docIdFastLinks[index]));
+                    Get.to(ChatDiscovery(
+                      docIdFastLink: docIdFastLinks[index],
+                      nameGroup: fastLinkModels[index].nameGroup,
+                    ));
                   },
                 )
               ],

@@ -2,7 +2,9 @@
 // ignore_for_file: avoid_print
 
 import 'package:admanyout/body/sos_body.dart';
+import 'package:admanyout/states2/chat_discovery.dart';
 import 'package:admanyout/states2/chat_room.dart';
+import 'package:admanyout/utility/my_constant.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,7 +19,7 @@ import 'package:admanyout/models/user_model.dart';
 import 'package:admanyout/states/add_fast_link.dart';
 import 'package:admanyout/states/noti_fast_photo.dart';
 import 'package:admanyout/states/search_shortcode.dart';
-import 'package:admanyout/states2/live_video.dart';
+import 'package:admanyout/states2/home_page.dart';
 import 'package:admanyout/utility/my_dialog.dart';
 import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_style.dart';
@@ -41,7 +43,7 @@ class _GrandHomeState extends State<GrandHome> {
   var titles = <String>[
     'SOS',
     'Discovery',
-    'Live',
+    'Home',
   ];
 
   var user = FirebaseAuth.instance.currentUser;
@@ -285,7 +287,12 @@ class _GrandHomeState extends State<GrandHome> {
   void setupTabNavigator() {
     bodys.add(const SosBody());
     bodys.add(const SearchShortCode());
-    bodys.add(const LiveVideo());
+    // bodys.add(const HomePage());
+    bodys.add( ChatDiscovery(
+      docIdFastLink: MyConstant.docIdFastLinkHome,
+      nameGroup: 'Home',
+      homeBool: true,
+    ));
 
     for (var element in titles) {
       tabs.add(Padding(
@@ -303,7 +310,7 @@ class _GrandHomeState extends State<GrandHome> {
     return Scaffold(
       body: SafeArea(
         child: DefaultTabController(
-          initialIndex: indexInitial ?? 1,
+          initialIndex: indexInitial ?? 2,
           length: 3,
           child: Scaffold(
             appBar: AppBar(
@@ -316,7 +323,7 @@ class _GrandHomeState extends State<GrandHome> {
               // ),
               centerTitle: true,
               title: ShowText(
-                label: 'LinkMan.',
+                label: 'Real Post',
                 textStyle: MyStyle().h1Style(color: MyStyle.bgColor),
               ),
               bottom: TabBar(tabs: tabs),

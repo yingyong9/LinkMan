@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class MyConstant {
+  static String docIdFastLinkHome = 'KqNKu9ovxCt1GBsMWaY0';
+
   static String appName = 'LINKMAN';
   static String routeAuthen = '/authen';
   static String rountMainHome = '/mainHome';
@@ -30,7 +32,8 @@ class MyConstant {
         urlProduct: 'urlProduct',
         friendOnly: true,
         discovery: true,
-        nameGroup: 'ห้องหลัก', typeGroup: 'สาธารณะ');
+        nameGroup: 'กลุ่มของฉัน',
+        typeGroup: 'สาธารณะ');
   }
 
   BoxDecoration curveBorderBox({double? curve, Color? color}) => BoxDecoration(

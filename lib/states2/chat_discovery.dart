@@ -2,6 +2,13 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'package:admanyout/models/messaging_model.dart';
 import 'package:admanyout/models/sos_post_model.dart';
 import 'package:admanyout/models/user_model.dart';
@@ -13,26 +20,23 @@ import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
+import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
+import 'package:admanyout/widgets/show_form_long.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_link_content.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:admanyout/widgets/widget_image_internet.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-
-import 'package:admanyout/widgets/show_button.dart';
-import 'package:admanyout/widgets/show_form_long.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ChatDiscovery extends StatefulWidget {
   final String docIdFastLink;
+  final String nameGroup;
+  final bool? homeBool;
   const ChatDiscovery({
     Key? key,
     required this.docIdFastLink,
+    required this.nameGroup,
+    this.homeBool,
   }) : super(key: key);
 
   @override
@@ -40,18 +44,21 @@ class ChatDiscovery extends StatefulWidget {
 }
 
 class _ChatDiscoveryState extends State<ChatDiscovery> {
-  String? post, docIdFastLink;
+  String? post, docIdFastLink, nameGroup;
   var user = FirebaseAuth.instance.currentUser;
   bool load = true;
   bool? havePost;
   var sosPostModels = <SosPostModel>[];
   var userModels = <UserModel>[];
   TextEditingController textEditingController = TextEditingController();
+  bool? homeBool;
 
   @override
   void initState() {
     super.initState();
     docIdFastLink = widget.docIdFastLink;
+    nameGroup = widget.nameGroup;
+    homeBool = widget.homeBool ?? false;
     readPostData();
   }
 
@@ -96,6 +103,17 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
       appBar: AppBar(
         backgroundColor: MyStyle.dark,
         foregroundColor: MyStyle.bgColor,
+        title: homeBool?? false ? const SizedBox() :ShowText(
+          label: nameGroup ?? '',
+          textStyle: MyStyle().h2Style(color: MyStyle.bgColor),
+        ) ,
+        actions: [
+         homeBool??false ? const SizedBox()  :   ShowButton(
+            bgColor: const Color.fromARGB(255, 174, 232, 176),
+            label: 'เข้าร่วม',
+            pressFunc: () {},
+          ) ,
+        ],
       ),
       body: LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
         return GestureDetector(
@@ -236,8 +254,10 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                   ),
                                                 )
                                               : ShowLinkContent(
-                                                  string: sosPostModels[index]
-                                                      .post, colorText: MyStyle.bgColor,),
+                                                  string:
+                                                      sosPostModels[index].post,
+                                                  colorText: MyStyle.bgColor,
+                                                ),
                                           ShowText(
                                             label: MyProcess()
                                                 .timeStampToString(
