@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/show_form_long.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
+import 'package:admanyout/widgets/show_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -34,7 +35,8 @@ class _ManageImageState extends State<ManageImage> {
       // appBar: AppBar(),
       body: SafeArea(child:
           LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
-        return GestureDetector(behavior: HitTestBehavior.opaque,
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () => FocusScope.of(context).requestFocus(FocusScopeNode()),
           child: Stack(
             // fit: StackFit.expand,
@@ -72,6 +74,11 @@ class _ManageImageState extends State<ManageImage> {
                   ),
                 ),
               ),
+              Center(
+                  child: ShowText(
+                label: 'Test',
+                textStyle: MyStyle().h1Style(color: MyStyle.bgColor),
+              ))
             ],
           ),
         );
