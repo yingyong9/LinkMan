@@ -63,7 +63,7 @@ class ShowLinkContent extends StatelessWidget {
         children: [
           ShowText(
             label: text,
-            textStyle: MyStyle().h3Style(),
+            textStyle: MyStyle().h3Style(colorText: colorText),
           ),
           ShowTextButton(
             label: urlLink!,

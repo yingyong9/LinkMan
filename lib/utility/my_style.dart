@@ -24,8 +24,8 @@ class MyStyle {
         ),
       );
 
-  TextStyle h1Style({Color? color}) => TextStyle(
-        fontSize: 36,
+  TextStyle h1Style({Color? color, double? size}) => TextStyle(
+        fontSize: size ?? 36,
         color: color ?? dark,
         fontWeight: FontWeight.bold,
         fontFamily: 'Sarabun',

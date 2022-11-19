@@ -235,7 +235,7 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                       textStyle: MyStyle()
                                                           .h2Style(
                                                               color:
-                                                                  MyStyle.dark),
+                                                                  MyStyle.bgColor),
                                                     )
                                                   ],
                                                 ),
@@ -246,16 +246,49 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                                   index]
                                                               .urlImagePost ??
                                                           MyConstant.urlLogo)),
-                                                  child: WidgetImageInternet(
-                                                    path: sosPostModels[index]
-                                                            .urlImagePost ??
-                                                        MyConstant.urlLogo,
-                                                    width: boxConstraints
-                                                            .maxWidth *
-                                                        0.9,
-                                                    hight: boxConstraints
-                                                            .maxWidth *
-                                                        0.9,
+                                                  child: Stack(
+                                                    children: [
+                                                      WidgetImageInternet(
+                                                        path: sosPostModels[
+                                                                    index]
+                                                                .urlImagePost ??
+                                                            MyConstant.urlLogo,
+                                                        width: boxConstraints
+                                                                .maxWidth *
+                                                            0.9,
+                                                        hight: boxConstraints
+                                                                .maxWidth *
+                                                            0.9,
+                                                      ),
+                                                      Positioned(
+                                                        top: boxConstraints
+                                                                .maxWidth *
+                                                            0.45,
+                                                        child: sosPostModels[
+                                                                    index]
+                                                                .textImage!
+                                                                .isEmpty
+                                                            ? const SizedBox()
+                                                            : Container(width: boxConstraints.maxWidth,
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(8),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                        color: MyStyle
+                                                                            .dark.withOpacity(0.3)),
+                                                                child: ShowText(
+                                                                  label: sosPostModels[
+                                                                          index]
+                                                                      .textImage!,
+                                                                  textStyle: MyStyle()
+                                                                      .h2Style(
+                                                                          color:
+                                                                              MyStyle.bgColor),
+                                                                ),
+                                                              ),
+                                                      )
+                                                    ],
                                                   ),
                                                 )
                                               : ShowLinkContent(
@@ -365,38 +398,44 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
   }
 
   Future<void> processUploadImage({required File file}) async {
-    Get.to(ManageImage(file: file))?.then((value) {
-      print('Back ManageImage ===>$value');
+    Get.to(ManageImage(file: file))?.then((value) async {
+      String textImage = '';
+
+      if (value != null) {
+        print('Back ManageImage ===>$value');
+        textImage = value.toString();
+      }
+
+      MyDialog(context: context).processDialog();
+
+      String nameFile = '${user!.uid}${Random().nextInt(1000000)}.jpg';
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference reference = storage.ref().child('postdiscovery/$nameFile');
+      UploadTask task = reference.putFile(file);
+      await task.whenComplete(() async {
+        await reference.getDownloadURL().then((value) async {
+          String urlImagePost = value;
+          print('urlImagePost =====> $urlImagePost');
+
+          SosPostModel sosPostModel = SosPostModel(
+            post: '',
+            uidPost: user!.uid,
+            timePost: Timestamp.fromDate(DateTime.now()),
+            urlImagePost: urlImagePost,
+            textImage: textImage,
+          );
+
+          await FirebaseFirestore.instance
+              .collection('fastlink')
+              .doc(docIdFastLink)
+              .collection('post')
+              .doc()
+              .set(sosPostModel.toMap())
+              .then((value) {
+            Navigator.pop(context);
+          });
+        });
+      });
     });
-
-    // MyDialog(context: context).processDialog();
-
-    // String nameFile = '${user!.uid}${Random().nextInt(1000000)}.jpg';
-    // FirebaseStorage storage = FirebaseStorage.instance;
-    // Reference reference = storage.ref().child('postdiscovery/$nameFile');
-    // UploadTask task = reference.putFile(file);
-    // await task.whenComplete(() async {
-    //   await reference.getDownloadURL().then((value) async {
-    //     String urlImagePost = value;
-    //     print('urlImagePost =====> $urlImagePost');
-
-    //     SosPostModel sosPostModel = SosPostModel(
-    //       post: '',
-    //       uidPost: user!.uid,
-    //       timePost: Timestamp.fromDate(DateTime.now()),
-    //       urlImagePost: urlImagePost,
-    //     );
-
-    //     await FirebaseFirestore.instance
-    //         .collection('fastlink')
-    //         .doc(docIdFastLink)
-    //         .collection('post')
-    //         .doc()
-    //         .set(sosPostModel.toMap())
-    //         .then((value) {
-    //       Navigator.pop(context);
-    //     });
-    //   });
-    // });
   }
 }
