@@ -1,3 +1,4 @@
+import 'package:admanyout/utility/my_constant.dart';
 import 'package:flutter/material.dart';
 
 class MyStyle {
@@ -17,6 +18,14 @@ class MyStyle {
         borderRadius: BorderRadius.circular(30),
       );
 
+      BoxDecoration bgCircleImage({required String urlImage}) => BoxDecoration(
+        image: DecorationImage(image: NetworkImage(urlImage)),
+        borderRadius: BorderRadius.circular(30),
+      );
+
+
+
+
   BoxDecoration curveBorderBox({double? curve, Color? color}) => BoxDecoration(
         border: Border.all(color: color ?? dark),
         borderRadius: BorderRadius.circular(
@@ -24,8 +33,8 @@ class MyStyle {
         ),
       );
 
-  TextStyle h1Style({Color? color}) => TextStyle(
-        fontSize: 36,
+  TextStyle h1Style({Color? color, double? size}) => TextStyle(
+        fontSize: size ?? 36,
         color: color ?? dark,
         fontWeight: FontWeight.bold,
         fontFamily: 'Sarabun',

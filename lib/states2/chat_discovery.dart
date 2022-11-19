@@ -2,6 +2,14 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:admanyout/states2/manage_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'package:admanyout/models/messaging_model.dart';
 import 'package:admanyout/models/sos_post_model.dart';
 import 'package:admanyout/models/user_model.dart';
@@ -13,26 +21,23 @@ import 'package:admanyout/utility/my_firebase.dart';
 import 'package:admanyout/utility/my_process.dart';
 import 'package:admanyout/utility/my_style.dart';
 import 'package:admanyout/widgets/shop_progress.dart';
+import 'package:admanyout/widgets/show_button.dart';
 import 'package:admanyout/widgets/show_circle_image.dart';
+import 'package:admanyout/widgets/show_form_long.dart';
 import 'package:admanyout/widgets/show_icon_button.dart';
 import 'package:admanyout/widgets/show_link_content.dart';
 import 'package:admanyout/widgets/show_text.dart';
 import 'package:admanyout/widgets/widget_image_internet.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-
-import 'package:admanyout/widgets/show_button.dart';
-import 'package:admanyout/widgets/show_form_long.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ChatDiscovery extends StatefulWidget {
   final String docIdFastLink;
+  final String nameGroup;
+  final bool? homeBool;
   const ChatDiscovery({
     Key? key,
     required this.docIdFastLink,
+    required this.nameGroup,
+    this.homeBool,
   }) : super(key: key);
 
   @override
@@ -40,18 +45,21 @@ class ChatDiscovery extends StatefulWidget {
 }
 
 class _ChatDiscoveryState extends State<ChatDiscovery> {
-  String? post, docIdFastLink;
+  String? post, docIdFastLink, nameGroup;
   var user = FirebaseAuth.instance.currentUser;
   bool load = true;
   bool? havePost;
   var sosPostModels = <SosPostModel>[];
   var userModels = <UserModel>[];
   TextEditingController textEditingController = TextEditingController();
+  bool? homeBool;
 
   @override
   void initState() {
     super.initState();
     docIdFastLink = widget.docIdFastLink;
+    nameGroup = widget.nameGroup;
+    homeBool = widget.homeBool ?? false;
     readPostData();
   }
 
@@ -96,6 +104,21 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
       appBar: AppBar(
         backgroundColor: MyStyle.dark,
         foregroundColor: MyStyle.bgColor,
+        title: homeBool ?? false
+            ? const SizedBox()
+            : ShowText(
+                label: nameGroup ?? '',
+                textStyle: MyStyle().h2Style(color: MyStyle.bgColor),
+              ),
+        actions: [
+          homeBool ?? false
+              ? const SizedBox()
+              : ShowButton(
+                  bgColor: const Color.fromARGB(255, 174, 232, 176),
+                  label: 'เข้าร่วม',
+                  pressFunc: () {},
+                ),
+        ],
       ),
       body: LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
         return GestureDetector(
@@ -211,8 +234,8 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                           .name,
                                                       textStyle: MyStyle()
                                                           .h2Style(
-                                                              color:
-                                                                  MyStyle.dark),
+                                                              color: MyStyle
+                                                                  .bgColor),
                                                     )
                                                   ],
                                                 ),
@@ -223,21 +246,60 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                                   index]
                                                               .urlImagePost ??
                                                           MyConstant.urlLogo)),
-                                                  child: WidgetImageInternet(
-                                                    path: sosPostModels[index]
-                                                            .urlImagePost ??
-                                                        MyConstant.urlLogo,
-                                                    width: boxConstraints
-                                                            .maxWidth *
-                                                        0.9,
-                                                    hight: boxConstraints
-                                                            .maxWidth *
-                                                        0.9,
+                                                  child: Stack(
+                                                    children: [
+                                                      WidgetImageInternet(
+                                                        path: sosPostModels[
+                                                                    index]
+                                                                .urlImagePost ??
+                                                            MyConstant.urlLogo,
+                                                        width: boxConstraints
+                                                                .maxWidth *
+                                                            0.9,
+                                                        hight: boxConstraints
+                                                                .maxWidth *
+                                                            0.9,
+                                                      ),
+                                                      Positioned(
+                                                        top: boxConstraints
+                                                                .maxWidth *
+                                                            0.45,
+                                                        child: sosPostModels[
+                                                                    index]
+                                                                .textImage!
+                                                                .isEmpty
+                                                            ? const SizedBox()
+                                                            : Container(
+                                                                width:
+                                                                    boxConstraints
+                                                                        .maxWidth,
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(8),
+                                                                
+                                                                child:
+                                                                    ShowLinkContent(boxDecoration: BoxDecoration(
+                                                                    color: MyStyle
+                                                                        .dark
+                                                                        .withOpacity(
+                                                                            0.4)),
+                                                                  colorText:
+                                                                      MyStyle
+                                                                          .bgColor,
+                                                                  string: sosPostModels[
+                                                                          index]
+                                                                      .textImage!,
+                                                                ),
+                                                              ),
+                                                      )
+                                                    ],
                                                   ),
                                                 )
                                               : ShowLinkContent(
-                                                  string: sosPostModels[index]
-                                                      .post, colorText: MyStyle.bgColor,),
+                                                  string:
+                                                      sosPostModels[index].post,
+                                                  colorText: MyStyle.bgColor,
+                                                ),
                                           ShowText(
                                             label: MyProcess()
                                                 .timeStampToString(
@@ -340,32 +402,42 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
   }
 
   Future<void> processUploadImage({required File file}) async {
-    MyDialog(context: context).processDialog();
+    Get.to(ManageImage(file: file))?.then((value) async {
+      String textImage = '';
 
-    String nameFile = '${user!.uid}${Random().nextInt(1000000)}.jpg';
-    FirebaseStorage storage = FirebaseStorage.instance;
-    Reference reference = storage.ref().child('postdiscovery/$nameFile');
-    UploadTask task = reference.putFile(file);
-    await task.whenComplete(() async {
-      await reference.getDownloadURL().then((value) async {
-        String urlImagePost = value;
-        print('urlImagePost =====> $urlImagePost');
+      if (value != null) {
+        print('Back ManageImage ===>$value');
+        textImage = value.toString();
+      }
 
-        SosPostModel sosPostModel = SosPostModel(
-          post: '',
-          uidPost: user!.uid,
-          timePost: Timestamp.fromDate(DateTime.now()),
-          urlImagePost: urlImagePost,
-        );
+      MyDialog(context: context).processDialog();
 
-        await FirebaseFirestore.instance
-            .collection('fastlink')
-            .doc(docIdFastLink)
-            .collection('post')
-            .doc()
-            .set(sosPostModel.toMap())
-            .then((value) {
-          Navigator.pop(context);
+      String nameFile = '${user!.uid}${Random().nextInt(1000000)}.jpg';
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference reference = storage.ref().child('postdiscovery/$nameFile');
+      UploadTask task = reference.putFile(file);
+      await task.whenComplete(() async {
+        await reference.getDownloadURL().then((value) async {
+          String urlImagePost = value;
+          print('urlImagePost =====> $urlImagePost');
+
+          SosPostModel sosPostModel = SosPostModel(
+            post: '',
+            uidPost: user!.uid,
+            timePost: Timestamp.fromDate(DateTime.now()),
+            urlImagePost: urlImagePost,
+            textImage: textImage,
+          );
+
+          await FirebaseFirestore.instance
+              .collection('fastlink')
+              .doc(docIdFastLink)
+              .collection('post')
+              .doc()
+              .set(sosPostModel.toMap())
+              .then((value) {
+            Navigator.pop(context);
+          });
         });
       });
     });

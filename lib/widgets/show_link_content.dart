@@ -11,10 +11,12 @@ class ShowLinkContent extends StatelessWidget {
     Key? key,
     required this.string,
     this.colorText,
+    this.boxDecoration,
   }) : super(key: key);
 
   final String string;
   final Color? colorText;
+  final BoxDecoration? boxDecoration;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class ShowLinkContent extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: MyStyle().bgCircleGrey(),
+      decoration: boxDecoration ?? MyStyle().bgCircleGrey(),
       width: 200,
       child: result
           ? isLink(string: string)
@@ -63,7 +65,7 @@ class ShowLinkContent extends StatelessWidget {
         children: [
           ShowText(
             label: text,
-            textStyle: MyStyle().h3Style(),
+            textStyle: MyStyle().h3Style(colorText: colorText),
           ),
           ShowTextButton(
             label: urlLink!,
