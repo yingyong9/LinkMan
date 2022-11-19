@@ -234,8 +234,8 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                           .name,
                                                       textStyle: MyStyle()
                                                           .h2Style(
-                                                              color:
-                                                                  MyStyle.bgColor),
+                                                              color: MyStyle
+                                                                  .bgColor),
                                                     )
                                                   ],
                                                 ),
@@ -269,22 +269,26 @@ class _ChatDiscoveryState extends State<ChatDiscovery> {
                                                                 .textImage!
                                                                 .isEmpty
                                                             ? const SizedBox()
-                                                            : Container(width: boxConstraints.maxWidth,
+                                                            : Container(
+                                                                width:
+                                                                    boxConstraints
+                                                                        .maxWidth,
                                                                 padding:
                                                                     const EdgeInsets
                                                                         .all(8),
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                        color: MyStyle
-                                                                            .dark.withOpacity(0.3)),
-                                                                child: ShowText(
-                                                                  label: sosPostModels[
+                                                                
+                                                                child:
+                                                                    ShowLinkContent(boxDecoration: BoxDecoration(
+                                                                    color: MyStyle
+                                                                        .dark
+                                                                        .withOpacity(
+                                                                            0.4)),
+                                                                  colorText:
+                                                                      MyStyle
+                                                                          .bgColor,
+                                                                  string: sosPostModels[
                                                                           index]
                                                                       .textImage!,
-                                                                  textStyle: MyStyle()
-                                                                      .h2Style(
-                                                                          color:
-                                                                              MyStyle.bgColor),
                                                                 ),
                                                               ),
                                                       )
